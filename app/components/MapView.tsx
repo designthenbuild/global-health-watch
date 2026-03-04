@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const SAMPLE_DOTS = [
+const THREATS_DOTS = [
   {
     id: 1,
     name: 'Nipah Virus',
@@ -46,6 +46,35 @@ const SAMPLE_DOTS = [
   },
   {
     id: 4,
+    name: 'MERS-CoV',
+    severity: 'MONITORING',
+    location: 'Riyadh, Saudi Arabia',
+    keyStat: '2 new cases, 37% historical fatality rate',
+    ageContext: 'Adults over 60 with comorbidities',
+    whyHere: 'Camel exposure — endemic transmission route',
+    timeline: '5 days active · First detected Mar 1 · Updated today',
+    source: 'Saudi MOH',
+    color: '#FFD166',
+    coordinates: [46.7219, 24.6877] as [number, number],
+  },
+  {
+    id: 5,
+    name: 'Cholera',
+    severity: 'ELEVATED',
+    location: 'Sudan',
+    keyStat: '1,200 new cases this week',
+    ageContext: 'Children under 5 and elderly most at risk',
+    whyHere: 'Conflict-driven water system collapse',
+    timeline: '30 days active · Updated today',
+    source: 'ProMED',
+    color: '#FFB347',
+    coordinates: [30.2176, 15.5007] as [number, number],
+  },
+];
+
+const DISCOVERIES_DOTS = [
+  {
+    id: 6,
     name: 'Psilocybin Trial Results',
     severity: 'BREAKTHROUGH',
     location: 'London, UK',
@@ -58,23 +87,68 @@ const SAMPLE_DOTS = [
     coordinates: [-0.1276, 51.5074] as [number, number],
   },
   {
-    id: 5,
-    name: 'MERS-CoV',
-    severity: 'MONITORING',
-    location: 'Riyadh, Saudi Arabia',
-    keyStat: '2 new cases, 37% historical fatality rate',
-    ageContext: 'Adults over 60 with comorbidities',
-    whyHere: 'Camel exposure — endemic transmission route',
-    timeline: '5 days active · First detected Mar 1 · Updated today',
-    source: 'Saudi MOH',
-    color: '#FFD166',
-    coordinates: [46.7219, 24.6877] as [number, number],
+    id: 7,
+    name: 'GLP-1 Cardiovascular Trial',
+    severity: 'BREAKTHROUGH',
+    location: 'Boston, USA',
+    keyStat: '20% reduction in heart attack risk in non-diabetics',
+    ageContext: 'Adults 45-75 with cardiovascular risk factors',
+    whyHere: 'Harvard Medical School Phase 3 results',
+    timeline: 'Published this week',
+    source: 'NEJM',
+    color: '#00C9A7',
+    coordinates: [-71.0589, 42.3601] as [number, number],
+  },
+  {
+    id: 8,
+    name: 'mRNA Malaria Vaccine',
+    severity: 'BREAKTHROUGH',
+    location: 'Burkina Faso',
+    keyStat: '77% efficacy in Phase 3 African trial',
+    ageContext: 'Children 6 months to 5 years',
+    whyHere: 'Phase 3 trial conducted across 4 African countries',
+    timeline: 'Results published this week',
+    source: 'The Lancet',
+    color: '#00C9A7',
+    coordinates: [-1.5616, 12.3642] as [number, number],
+  },
+  {
+    id: 9,
+    name: 'CAR-T Lymphoma Therapy',
+    severity: 'BREAKTHROUGH',
+    location: 'Houston, USA',
+    keyStat: '54% complete remission in lymphoma patients',
+    ageContext: 'Adults with relapsed/refractory lymphoma',
+    whyHere: 'MD Anderson Cancer Center trial results',
+    timeline: 'FDA approval granted this month',
+    source: 'NEJM',
+    color: '#00C9A7',
+    coordinates: [-95.3698, 29.7604] as [number, number],
+  },
+  {
+    id: 10,
+    name: 'CRISPR Haemophilia B',
+    severity: 'BREAKTHROUGH',
+    location: 'London, UK',
+    keyStat: 'Single infusion corrects haemophilia B — 89% success',
+    ageContext: 'Males with severe haemophilia B',
+    whyHere: 'UCL gene therapy trial — first in-vivo CRISPR approval',
+    timeline: 'Published this week',
+    source: 'NEJM',
+    color: '#4CC9F0',
+    coordinates: [-0.1276, 51.5074] as [number, number],
   },
 ];
 
-export default function MapView() {
+interface MapViewProps {
+  variant: string;
+  region: string;
+}
+
+export default function MapView({ variant }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
@@ -87,9 +161,18 @@ export default function MapView() {
       center: [20, 20],
       zoom: 1.8,
     });
+  }, []);
 
-    map.current.on('load', () => {
-      SAMPLE_DOTS.forEach(dot => {
+  useEffect(() => {
+    if (!map.current) return;
+
+    const addDots = () => {
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
+
+      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : THREATS_DOTS;
+
+      dots.forEach(dot => {
         const el = document.createElement('div');
         el.style.width = '14px';
         el.style.height = '14px';
@@ -102,7 +185,6 @@ export default function MapView() {
         const popup = new mapboxgl.Popup({
           offset: 20,
           maxWidth: '320px',
-          className: 'ghw-popup',
         }).setHTML(`
           <div style="background:#1A2A3A;color:#fff;padding:16px;border-radius:8px;font-family:Inter,sans-serif;font-size:13px;line-height:1.5">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
@@ -118,17 +200,24 @@ export default function MapView() {
           </div>
         `);
 
-        new mapboxgl.Marker({ element: el })
+        const marker = new mapboxgl.Marker({ element: el })
           .setLngLat(dot.coordinates)
           .setPopup(popup)
           .addTo(map.current!);
+
+        markersRef.current.push(marker);
       });
-    });
-  }, []);
+    };
+
+    if (map.current.isStyleLoaded()) {
+      addDots();
+    } else {
+      map.current.on('load', addDots);
+    }
+  }, [variant]);
 
   return (
     <div style={{ width: '100%' }}>
-      {/* Time filter bar */}
       <div style={{
         backgroundColor: 'var(--bg-secondary)',
         padding: '8px 24px',
@@ -149,8 +238,6 @@ export default function MapView() {
           }}>{t}</button>
         ))}
       </div>
-
-      {/* Map */}
       <div ref={mapContainer} style={{ width: '100%', height: '55vh' }} />
     </div>
   );
