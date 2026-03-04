@@ -1,76 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-
-const THREATS_DOTS = [
-  {
-    id: 1,
-    name: 'Nipah Virus',
-    severity: 'HIGH ALERT',
-    location: 'Kerala, India',
-    keyStat: '14 confirmed cases, 40-75% fatality rate',
-    ageContext: 'Adults 20-50 most affected',
-    whyHere: 'Fruit bat reservoir common in this region',
-    timeline: '12 days active · First detected Feb 20 · Updated today',
-    source: 'WHO Disease Outbreak News',
-    color: '#FF4D6D',
-    coordinates: [76.2711, 10.8505] as [number, number],
-  },
-  {
-    id: 2,
-    name: 'H5N1 Avian Flu',
-    severity: 'ELEVATED',
-    location: 'Texas, USA',
-    keyStat: '3 human cases linked to cattle',
-    ageContext: 'Farmworkers primary risk group',
-    whyHere: 'Active cattle outbreak in dairy farms',
-    timeline: '45 days active · First detected Jan 18 · Updated today',
-    source: 'CDC Health Alerts',
-    color: '#FFB347',
-    coordinates: [-99.9018, 31.9686] as [number, number],
-  },
-  {
-    id: 3,
-    name: 'Dengue Fever',
-    severity: 'ELEVATED',
-    location: 'São Paulo, Brazil',
-    keyStat: '480,000 cases this year — record high',
-    ageContext: 'Children under 15 at highest risk',
-    whyHere: 'Aedes mosquito thrives in urban heat',
-    timeline: '60 days active · Seasonal surge · Updated today',
-    source: 'PAHO',
-    color: '#FFB347',
-    coordinates: [-46.6333, -23.5505] as [number, number],
-  },
-  {
-    id: 4,
-    name: 'MERS-CoV',
-    severity: 'MONITORING',
-    location: 'Riyadh, Saudi Arabia',
-    keyStat: '2 new cases, 37% historical fatality rate',
-    ageContext: 'Adults over 60 with comorbidities',
-    whyHere: 'Camel exposure — endemic transmission route',
-    timeline: '5 days active · First detected Mar 1 · Updated today',
-    source: 'Saudi MOH',
-    color: '#FFD166',
-    coordinates: [46.7219, 24.6877] as [number, number],
-  },
-  {
-    id: 5,
-    name: 'Cholera',
-    severity: 'ELEVATED',
-    location: 'Sudan',
-    keyStat: '1,200 new cases this week',
-    ageContext: 'Children under 5 and elderly most at risk',
-    whyHere: 'Conflict-driven water system collapse',
-    timeline: '30 days active · Updated today',
-    source: 'ProMED',
-    color: '#FFB347',
-    coordinates: [30.2176, 15.5007] as [number, number],
-  },
-];
 
 const DISCOVERIES_DOTS = [
   {
@@ -145,10 +77,36 @@ interface MapViewProps {
   region: string;
 }
 
+interface ThreatDot {
+  id: string;
+  name: string;
+  severity: string;
+  color: string;
+  location: string;
+  keyStat: string;
+  ageContext: string;
+  whyHere: string;
+  timeline: string;
+  source: string;
+  coordinates: [number, number];
+}
+
 export default function MapView({ variant }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const [threatDots, setThreatDots] = useState<ThreatDot[]>([]);
+
+  useEffect(() => {
+    fetch('/api/threats')
+      .then(r => r.json())
+      .then(data => {
+        if (data.threats && data.threats.length > 0) {
+          setThreatDots(data.threats);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
@@ -170,7 +128,7 @@ export default function MapView({ variant }: MapViewProps) {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
 
-      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : THREATS_DOTS;
+      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : threatDots;
 
       dots.forEach(dot => {
         const el = document.createElement('div');
@@ -214,7 +172,7 @@ export default function MapView({ variant }: MapViewProps) {
     } else {
       map.current.on('load', addDots);
     }
-  }, [variant]);
+  }, [variant, threatDots]);
 
   return (
     <div style={{ width: '100%' }}>
