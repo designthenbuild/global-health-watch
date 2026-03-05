@@ -58,16 +58,59 @@ interface Message {
   content: string;
 }
 
+function formatMessage(content: string) {
+  const lines = content.split('\n');
+  return lines.map((line, j) => {
+    if (line.match(/^sources to explore/i) || line.match(/^\*\*sources/i)) {
+      return (
+        <div key={j} style={{ marginTop: '10px', marginBottom: '4px', fontSize: '10px', fontWeight: 700, color: '#00C9A7', letterSpacing: '0.08em' }}>
+          SOURCES TO EXPLORE
+        </div>
+      );
+    }
+    if (line.trim() === '') {
+      return <div key={j} style={{ height: '6px' }} />;
+    }
+    const isListItem = line.match(/^[-•]\s/) || line.match(/^\d+\.\s/);
+    const text = line.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, '');
+    const hasUrl = text.includes('http');
+    if (isListItem && hasUrl) {
+      const colonIdx = text.indexOf(': http');
+      const name = colonIdx > -1 ? text.slice(0, colonIdx) : text;
+      const url = colonIdx > -1 ? text.slice(colonIdx + 2) : text;
+      return (
+        <div key={j} style={{ marginTop: '4px' }}>
+          <a href={url.trim()} target="_blank" rel="noopener noreferrer"
+            style={{ color: '#00C9A7', fontSize: '11px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            ↗ {name.replace(/\*\*/g, '')}
+          </a>
+        </div>
+      );
+    }
+    if (isListItem) {
+      return (
+        <div key={j} style={{ marginTop: '3px', paddingLeft: '8px' }}>
+          • {text.replace(/\*\*(.*?)\*\*/g, '$1')}
+        </div>
+      );
+    }
+    const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return <div key={j} dangerouslySetInnerHTML={{ __html: formatted }} />;
+  });
+}
+
 export default function BottomPanels() {
   const [feedTab, setFeedTab] = useState('ALL');
   const [numbersTab, setNumbersTab] = useState('NUMBERS');
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
-
-  // Ask the Watch state
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [asking, setAsking] = useState(false);
+  const [shuffled] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 6));
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,7 +134,6 @@ export default function BottomPanels() {
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: q }]);
     setAsking(true);
-
     try {
       const res = await fetch('/api/ask', {
         method: 'POST',
@@ -101,7 +143,7 @@ export default function BottomPanels() {
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer ?? 'No response.' }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Something went wrong. Try again.' }]);
     } finally {
       setAsking(false);
     }
@@ -184,7 +226,7 @@ export default function BottomPanels() {
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
           {numbersTab === 'NUMBERS' ? NUMBERS.map((n, i) => (
             <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
@@ -200,7 +242,7 @@ export default function BottomPanels() {
             </a>
           )) : COMMUNITY.map((c, i) => (
             <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
@@ -218,20 +260,27 @@ export default function BottomPanels() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px' }}>🔭</span>
             <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>ASK THE WATCH</div>
+            {messages.length > 0 && (
+              <button
+                onClick={() => setMessages([])}
+                style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-secondary)', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer' }}
+              >
+                ↺ New
+              </button>
+            )}
           </div>
           <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.7 }}>
             Health intelligence · food · body · longevity · performance
           </div>
         </div>
 
-        {/* Chat messages */}
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
           {messages.length === 0 ? (
             <div style={{ padding: '12px 14px' }}>
               <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, marginBottom: '10px', letterSpacing: '0.06em' }}>
                 TRY ASKING
               </div>
-              {[...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 6).map((s, i) => (
+              {shuffled.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => askWatch(s)}
@@ -256,16 +305,16 @@ export default function BottomPanels() {
               {messages.map((m, i) => (
                 <div key={i} style={{
                   alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '90%',
+                  maxWidth: '92%',
                   backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.15)' : 'rgba(255,255,255,0.05)',
                   border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid rgba(255,255,255,0.08)',
                   borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                   padding: '8px 12px',
                   fontSize: '12px',
-                  lineHeight: '1.5',
+                  lineHeight: '1.7',
                   color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
                 }}>
-                  {m.content}
+                  {m.role === 'assistant' ? formatMessage(m.content) : m.content}
                 </div>
               ))}
               {asking && (
@@ -278,7 +327,6 @@ export default function BottomPanels() {
           )}
         </div>
 
-        {/* Input */}
         <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0, display: 'flex', gap: '8px' }}>
           <input
             value={input}
@@ -302,7 +350,6 @@ export default function BottomPanels() {
               padding: '7px 12px', fontSize: '12px',
               fontWeight: '700', color: '#000',
               cursor: asking ? 'not-allowed' : 'pointer',
-              transition: 'background 0.15s',
               flexShrink: 0,
             }}
           >
