@@ -1,16 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-
-const FEED_ITEMS = [
-  { source: 'WHO', headline: 'Nipah virus outbreak confirmed in Kerala — 14 cases, response teams deployed', time: '2h ago', tag: 'OUTBREAK', region: 'SE Asia' },
-  { source: 'CDC', headline: 'H5N1 avian influenza detected in three additional dairy herds in Texas', time: '4h ago', tag: 'OUTBREAK', region: 'North America' },
-  { source: 'The Lancet', headline: 'Psilocybin shows 67% remission rate in treatment-resistant depression trial', time: '6h ago', tag: 'DISCOVERY', region: 'Europe' },
-  { source: 'ProMED', headline: 'Cholera cases rising in Sudan — 1,200 new cases reported this week', time: '8h ago', tag: 'OUTBREAK', region: 'Africa' },
-  { source: 'FDA', headline: 'New GLP-1 formulation approved for cardiovascular risk reduction', time: '10h ago', tag: 'DISCOVERY', region: 'North America' },
-  { source: 'NIMH', headline: 'Ketamine nasal spray shows sustained benefit at 6-month follow-up', time: '12h ago', tag: 'MENTAL HEALTH', region: 'Global' },
-  { source: 'FDA MedWatch', headline: 'Class I recall issued for insulin pump software — 340,000 devices affected', time: '14h ago', tag: 'RECALL', region: 'North America' },
-];
+import { useState, useEffect } from 'react';
 
 const NUMBERS = [
   { label: 'Heart disease deaths this year', value: '4,812,447', trend: '↑', source: 'WHO GHO' },
@@ -47,17 +37,33 @@ const AI_BRIEF = [
   { title: 'GCC ALERT', content: 'MERS-CoV: 2 new cases in Riyadh this week. Standard precautions for camel exposure. No evidence of human-to-human transmission. Saudi MOH monitoring closely.', color: '#7B2FBE' },
 ];
 
+interface FeedItem {
+  source: string;
+  headline: string;
+  time: string;
+  tag: string;
+  region: string;
+  link: string;
+}
+
 export default function BottomPanels() {
   const [feedTab, setFeedTab] = useState('ALL');
   const [numbersTab, setNumbersTab] = useState('NUMBERS');
+  const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
+  const [feedLoading, setFeedLoading] = useState(true);
+
+  useEffect(() => {
+    setFeedLoading(true);
+    fetch(`/api/feed?tab=${feedTab}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.items?.length > 0) setFeedItems(data.items);
+        setFeedLoading(false);
+      })
+      .catch(() => setFeedLoading(false));
+  }, [feedTab]);
 
   const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'RECALLS'];
-
-  const filteredFeed = feedTab === 'ALL' ? FEED_ITEMS
-    : feedTab === 'OUTBREAKS' ? FEED_ITEMS.filter(i => i.tag === 'OUTBREAK')
-    : feedTab === 'DISCOVERIES' ? FEED_ITEMS.filter(i => i.tag === 'DISCOVERY')
-    : feedTab === 'MENTAL HEALTH' ? FEED_ITEMS.filter(i => i.tag === 'MENTAL HEALTH')
-    : FEED_ITEMS.filter(i => i.tag === 'RECALL');
 
   const panelStyle = {
     backgroundColor: 'var(--bg-secondary)',
@@ -81,13 +87,7 @@ export default function BottomPanels() {
   });
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr 1fr',
-      gap: '16px',
-      padding: '16px 24px',
-      backgroundColor: 'var(--bg-primary)',
-    }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', padding: '16px 24px', backgroundColor: 'var(--bg-primary)' }}>
 
       {/* LEFT — Feed */}
       <div style={panelStyle}>
@@ -100,18 +100,22 @@ export default function BottomPanels() {
           </div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {filteredFeed.map((item, i) => (
-            <div key={i} style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700' }}>{item.source}</span>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>{item.time}</span>
+          {feedLoading ? (
+            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading...</div>
+          ) : feedItems.map((item, i) => (
+            <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700' }}>{item.source}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>{item.time}</span>
+                </div>
+                <div style={{ fontSize: '13px', lineHeight: '1.4', marginBottom: '4px' }}>{item.headline}</div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px' }}>{item.tag}</span>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px' }}>{item.region}</span>
+                </div>
               </div>
-              <div style={{ fontSize: '13px', lineHeight: '1.4', marginBottom: '4px' }}>{item.headline}</div>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <span style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px' }}>{item.tag}</span>
-                <span style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px' }}>{item.region}</span>
-              </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

@@ -9,9 +9,10 @@ interface TopBarProps {
   setVariant: (v: string) => void;
   region: string;
   setRegion: (r: string) => void;
+  onMyHealth: () => void;
 }
 
-export default function TopBar({ variant, setVariant, region, setRegion }: TopBarProps) {
+export default function TopBar({ variant, setVariant, region, setRegion, onMyHealth }: TopBarProps) {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   const toggleTheme = () => {
@@ -120,16 +121,18 @@ export default function TopBar({ variant, setVariant, region, setRegion }: TopBa
         }}
       />
 
-      <button style={{
-        backgroundColor: 'var(--accent-teal)',
-        color: '#000',
-        border: 'none',
-        borderRadius: '6px',
-        padding: '6px 12px',
-        fontSize: '12px',
-        fontWeight: '700',
-        cursor: 'pointer',
-      }}>
+      <button
+        onClick={onMyHealth}
+        style={{
+          backgroundColor: 'var(--accent-teal)',
+          color: '#000',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '6px 12px',
+          fontSize: '12px',
+          fontWeight: '700',
+          cursor: 'pointer',
+        }}>
         MY HEALTH
       </button>
 
