@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import TopBar from './components/TopBar';
 import MapView from './components/MapView';
+import AIBrief from './components/AIBrief';
 import BottomPanels from './components/BottomPanels';
 import CardGrid from './components/CardGrid';
 import MyHealthModal from './components/MyHealthModal';
@@ -63,7 +64,7 @@ export default function Home() {
   };
 
   const handleShare = () => {
-    const text = `🌐 Global Health Watch\nPulse Score: ${pulse.score}/10\n${pulse.reason}\nglobal-health-watch.vercel.app`;
+    const text = `🌐 Global Health Watch\nPulse Score: ${pulse.score}/10\n${pulse.reason}\nhttps://global-health-watch.vercel.app`;
     if (navigator.share) {
       navigator.share({ title: 'Global Health Watch', text, url: 'https://global-health-watch.vercel.app' });
     } else {
@@ -74,7 +75,7 @@ export default function Home() {
   const pulse = calculatePulse(threats);
 
   return (
-    <main>
+    <main style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
       <TopBar
         activeVariants={activeVariants}
         toggleVariant={toggleVariant}
@@ -85,8 +86,9 @@ export default function Home() {
         onShare={handleShare}
       />
       <MapView activeVariants={activeVariants} region={region} threats={threats} />
+      <AIBrief />
       <BottomPanels />
-      <CardGrid />
+      <CardGrid activeVariants={activeVariants} />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}
     </main>
   );
