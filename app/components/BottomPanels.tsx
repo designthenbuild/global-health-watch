@@ -59,46 +59,71 @@ interface Message {
 }
 
 function formatMessage(content: string) {
-  const lines = content.split('\n');
+  const lines = content.split('\n').filter((l, i, arr) => !(l.trim() === '' && arr[i - 1]?.trim() === ''));
+  let inSources = false;
+
   return lines.map((line, j) => {
-    if (line.match(/^sources to explore/i) || line.match(/^\*\*sources/i)) {
+    const trimmed = line.trim();
+    if (!trimmed) return <div key={j} style={{ height: '8px' }} />;
+
+    if (trimmed.match(/^sources?:/i) || trimmed.match(/^\*\*sources/i) || trimmed.match(/^sources to explore/i)) {
+      inSources = true;
       return (
-        <div key={j} style={{ marginTop: '10px', marginBottom: '4px', fontSize: '10px', fontWeight: 700, color: '#00C9A7', letterSpacing: '0.08em' }}>
-          SOURCES TO EXPLORE
+        <div key={j} style={{ marginTop: '12px', marginBottom: '6px', fontSize: '10px', fontWeight: 700, color: '#00C9A7', letterSpacing: '0.1em', borderTop: '1px solid rgba(0,201,167,0.2)', paddingTop: '8px' }}>
+          SOURCES
         </div>
       );
     }
-    if (line.trim() === '') {
-      return <div key={j} style={{ height: '6px' }} />;
+
+    if (trimmed.match(/^key points?:/i) || trimmed.match(/^\*\*key/i)) {
+      inSources = false;
+      return (
+        <div key={j} style={{ marginTop: '10px', marginBottom: '4px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
+          KEY POINTS
+        </div>
+      );
     }
-    const isListItem = line.match(/^[-•]\s/) || line.match(/^\d+\.\s/);
-    const text = line.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, '');
-    const hasUrl = text.includes('http');
-    if (isListItem && hasUrl) {
+
+    const isListItem = trimmed.match(/^[-•*]\s/) || trimmed.match(/^\d+\.\s/);
+    const text = trimmed.replace(/^[-•*]\s/, '').replace(/^\d+\.\s/, '').replace(/\*\*(.*?)\*\*/g, '$1');
+    const urlMatch = text.match(/https?:\/\/[^\s]+/);
+
+    if (inSources || (isListItem && urlMatch)) {
       const colonIdx = text.indexOf(': http');
-      const name = colonIdx > -1 ? text.slice(0, colonIdx) : text;
-      const url = colonIdx > -1 ? text.slice(colonIdx + 2) : text;
+      const name = colonIdx > -1
+        ? text.slice(0, colonIdx).trim()
+        : text.replace(/https?:\/\/[^\s]+/g, '').trim() || 'Source';
+      const url = urlMatch ? urlMatch[0] : '#';
       return (
-        <div key={j} style={{ marginTop: '4px' }}>
-          <a href={url.trim()} target="_blank" rel="noopener noreferrer"
-            style={{ color: '#00C9A7', fontSize: '11px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >
-            ↗ {name.replace(/\*\*/g, '')}
-          </a>
-        </div>
+        <a key={j} href={url} target="_blank" rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            marginTop: '5px', color: '#00C9A7', fontSize: '11px',
+            textDecoration: 'none', padding: '5px 8px',
+            backgroundColor: 'rgba(0,201,167,0.08)',
+            borderRadius: '5px', border: '1px solid rgba(0,201,167,0.18)',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.18)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)'; }}
+        >
+          <span style={{ fontSize: '10px', flexShrink: 0 }}>↗</span>
+          <span>{name}</span>
+        </a>
       );
     }
+
     if (isListItem) {
       return (
-        <div key={j} style={{ marginTop: '3px', paddingLeft: '8px' }}>
-          • {text.replace(/\*\*(.*?)\*\*/g, '$1')}
+        <div key={j} style={{ display: 'flex', gap: '6px', marginTop: '4px', paddingLeft: '4px', lineHeight: '1.5' }}>
+          <span style={{ color: '#00C9A7', flexShrink: 0, marginTop: '1px' }}>·</span>
+          <span>{text}</span>
         </div>
       );
     }
-    const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return <div key={j} dangerouslySetInnerHTML={{ __html: formatted }} />;
+
+    const html = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }} dangerouslySetInnerHTML={{ __html: html }} />;
   });
 }
 
@@ -263,9 +288,18 @@ export default function BottomPanels() {
             {messages.length > 0 && (
               <button
                 onClick={() => setMessages([])}
-                style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-secondary)', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer' }}
+                style={{
+                  marginLeft: 'auto', fontSize: '10px', fontWeight: 700,
+                  color: '#000', background: '#00C9A7',
+                  border: 'none', borderRadius: '6px',
+                  padding: '4px 10px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
-                ↺ New
+                ↺ Ask New
               </button>
             )}
           </div>
