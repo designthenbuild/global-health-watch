@@ -90,9 +90,31 @@ function formatMessage(content: string) {
 
     if (inSources || (isListItem && urlMatch)) {
       const colonIdx = text.indexOf(': http');
-      const name = colonIdx > -1
-        ? text.slice(0, colonIdx).trim()
-        : text.replace(/https?:\/\/[^\s]+/g, '').trim() || 'Source';
+      let name = colonIdx > -1
+  ? text.slice(0, colonIdx).trim()
+  : text.replace(/https?:\/\/[^\s]+/g, '').trim();
+
+if (!name && urlMatch) {
+  try {
+    const hostname = new URL(urlMatch[0]).hostname.replace('www.', '');
+    const parts = hostname.split('.');
+    name = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+    if (parts[0] === 'pubmed') name = 'PubMed';
+    if (parts[0] === 'ncbi') name = 'NCBI / PubMed';
+    if (hostname.includes('who.int')) name = 'WHO';
+    if (hostname.includes('mayoclinic')) name = 'Mayo Clinic';
+    if (hostname.includes('healthline')) name = 'Healthline';
+    if (hostname.includes('acsm')) name = 'ACSM';
+    if (hostname.includes('bmj')) name = 'BMJ';
+    if (hostname.includes('nature')) name = 'Nature';
+    if (hostname.includes('lww') || hostname.includes('journals.lww')) name = 'LWW Journals';
+    if (hostname.includes('mindbodygreen')) name = 'MindBodyGreen';
+    if (hostname.includes('draxe')) name = 'Dr. Axe';
+  } catch {
+    name = 'Source';
+  }
+}
+if (!name) name = 'Source';
       const url = urlMatch ? urlMatch[0] : '#';
       return (
         <a key={j} href={url} target="_blank" rel="noopener noreferrer"
