@@ -27,56 +27,22 @@ const COMMUNITY = [
   { source: 'Reddit r/medicine', headline: 'Physicians report surge in long COVID cognitive complaints in under-40s' },
 ];
 
-const AI_BRIEF = [
-  {
-    title: 'THREAT OF THE DAY',
-    content: 'Nipah virus in Kerala demands attention. With 40–75% fatality and no approved vaccine, even 14 cases represents a significant public health event. Fruit bat exposure season peaks in March.',
-    color: '#E63946',
-    variant: 'THREATS',
-  },
-  {
-    title: 'DISCOVERY OF THE DAY',
-    content: 'Imperial College psilocybin trial reports 67% remission in treatment-resistant depression. This is Phase 3 data — the highest evidence tier. FDA Breakthrough Therapy designation already granted.',
-    color: '#00B4D8',
-    variant: 'DISCOVERIES',
-  },
-  {
-    title: 'MENTAL HEALTH SIGNAL',
-    content: 'Three converging signals this week: psilocybin Phase 3 results, ketamine 6-month data, and a new meta-analysis on loneliness as cardiovascular risk factor. Psychedelic therapy is becoming mainstream medicine.',
-    color: '#7C3AED',
-    variant: 'MENTAL HEALTH',
-  },
-  {
-    title: 'LONGEVITY SIGNAL',
-    content: 'New data on rapamycin in non-diabetic adults shows 18% reduction in biological age markers at 12 months. Small trial (n=84) but well-designed. Watch for replication.',
-    color: '#059669',
-    variant: 'LONGEVITY',
-  },
-  {
-    title: 'PERFORMANCE SIGNAL',
-    content: 'Cold immersion 3x/week shown to reduce inflammatory markers by 40% in new Amsterdam UMC trial. Combined with sauna protocol, cardiovascular adaptation occurs 60% faster.',
-    color: '#2563EB',
-    variant: 'PERFORMANCE',
-  },
-  {
-    title: 'ECONOMY SIGNAL',
-    content: 'Ozempic costs $900/month in the USA vs $60 in Germany. Congressional hearing this week on pharma pricing. Biotech VC funding hit $4.2B in Q1 2026 — longevity startups lead.',
-    color: '#D97706',
-    variant: 'ECONOMY',
-  },
-  {
-    title: 'HEALTH PULSE EXPLAINED',
-    content: 'Pulse is at 3 — Watch. Nipah and H5N1 are being monitored but neither shows sustained human-to-human transmission. The psilocybin breakthrough offsets threat burden. No reason for alarm.',
-    color: '#00C9A7',
-    variant: 'PULSE',
-  },
-  {
-    title: 'GCC ALERT',
-    content: 'MERS-CoV: 2 new cases in Riyadh this week. Standard precautions for camel exposure. No evidence of human-to-human transmission. Saudi MOH monitoring closely.',
-    color: '#E63946',
-    variant: 'THREATS',
-  },
+const FALLBACK_BRIEF = [
+  { title: 'THREAT OF THE DAY', content: 'Monitoring active global health signals across WHO, CDC, and ProMED networks. No critical alerts at this time.', color: '#E63946', variant: 'THREATS' },
+  { title: 'DISCOVERY OF THE DAY', content: 'Clinical trial activity remains high globally. Multiple Phase 3 trials in oncology and neurology publishing results this week.', color: '#00B4D8', variant: 'DISCOVERIES' },
+  { title: 'MENTAL HEALTH SIGNAL', content: 'Psychedelic-assisted therapy continues to advance through regulatory pipelines in the US and EU.', color: '#7C3AED', variant: 'MENTAL HEALTH' },
+  { title: 'LONGEVITY SIGNAL', content: 'Senolytics and NAD+ research remain the most active areas in longevity science. Watch for new rapamycin trial data.', color: '#059669', variant: 'LONGEVITY' },
+  { title: 'PERFORMANCE SIGNAL', content: 'Cold and heat therapy protocols gaining mainstream clinical validation. VO2 max emerging as strongest longevity biomarker.', color: '#2563EB', variant: 'PERFORMANCE' },
+  { title: 'ECONOMY SIGNAL', content: 'Biotech funding remains strong in Q1 2026. Drug pricing reform under active Congressional debate.', color: '#D97706', variant: 'ECONOMY' },
+  { title: 'HEALTH PULSE EXPLAINED', content: 'Global health signals are at Watch level. Multiple threats being monitored, no critical escalations. Stay informed.', color: '#00C9A7', variant: 'PULSE' },
 ];
+
+interface BriefItem {
+  title: string;
+  content: string;
+  color: string;
+  variant: string;
+}
 
 interface FeedItem {
   source: string;
@@ -92,6 +58,9 @@ export default function BottomPanels() {
   const [numbersTab, setNumbersTab] = useState('NUMBERS');
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
+  const [brief, setBrief] = useState<BriefItem[]>(FALLBACK_BRIEF);
+  const [briefLoading, setBriefLoading] = useState(true);
+  const [briefCached, setBriefCached] = useState(false);
 
   useEffect(() => {
     setFeedLoading(true);
@@ -103,6 +72,20 @@ export default function BottomPanels() {
       })
       .catch(() => setFeedLoading(false));
   }, [feedTab]);
+
+  useEffect(() => {
+    setBriefLoading(true);
+    fetch('/api/brief')
+      .then(r => r.json())
+      .then(data => {
+        if (data.brief?.length > 0) {
+          setBrief(data.brief);
+          setBriefCached(data.cached);
+        }
+        setBriefLoading(false);
+      })
+      .catch(() => setBriefLoading(false));
+  }, []);
 
   const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
 
@@ -153,10 +136,13 @@ export default function BottomPanels() {
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
           {feedLoading ? (
-            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading...</div>
+            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading feed...</div>
           ) : feedItems.map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <span style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700' }}>{item.source}</span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>{item.time}</span>
@@ -205,11 +191,23 @@ export default function BottomPanels() {
       <div style={panelStyle}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>AI HEALTH BRIEF</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Updated every 6 hours · Powered by Claude</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+            {briefLoading ? 'Generating brief...' : briefCached ? 'Cached · Updates every 6 hours · Groq AI' : 'Just generated · Groq AI'}
+          </div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {AI_BRIEF.map((card, i) => (
-            <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', borderLeft: `3px solid ${card.color}` }}>
+          {briefLoading ? (
+            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+              <div>Generating AI brief from live health signals...</div>
+              <div style={{ marginTop: '8px', fontSize: '11px', opacity: 0.6 }}>This takes 5-10 seconds on first load</div>
+            </div>
+          ) : brief.map((card, i) => (
+            <div
+              key={i}
+              style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', borderLeft: `3px solid ${card.color}`, cursor: 'pointer', transition: 'background 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            >
               <div style={{ fontSize: '11px', fontWeight: '700', color: card.color, marginBottom: '6px', letterSpacing: '0.05em' }}>{card.title}</div>
               <div style={{ fontSize: '13px', lineHeight: '1.5', color: 'var(--text-primary)' }}>{card.content}</div>
             </div>
