@@ -28,13 +28,54 @@ const COMMUNITY = [
 ];
 
 const AI_BRIEF = [
-  { title: 'THREAT OF THE DAY', content: 'Nipah virus in Kerala demands attention. With 40–75% fatality and no approved vaccine, even 14 cases represents a significant public health event. Fruit bat exposure season peaks in March.', color: '#FF4D6D' },
-  { title: 'BREAKTHROUGH OF THE DAY', content: 'Imperial College psilocybin trial reports 67% remission in treatment-resistant depression. This is Phase 3 data — the highest evidence tier. FDA Breakthrough Therapy designation already granted.', color: '#00C9A7' },
-  { title: 'HEALTH PULSE EXPLAINED', content: "Pulse is at 2 — Watch. Nipah and H5N1 are being monitored but neither shows sustained human-to-human transmission. The psilocybin breakthrough offsets threat burden. No reason for alarm.", color: '#FFD166' },
-  { title: 'MENTAL HEALTH SIGNAL', content: 'Three converging signals this week: psilocybin Phase 3 results, ketamine 6-month data, and a new meta-analysis on loneliness as cardiovascular risk factor. Psychedelic therapy is becoming mainstream medicine.', color: '#E8768A' },
-  { title: 'LONGEVITY SIGNAL', content: 'New data on rapamycin in non-diabetic adults shows 18% reduction in biological age markers at 12 months. Small trial (n=84) but well-designed. Watch for replication.', color: '#4CC9F0' },
-  { title: 'SHOULD YOU KNOW THIS?', content: 'Threat: Nipah in India — 40–75% fatality, no vaccine, fruit bat origin. Breakthrough: Psilocybin 67% remission in treatment-resistant depression — Phase 3 confirmed.', color: '#FFB347' },
-  { title: 'GCC ALERT', content: 'MERS-CoV: 2 new cases in Riyadh this week. Standard precautions for camel exposure. No evidence of human-to-human transmission. Saudi MOH monitoring closely.', color: '#7B2FBE' },
+  {
+    title: 'THREAT OF THE DAY',
+    content: 'Nipah virus in Kerala demands attention. With 40–75% fatality and no approved vaccine, even 14 cases represents a significant public health event. Fruit bat exposure season peaks in March.',
+    color: '#E63946',
+    variant: 'THREATS',
+  },
+  {
+    title: 'DISCOVERY OF THE DAY',
+    content: 'Imperial College psilocybin trial reports 67% remission in treatment-resistant depression. This is Phase 3 data — the highest evidence tier. FDA Breakthrough Therapy designation already granted.',
+    color: '#00B4D8',
+    variant: 'DISCOVERIES',
+  },
+  {
+    title: 'MENTAL HEALTH SIGNAL',
+    content: 'Three converging signals this week: psilocybin Phase 3 results, ketamine 6-month data, and a new meta-analysis on loneliness as cardiovascular risk factor. Psychedelic therapy is becoming mainstream medicine.',
+    color: '#7C3AED',
+    variant: 'MENTAL HEALTH',
+  },
+  {
+    title: 'LONGEVITY SIGNAL',
+    content: 'New data on rapamycin in non-diabetic adults shows 18% reduction in biological age markers at 12 months. Small trial (n=84) but well-designed. Watch for replication.',
+    color: '#059669',
+    variant: 'LONGEVITY',
+  },
+  {
+    title: 'PERFORMANCE SIGNAL',
+    content: 'Cold immersion 3x/week shown to reduce inflammatory markers by 40% in new Amsterdam UMC trial. Combined with sauna protocol, cardiovascular adaptation occurs 60% faster.',
+    color: '#2563EB',
+    variant: 'PERFORMANCE',
+  },
+  {
+    title: 'ECONOMY SIGNAL',
+    content: 'Ozempic costs $900/month in the USA vs $60 in Germany. Congressional hearing this week on pharma pricing. Biotech VC funding hit $4.2B in Q1 2026 — longevity startups lead.',
+    color: '#D97706',
+    variant: 'ECONOMY',
+  },
+  {
+    title: 'HEALTH PULSE EXPLAINED',
+    content: 'Pulse is at 3 — Watch. Nipah and H5N1 are being monitored but neither shows sustained human-to-human transmission. The psilocybin breakthrough offsets threat burden. No reason for alarm.',
+    color: '#00C9A7',
+    variant: 'PULSE',
+  },
+  {
+    title: 'GCC ALERT',
+    content: 'MERS-CoV: 2 new cases in Riyadh this week. Standard precautions for camel exposure. No evidence of human-to-human transmission. Saudi MOH monitoring closely.',
+    color: '#E63946',
+    variant: 'THREATS',
+  },
 ];
 
 interface FeedItem {
@@ -63,7 +104,7 @@ export default function BottomPanels() {
       .catch(() => setFeedLoading(false));
   }, [feedTab]);
 
-  const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'RECALLS'];
+  const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
 
   const panelStyle = {
     backgroundColor: 'var(--bg-secondary)',
@@ -74,12 +115,23 @@ export default function BottomPanels() {
     height: '420px',
   };
 
-  const tabStyle = (active: boolean) => ({
-    backgroundColor: active ? 'var(--accent-teal)' : 'transparent',
-    color: active ? '#000' : 'var(--text-secondary)',
-    border: 'none',
-    padding: '6px 10px',
-    fontSize: '11px',
+  const FEED_TAB_COLORS: Record<string, string> = {
+    ALL: '#00C9A7',
+    OUTBREAKS: '#E63946',
+    DISCOVERIES: '#00B4D8',
+    'MENTAL HEALTH': '#7C3AED',
+    LONGEVITY: '#059669',
+    PERFORMANCE: '#2563EB',
+    ECONOMY: '#D97706',
+    RECALLS: '#E63946',
+  };
+
+  const tabStyle = (active: boolean, tab: string) => ({
+    backgroundColor: active ? (FEED_TAB_COLORS[tab] || '#00C9A7') : 'transparent',
+    color: active ? '#fff' : 'var(--text-secondary)',
+    border: `1px solid ${active ? (FEED_TAB_COLORS[tab] || '#00C9A7') : 'rgba(255,255,255,0.12)'}`,
+    padding: '4px 8px',
+    fontSize: '10px',
     fontWeight: '600' as const,
     cursor: 'pointer',
     borderRadius: '4px',
@@ -95,7 +147,7 @@ export default function BottomPanels() {
           <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '8px', color: 'var(--accent-teal)' }}>LIVE INTELLIGENCE FEED</div>
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {feedTabs.map(t => (
-              <button key={t} style={tabStyle(feedTab === t)} onClick={() => setFeedTab(t)}>{t}</button>
+              <button key={t} style={tabStyle(feedTab === t, t)} onClick={() => setFeedTab(t)}>{t}</button>
             ))}
           </div>
         </div>
@@ -124,8 +176,8 @@ export default function BottomPanels() {
       <div style={panelStyle}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <button style={tabStyle(numbersTab === 'NUMBERS')} onClick={() => setNumbersTab('NUMBERS')}>TODAY'S NUMBERS</button>
-            <button style={tabStyle(numbersTab === 'COMMUNITY')} onClick={() => setNumbersTab('COMMUNITY')}>COMMUNITY SIGNALS</button>
+            <button style={tabStyle(numbersTab === 'NUMBERS', 'ALL')} onClick={() => setNumbersTab('NUMBERS')}>TODAY&apos;S NUMBERS</button>
+            <button style={tabStyle(numbersTab === 'COMMUNITY', 'ALL')} onClick={() => setNumbersTab('COMMUNITY')}>COMMUNITY SIGNALS</button>
           </div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
@@ -137,7 +189,7 @@ export default function BottomPanels() {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-teal)' }}>{n.value}</div>
-                <div style={{ fontSize: '12px', color: n.trend === '↑' ? 'var(--alert-red)' : 'var(--text-secondary)' }}>{n.trend}</div>
+                <div style={{ fontSize: '12px', color: n.trend === '↑' ? '#E63946' : 'var(--text-secondary)' }}>{n.trend}</div>
               </div>
             </div>
           )) : COMMUNITY.map((c, i) => (
@@ -153,12 +205,12 @@ export default function BottomPanels() {
       <div style={panelStyle}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>AI HEALTH BRIEF</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Updated daily · Powered by Claude</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Updated every 6 hours · Powered by Claude</div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
           {AI_BRIEF.map((card, i) => (
-            <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: card.color, marginBottom: '6px' }}>{card.title}</div>
+            <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', borderLeft: `3px solid ${card.color}` }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: card.color, marginBottom: '6px', letterSpacing: '0.05em' }}>{card.title}</div>
               <div style={{ fontSize: '13px', lineHeight: '1.5', color: 'var(--text-primary)' }}>{card.content}</div>
             </div>
           ))}
