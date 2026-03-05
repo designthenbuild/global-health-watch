@@ -39,7 +39,7 @@ function calculatePulse(threats: Threat[]): PulseData {
   score += highAlert * 1.5;
   score += elevated * 0.5;
   score = Math.min(10, Math.round(score));
-  const color = score >= 8 ? '#FF4D6D' : score >= 6 ? '#FFB347' : score >= 4 ? '#FFD166' : '#00C9A7';
+  const color = score >= 8 ? '#E63946' : score >= 6 ? '#FFB347' : score >= 4 ? '#FFD166' : '#00C9A7';
   return { score, label: `PULSE ${score}`, color, reason: `${total} active signals · ${highAlert} high alert · ${elevated} elevated` };
 }
 
@@ -57,10 +57,18 @@ export default function Home() {
   }, []);
 
   const toggleVariant = (v: string) => {
-    console.log('toggleVariant called', v);
     setActiveVariants(prev =>
       prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]
     );
+  };
+
+  const handleShare = () => {
+    const text = `🌐 Global Health Watch\nPulse Score: ${pulse.score}/10\n${pulse.reason}\nglobal-health-watch.vercel.app`;
+    if (navigator.share) {
+      navigator.share({ title: 'Global Health Watch', text, url: 'https://global-health-watch.vercel.app' });
+    } else {
+      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+    }
   };
 
   const pulse = calculatePulse(threats);
@@ -74,6 +82,7 @@ export default function Home() {
         setRegion={setRegion}
         onMyHealth={() => setShowMyHealth(true)}
         pulse={pulse}
+        onShare={handleShare}
       />
       <MapView activeVariants={activeVariants} region={region} threats={threats} />
       <BottomPanels />

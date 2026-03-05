@@ -5,17 +5,35 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const DISCOVERIES_DOTS = [
-  { id: '6', name: 'Psilocybin Trial Results', severity: 'DISCOVERY', location: 'London, UK', keyStat: '67% remission rate in treatment-resistant depression', ageContext: 'Adults 25-65 with TRD', whyHere: 'Imperial College London Phase 3 trial', timeline: 'Results published today', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#4CC9F0', coordinates: [-0.1276, 51.5074] as [number, number] },
-  { id: '7', name: 'GLP-1 Cardiovascular Trial', severity: 'DISCOVERY', location: 'Boston, USA', keyStat: '20% reduction in heart attack risk in non-diabetics', ageContext: 'Adults 45-75', whyHere: 'Harvard Medical School Phase 3 results', timeline: 'Published this week', source: 'NEJM', link: 'https://www.nejm.org', color: '#4CC9F0', coordinates: [-71.0589, 42.3601] as [number, number] },
-  { id: '8', name: 'mRNA Malaria Vaccine', severity: 'DISCOVERY', location: 'Burkina Faso', keyStat: '77% efficacy in Phase 3 African trial', ageContext: 'Children 6 months to 5 years', whyHere: 'Phase 3 trial across 4 African countries', timeline: 'Results published this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#4CC9F0', coordinates: [-1.5616, 12.3642] as [number, number] },
-  { id: '9', name: 'CAR-T Lymphoma Therapy', severity: 'DISCOVERY', location: 'Houston, USA', keyStat: '54% complete remission in lymphoma patients', ageContext: 'Adults with relapsed lymphoma', whyHere: 'MD Anderson Cancer Center trial', timeline: 'FDA approval granted this month', source: 'NEJM', link: 'https://www.nejm.org', color: '#4CC9F0', coordinates: [-95.3698, 29.7604] as [number, number] },
-  { id: '10', name: 'CRISPR Haemophilia B', severity: 'DISCOVERY', location: 'London, UK', keyStat: 'Single infusion corrects haemophilia B — 89% success', ageContext: 'Males with severe haemophilia B', whyHere: 'UCL gene therapy trial', timeline: 'Published this week', source: 'NEJM', link: 'https://www.nejm.org', color: '#4CC9F0', coordinates: [-0.1276, 51.5074] as [number, number] },
+  { id: '6', name: 'Psilocybin Trial Results', severity: 'DISCOVERY', location: 'London, UK', keyStat: '67% remission rate in treatment-resistant depression', ageContext: 'Adults 25-65 with TRD', whyHere: 'Imperial College London Phase 3 trial', timeline: 'Results published today', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#00B4D8', coordinates: [-0.1276, 51.5074] as [number, number] },
+  { id: '7', name: 'GLP-1 Cardiovascular Trial', severity: 'DISCOVERY', location: 'Boston, USA', keyStat: '20% reduction in heart attack risk in non-diabetics', ageContext: 'Adults 45-75', whyHere: 'Harvard Medical School Phase 3 results', timeline: 'Published this week', source: 'NEJM', link: 'https://www.nejm.org', color: '#00B4D8', coordinates: [-71.0589, 42.3601] as [number, number] },
+  { id: '8', name: 'mRNA Malaria Vaccine', severity: 'DISCOVERY', location: 'Burkina Faso', keyStat: '77% efficacy in Phase 3 African trial', ageContext: 'Children 6 months to 5 years', whyHere: 'Phase 3 trial across 4 African countries', timeline: 'Results published this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#00B4D8', coordinates: [-1.5616, 12.3642] as [number, number] },
+  { id: '9', name: 'CAR-T Lymphoma Therapy', severity: 'DISCOVERY', location: 'Houston, USA', keyStat: '54% complete remission in lymphoma patients', ageContext: 'Adults with relapsed lymphoma', whyHere: 'MD Anderson Cancer Center trial', timeline: 'FDA approval granted this month', source: 'NEJM', link: 'https://www.nejm.org', color: '#00B4D8', coordinates: [-95.3698, 29.7604] as [number, number] },
+  { id: '10', name: 'CRISPR Haemophilia B', severity: 'DISCOVERY', location: 'London, UK', keyStat: 'Single infusion corrects haemophilia B — 89% success', ageContext: 'Males with severe haemophilia B', whyHere: 'UCL gene therapy trial', timeline: 'Published this week', source: 'NEJM', link: 'https://www.nejm.org', color: '#00B4D8', coordinates: [-0.1276, 51.5074] as [number, number] },
 ];
 
 const LONGEVITY_DOTS = [
-  { id: 'l1', name: 'Rapamycin Longevity Trial', severity: 'LONGEVITY', location: 'Boston, USA', keyStat: '18% reduction in biological age markers at 12 months', ageContext: 'Adults 45-70', whyHere: 'Harvard longevity lab trial', timeline: 'Published this month', source: 'Nature Aging', link: 'https://www.nature.com', color: '#A78BFA', coordinates: [-71.0589, 42.3601] as [number, number] },
-  { id: 'l2', name: 'Senolytics Phase 2', severity: 'LONGEVITY', location: 'San Francisco, USA', keyStat: 'Senescent cell clearance improves mobility in 78% of patients', ageContext: 'Adults 65+', whyHere: 'Unity Biotechnology trial', timeline: 'Results this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#A78BFA', coordinates: [-122.4194, 37.7749] as [number, number] },
-  { id: 'l3', name: 'NAD+ Restoration Study', severity: 'LONGEVITY', location: 'Tokyo, Japan', keyStat: 'NMN supplementation reverses vascular aging markers by 10 years', ageContext: 'Adults 50-70', whyHere: 'Keio University 3-year study', timeline: 'Published last week', source: 'Science', link: 'https://www.science.org', color: '#A78BFA', coordinates: [139.6917, 35.6895] as [number, number] },
+  { id: 'l1', name: 'Rapamycin Longevity Trial', severity: 'LONGEVITY', location: 'Boston, USA', keyStat: '18% reduction in biological age markers at 12 months', ageContext: 'Adults 45-70', whyHere: 'Harvard longevity lab trial', timeline: 'Published this month', source: 'Nature Aging', link: 'https://www.nature.com', color: '#059669', coordinates: [-71.0589, 42.3601] as [number, number] },
+  { id: 'l2', name: 'Senolytics Phase 2', severity: 'LONGEVITY', location: 'San Francisco, USA', keyStat: 'Senescent cell clearance improves mobility in 78% of patients', ageContext: 'Adults 65+', whyHere: 'Unity Biotechnology trial', timeline: 'Results this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#059669', coordinates: [-122.4194, 37.7749] as [number, number] },
+  { id: 'l3', name: 'NAD+ Restoration Study', severity: 'LONGEVITY', location: 'Tokyo, Japan', keyStat: 'NMN supplementation reverses vascular aging markers by 10 years', ageContext: 'Adults 50-70', whyHere: 'Keio University 3-year study', timeline: 'Published last week', source: 'Science', link: 'https://www.science.org', color: '#059669', coordinates: [139.6917, 35.6895] as [number, number] },
+  { id: 'l4', name: 'HBOT Cognitive Study', severity: 'PROTOCOL', location: 'Tel Aviv, Israel', keyStat: 'Hyperbaric oxygen reverses aging hallmarks in healthy adults', ageContext: 'Adults 64+', whyHere: 'Tel Aviv University HBOT trial', timeline: 'Published this month', source: 'Aging', link: 'https://www.aging-us.com', color: '#059669', coordinates: [34.7818, 32.0853] as [number, number] },
+  { id: 'l5', name: 'Red Light Therapy Trial', severity: 'PROTOCOL', location: 'London, UK', keyStat: 'Near-infrared light improves mitochondrial function by 25%', ageContext: 'Adults 40+', whyHere: 'UCL ophthalmology department', timeline: 'Published last month', source: 'Nature Aging', link: 'https://www.nature.com', color: '#059669', coordinates: [-0.1276, 51.5074] as [number, number] },
+];
+
+const MENTAL_HEALTH_DOTS = [
+  { id: 'm1', name: 'MDMA-PTSD Phase 3 Trial', severity: 'BREAKTHROUGH', location: 'San Francisco, USA', keyStat: '67% of participants no longer met PTSD criteria after treatment', ageContext: 'Adults with severe PTSD', whyHere: 'MAPS Phase 3 trial sites across USA', timeline: 'FDA review in progress', source: 'Nature Medicine', link: 'https://www.nature.com', color: '#7C3AED', coordinates: [-122.4194, 37.7749] as [number, number] },
+  { id: 'm2', name: 'Loneliness Cardiovascular Study', severity: 'RESEARCH', location: 'London, UK', keyStat: 'Loneliness increases cardiovascular risk by 29%', ageContext: 'Adults 40-79', whyHere: 'UK Biobank longitudinal study', timeline: 'Published this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#7C3AED', coordinates: [-0.1276, 51.5074] as [number, number] },
+  { id: 'm3', name: 'Ketamine Depression Trial', severity: 'BREAKTHROUGH', location: 'New York, USA', keyStat: 'Rapid antidepressant effect in 70% of treatment-resistant cases', ageContext: 'Adults with TRD', whyHere: 'Columbia University medical center', timeline: 'FDA approved this year', source: 'NEJM', link: 'https://www.nejm.org', color: '#7C3AED', coordinates: [-74.006, 40.7128] as [number, number] },
+];
+
+const PERFORMANCE_DOTS = [
+  { id: 'p1', name: 'Cold Exposure Protocol Study', severity: 'PROTOCOL', location: 'Amsterdam, Netherlands', keyStat: 'Cold immersion 3x/week reduces inflammation markers by 40%', ageContext: 'Adults 25-50', whyHere: 'Amsterdam UMC sports science trial', timeline: 'Published this month', source: 'Cell Metabolism', link: 'https://www.cell.com', color: '#2563EB', coordinates: [4.9041, 52.3676] as [number, number] },
+  { id: 'p2', name: 'VO2 Max Longevity Link', severity: 'RESEARCH', location: 'Dallas, USA', keyStat: 'Top VO2 max quintile has 5x lower mortality risk', ageContext: 'Adults 30-70', whyHere: 'Cooper Institute 20-year longitudinal study', timeline: 'Published last month', source: 'JAMA', link: 'https://jamanetwork.com', color: '#2563EB', coordinates: [-96.797, 32.7767] as [number, number] },
+];
+
+const ECONOMY_DOTS = [
+  { id: 'e1', name: 'GLP-1 Drug Pricing Dispute', severity: 'POLICY', location: 'Washington DC, USA', keyStat: 'Ozempic costs $900/month in USA vs $60 in Germany', ageContext: 'Affects 37M+ diabetes patients in USA', whyHere: 'Congressional hearing on drug pricing', timeline: 'Hearing this week', source: 'Reuters Health', link: 'https://www.reuters.com', color: '#D97706', coordinates: [-77.0369, 38.9072] as [number, number] },
+  { id: 'e2', name: 'Biotech VC Funding Record', severity: 'FUNDING', location: 'San Francisco, USA', keyStat: '$4.2B raised in longevity biotech Q1 2026', ageContext: 'Global biotech investment landscape', whyHere: 'Silicon Valley biotech hub', timeline: 'Q1 2026 report', source: 'Nature Biotechnology', link: 'https://www.nature.com', color: '#D97706', coordinates: [-122.4194, 37.7749] as [number, number] },
 ];
 
 const REGION_VIEWS: Record<string, { center: [number, number]; zoom: number }> = {
@@ -87,6 +105,9 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
         ...(activeVariants.includes('THREATS') ? threats : []),
         ...(activeVariants.includes('DISCOVERIES') ? DISCOVERIES_DOTS : []),
         ...(activeVariants.includes('LONGEVITY') ? LONGEVITY_DOTS : []),
+        ...(activeVariants.includes('MENTAL HEALTH') ? MENTAL_HEALTH_DOTS : []),
+        ...(activeVariants.includes('PERFORMANCE') ? PERFORMANCE_DOTS : []),
+        ...(activeVariants.includes('ECONOMY') ? ECONOMY_DOTS : []),
       ];
 
       dots.forEach(dot => {
@@ -129,12 +150,6 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
-      <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '8px 24px', display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        {['24h', '7d', '30d', '1yr', 'All'].map(t => (
-          <button key={t} style={{ backgroundColor: t === '7d' ? 'var(--accent-teal)' : 'transparent', color: t === '7d' ? '#000' : 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>{t}</button>
-        ))}
-      </div>
-
       <div ref={mapContainer} style={{ width: '100%', height: '55vh' }} />
 
       {activeDot && (
@@ -142,7 +157,7 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
             <strong style={{ fontSize: '15px' }}>{activeDot.name}</strong>
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-              <span style={{ background: activeDot.color, color: '#000', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>{activeDot.severity}</span>
+              <span style={{ background: activeDot.color, color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>{activeDot.severity}</span>
               <button onClick={() => setActiveDot(null)} style={{ background: 'transparent', border: 'none', color: '#8892A4', cursor: 'pointer', fontSize: '16px' }}>✕</button>
             </div>
           </div>
