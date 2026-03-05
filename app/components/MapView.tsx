@@ -12,6 +12,12 @@ const DISCOVERIES_DOTS = [
   { id: '10', name: 'CRISPR Haemophilia B', severity: 'BREAKTHROUGH', location: 'London, UK', keyStat: 'Single infusion corrects haemophilia B — 89% success', ageContext: 'Males with severe haemophilia B', whyHere: 'UCL gene therapy trial', timeline: 'Published this week', source: 'NEJM', link: 'https://www.nejm.org', color: '#4CC9F0', coordinates: [-0.1276, 51.5074] as [number, number] },
 ];
 
+const LONGEVITY_DOTS = [
+  { id: 'l1', name: 'Rapamycin Longevity Trial', severity: 'SIGNAL', location: 'Boston, USA', keyStat: '18% reduction in biological age markers at 12 months', ageContext: 'Adults 45-70', whyHere: 'Harvard longevity lab trial', timeline: 'Published this month', source: 'Nature Aging', link: 'https://www.nature.com', color: '#A78BFA', coordinates: [-71.0589, 42.3601] as [number, number] },
+  { id: 'l2', name: 'Senolytics Phase 2', severity: 'SIGNAL', location: 'San Francisco, USA', keyStat: 'Senescent cell clearance improves mobility in 78% of patients', ageContext: 'Adults 65+', whyHere: 'Unity Biotechnology trial', timeline: 'Results this week', source: 'The Lancet', link: 'https://www.thelancet.com', color: '#A78BFA', coordinates: [-122.4194, 37.7749] as [number, number] },
+  { id: 'l3', name: 'NAD+ Restoration Study', severity: 'SIGNAL', location: 'Tokyo, Japan', keyStat: 'NMN supplementation reverses vascular aging markers by 10 years', ageContext: 'Adults 50-70', whyHere: 'Keio University 3-year study', timeline: 'Published last week', source: 'Science', link: 'https://www.science.org', color: '#A78BFA', coordinates: [139.6917, 35.6895] as [number, number] },
+];
+
 const REGION_VIEWS: Record<string, { center: [number, number]; zoom: number }> = {
   'Global': { center: [20, 20], zoom: 1.8 },
   'Europe': { center: [10, 50], zoom: 3.5 },
@@ -24,7 +30,7 @@ const REGION_VIEWS: Record<string, { center: [number, number]; zoom: number }> =
 };
 
 interface MapViewProps {
-  variant: string;
+  activeVariants: string[];
   region: string;
   threats?: Dot[];
 }
@@ -44,7 +50,7 @@ interface Dot {
   coordinates: [number, number];
 }
 
-export default function MapView({ variant, region, threats = [] }: MapViewProps) {
+export default function MapView({ activeVariants, region, threats = [] }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -76,7 +82,12 @@ export default function MapView({ variant, region, threats = [] }: MapViewProps)
     const addDots = () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
-      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : threats;
+
+      const dots: Dot[] = [
+        ...(activeVariants.includes('THREATS') ? threats : []),
+        ...(activeVariants.includes('DISCOVERIES') ? DISCOVERIES_DOTS : []),
+        ...(activeVariants.includes('LONGEVITY') ? LONGEVITY_DOTS : []),
+      ];
 
       dots.forEach(dot => {
         const el = document.createElement('div');
@@ -98,7 +109,7 @@ export default function MapView({ variant, region, threats = [] }: MapViewProps)
 
     if (map.current.isStyleLoaded()) addDots();
     else map.current.on('load', addDots);
-  }, [variant, threats]);
+  }, [activeVariants, threats]);
 
   const askClaude = async () => {
     if (!question.trim() || !activeDot) return;
