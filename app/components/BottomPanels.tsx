@@ -1,48 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const NUMBERS = [
-  { label: 'Heart disease deaths this year', value: '4,812,447', trend: '↑', source: 'WHO GHO' },
-  { label: 'Cancer diagnoses this year', value: '3,241,890', trend: '↑', source: 'WHO' },
-  { label: 'New dengue cases this week', value: '284,000', trend: '↑', source: 'WHO/ECDC' },
-  { label: 'TB infections this year', value: '891,230', trend: '→', source: 'WHO' },
-  { label: 'Diabetes diagnoses today', value: '22,841', trend: '↑', source: 'IDF' },
-  { label: 'Suicide deaths this year', value: '192,447', trend: '→', source: 'WHO' },
-  { label: "Alzheimer's new cases this year", value: '1,102,334', trend: '↑', source: 'ADI' },
-  { label: 'Malaria cases this year', value: '14,882,001', trend: '↑', source: 'WHO' },
-  { label: 'FDA drug approvals this month', value: '4', trend: '→', source: 'FDA' },
-  { label: 'Active clinical trials globally', value: '421,883', trend: '↑', source: 'ClinicalTrials.gov' },
+  { label: 'Heart disease deaths this year', value: '4,812,447', trend: '↑', source: 'WHO GHO', url: 'https://www.who.int/health-topics/cardiovascular-diseases' },
+  { label: 'Cancer diagnoses this year', value: '3,241,890', trend: '↑', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/cancer' },
+  { label: 'New dengue cases this week', value: '284,000', trend: '↑', source: 'WHO/ECDC', url: 'https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue' },
+  { label: 'TB infections this year', value: '891,230', trend: '→', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/tuberculosis' },
+  { label: 'Diabetes diagnoses today', value: '22,841', trend: '↑', source: 'IDF', url: 'https://idf.org/about-diabetes/diabetes-facts-figures/' },
+  { label: 'Suicide deaths this year', value: '192,447', trend: '→', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/suicide' },
+  { label: "Alzheimer's new cases this year", value: '1,102,334', trend: '↑', source: 'ADI', url: 'https://www.alzint.org/about/dementia-facts-figures/' },
+  { label: 'Malaria cases this year', value: '14,882,001', trend: '↑', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/malaria' },
+  { label: 'Active clinical trials globally', value: '421,883', trend: '↑', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
 ];
 
 const COMMUNITY = [
-  { source: 'Reuters Health', headline: 'WHO declares end to mpox emergency in DRC as cases plateau' },
-  { source: 'STAT News', headline: 'Biotech funding rebounds in Q1 2026 — AI drug discovery leads' },
-  { source: 'The Lancet', headline: 'Global burden of antimicrobial resistance now exceeds HIV and malaria combined' },
-  { source: 'Al Jazeera Health', headline: 'GCC countries launch joint pandemic preparedness framework' },
-  { source: 'BBC Health', headline: 'Ultra-processed food linked to 32 health conditions in landmark study' },
-  { source: 'ProMED', headline: 'Novel orthopoxvirus detected in rodents — monitoring underway' },
-  { source: 'Fierce Biotech', headline: 'Pfizer acquires longevity biotech for $4.2B in gene therapy push' },
-  { source: 'Gulf News Health', headline: 'UAE launches national mental health strategy targeting 1M residents' },
-  { source: 'Reddit r/medicine', headline: 'Physicians report surge in long COVID cognitive complaints in under-40s' },
+  { source: 'Reuters Health', headline: 'WHO declares end to mpox emergency in DRC as cases plateau', url: 'https://www.reuters.com/business/healthcare-pharmaceuticals/' },
+  { source: 'STAT News', headline: 'Biotech funding rebounds in Q1 2026 — AI drug discovery leads', url: 'https://statnews.com' },
+  { source: 'The Lancet', headline: 'Global burden of antimicrobial resistance now exceeds HIV and malaria combined', url: 'https://www.thelancet.com' },
+  { source: 'Al Jazeera Health', headline: 'GCC countries launch joint pandemic preparedness framework', url: 'https://www.aljazeera.com/tag/health/' },
+  { source: 'BBC Health', headline: 'Ultra-processed food linked to 32 health conditions in landmark study', url: 'https://www.bbc.com/news/health' },
+  { source: 'ProMED', headline: 'Novel orthopoxvirus detected in rodents — monitoring underway', url: 'https://promedmail.org' },
+  { source: 'FierceBiotech', headline: 'Pfizer acquires longevity biotech for $4.2B in gene therapy push', url: 'https://www.fiercebiotech.com' },
+  { source: 'Gulf News Health', headline: 'UAE launches national mental health strategy targeting 1M residents', url: 'https://gulfnews.com/uae/health' },
+  { source: 'Reddit r/medicine', headline: 'Physicians report surge in long COVID cognitive complaints in under-40s', url: 'https://www.reddit.com/r/medicine/' },
 ];
 
-const FALLBACK_BRIEF = [
-  { title: 'THREAT OF THE DAY', content: 'Monitoring active global health signals across WHO, CDC, and ProMED networks. No critical alerts at this time.', color: '#E63946', variant: 'THREATS' },
-  { title: 'DISCOVERY OF THE DAY', content: 'Clinical trial activity remains high globally. Multiple Phase 3 trials in oncology and neurology publishing results this week.', color: '#00B4D8', variant: 'DISCOVERIES' },
-  { title: 'MENTAL HEALTH SIGNAL', content: 'Psychedelic-assisted therapy continues to advance through regulatory pipelines in the US and EU.', color: '#7C3AED', variant: 'MENTAL HEALTH' },
-  { title: 'LONGEVITY SIGNAL', content: 'Senolytics and NAD+ research remain the most active areas in longevity science. Watch for new rapamycin trial data.', color: '#059669', variant: 'LONGEVITY' },
-  { title: 'PERFORMANCE SIGNAL', content: 'Cold and heat therapy protocols gaining mainstream clinical validation. VO2 max emerging as strongest longevity biomarker.', color: '#2563EB', variant: 'PERFORMANCE' },
-  { title: 'ECONOMY SIGNAL', content: 'Biotech funding remains strong in Q1 2026. Drug pricing reform under active Congressional debate.', color: '#D97706', variant: 'ECONOMY' },
-  { title: 'HEALTH PULSE EXPLAINED', content: 'Global health signals are at Watch level. Multiple threats being monitored, no critical escalations. Stay informed.', color: '#00C9A7', variant: 'PULSE' },
+const SUGGESTED = [
+  'Are eggs healthy to eat daily? How many is too many?',
+  'What is the beetroot transit time test and what does it reveal?',
+  'How does saliva health affect your immune system?',
+  'Are home gut microbiome tests like Zoe actually reliable?',
+  'What is a safe colon flush and how does castor oil work?',
+  'Why should you rotate foods and not eat ginger every day?',
+  'What does your stool colour and shape tell you about your health?',
+  'Raw honey vs regular honey — does the source actually matter?',
+  'What is VO2 max and why does it predict lifespan?',
+  'What does elevated skin temperature at night mean on a wearable?',
+  'How does fear of death develop and how to manage it?',
+  'What are the top longevity biomarkers to track in 2026?',
+  'Cold therapy protocols — what actually has clinical evidence?',
+  'How does sleep affect biological aging markers?',
+  'What MedTech investments are growing fastest in 2026?',
 ];
-
-interface BriefItem {
-  title: string;
-  content: string;
-  color: string;
-  variant: string;
-}
 
 interface FeedItem {
   source: string;
@@ -53,14 +53,22 @@ interface FeedItem {
   link: string;
 }
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export default function BottomPanels() {
   const [feedTab, setFeedTab] = useState('ALL');
   const [numbersTab, setNumbersTab] = useState('NUMBERS');
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
-  const [brief, setBrief] = useState<BriefItem[]>(FALLBACK_BRIEF);
-  const [briefLoading, setBriefLoading] = useState(true);
-  const [briefCached, setBriefCached] = useState(false);
+
+  // Ask the Watch state
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [asking, setAsking] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFeedLoading(true);
@@ -74,18 +82,30 @@ export default function BottomPanels() {
   }, [feedTab]);
 
   useEffect(() => {
-    setBriefLoading(true);
-    fetch('/api/brief')
-      .then(r => r.json())
-      .then(data => {
-        if (data.brief?.length > 0) {
-          setBrief(data.brief);
-          setBriefCached(data.cached);
-        }
-        setBriefLoading(false);
-      })
-      .catch(() => setBriefLoading(false));
-  }, []);
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  async function askWatch(question: string) {
+    if (!question.trim() || asking) return;
+    const q = question.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: q }]);
+    setAsking(true);
+
+    try {
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, history: messages }),
+      });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.answer ?? 'No response.' }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Try again.' }]);
+    } finally {
+      setAsking(false);
+    }
+  }
 
   const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
 
@@ -99,14 +119,9 @@ export default function BottomPanels() {
   };
 
   const FEED_TAB_COLORS: Record<string, string> = {
-    ALL: '#00C9A7',
-    OUTBREAKS: '#E63946',
-    DISCOVERIES: '#00B4D8',
-    'MENTAL HEALTH': '#7C3AED',
-    LONGEVITY: '#059669',
-    PERFORMANCE: '#2563EB',
-    ECONOMY: '#D97706',
-    RECALLS: '#E63946',
+    ALL: '#00C9A7', OUTBREAKS: '#E63946', DISCOVERIES: '#00B4D8',
+    'MENTAL HEALTH': '#7C3AED', LONGEVITY: '#059669',
+    PERFORMANCE: '#2563EB', ECONOMY: '#D97706', RECALLS: '#E63946',
   };
 
   const tabStyle = (active: boolean, tab: string) => ({
@@ -122,7 +137,7 @@ export default function BottomPanels() {
   });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', padding: '16px 24px', backgroundColor: 'var(--bg-primary)' }}>
+    <div className="bottom-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', padding: '16px 24px 24px', backgroundColor: 'var(--bg-primary)' }}>
 
       {/* LEFT — Feed */}
       <div style={panelStyle}>
@@ -139,7 +154,7 @@ export default function BottomPanels() {
             <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading feed...</div>
           ) : feedItems.map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
@@ -168,53 +183,142 @@ export default function BottomPanels() {
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
           {numbersTab === 'NUMBERS' ? NUMBERS.map((n, i) => (
-            <div key={i} style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>{n.label}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', opacity: 0.6 }}>{n.source}</div>
+            <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>{n.label}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--accent-teal)', opacity: 0.7 }}>{n.source} ↗</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-teal)' }}>{n.value}</div>
+                  <div style={{ fontSize: '12px', color: n.trend === '↑' ? '#E63946' : 'var(--text-secondary)' }}>{n.trend}</div>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-teal)' }}>{n.value}</div>
-                <div style={{ fontSize: '12px', color: n.trend === '↑' ? '#E63946' : 'var(--text-secondary)' }}>{n.trend}</div>
-              </div>
-            </div>
+            </a>
           )) : COMMUNITY.map((c, i) => (
-            <div key={i} style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700', marginBottom: '4px' }}>{c.source}</div>
-              <div style={{ fontSize: '13px', lineHeight: '1.4' }}>{c.headline}</div>
-            </div>
+            <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <div style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700', marginBottom: '4px' }}>{c.source} ↗</div>
+                <div style={{ fontSize: '13px', lineHeight: '1.4' }}>{c.headline}</div>
+              </div>
+            </a>
           ))}
         </div>
       </div>
 
-      {/* RIGHT — AI Brief */}
+      {/* RIGHT — Ask the Watch */}
       <div style={panelStyle}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>AI HEALTH BRIEF</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-            {briefLoading ? 'Generating brief...' : briefCached ? 'Cached · Updates every 6 hours · Groq AI' : 'Just generated · Groq AI'}
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px' }}>🔭</span>
+            <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>ASK THE WATCH</div>
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.7 }}>
+            Health intelligence · food · body · longevity · performance
           </div>
         </div>
+
+        {/* Chat messages */}
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {briefLoading ? (
-            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>
-              <div>Generating AI brief from live health signals...</div>
-              <div style={{ marginTop: '8px', fontSize: '11px', opacity: 0.6 }}>This takes 5-10 seconds on first load</div>
+          {messages.length === 0 ? (
+            <div style={{ padding: '12px 14px' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, marginBottom: '10px', letterSpacing: '0.06em' }}>
+                TRY ASKING
+              </div>
+              {[...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 6).map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => askWatch(s)}
+                  style={{
+                    display: 'block', width: '100%', textAlign: 'left',
+                    backgroundColor: 'rgba(0,201,167,0.06)',
+                    border: '1px solid rgba(0,201,167,0.15)',
+                    borderRadius: '6px', padding: '7px 10px',
+                    fontSize: '11px', color: 'var(--text-secondary)',
+                    cursor: 'pointer', marginBottom: '5px',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.12)'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
-          ) : brief.map((card, i) => (
-            <div
-              key={i}
-              style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', borderLeft: `3px solid ${card.color}`, cursor: 'pointer', transition: 'background 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              <div style={{ fontSize: '11px', fontWeight: '700', color: card.color, marginBottom: '6px', letterSpacing: '0.05em' }}>{card.title}</div>
-              <div style={{ fontSize: '13px', lineHeight: '1.5', color: 'var(--text-primary)' }}>{card.content}</div>
+          ) : (
+            <div style={{ padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {messages.map((m, i) => (
+                <div key={i} style={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '90%',
+                  backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  lineHeight: '1.5',
+                  color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
+                }}>
+                  {m.content}
+                </div>
+              ))}
+              {asking && (
+                <div style={{ alignSelf: 'flex-start', padding: '8px 12px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px 12px 12px 2px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  Thinking...
+                </div>
+              )}
+              <div ref={chatEndRef} />
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0, display: 'flex', gap: '8px' }}>
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
+            placeholder="Ask anything about health..."
+            style={{
+              flex: 1, backgroundColor: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '6px', padding: '7px 10px',
+              fontSize: '12px', color: 'var(--text-primary)',
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={() => askWatch(input)}
+            disabled={asking || !input.trim()}
+            style={{
+              backgroundColor: asking ? 'rgba(0,201,167,0.3)' : '#00C9A7',
+              border: 'none', borderRadius: '6px',
+              padding: '7px 12px', fontSize: '12px',
+              fontWeight: '700', color: '#000',
+              cursor: asking ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s',
+              flexShrink: 0,
+            }}
+          >
+            {asking ? '...' : '↑'}
+          </button>
         </div>
       </div>
 
+      <style>{`
+        @media (max-width: 1024px) {
+          .bottom-panels { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 640px) {
+          .bottom-panels { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

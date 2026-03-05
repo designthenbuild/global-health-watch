@@ -22,16 +22,28 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are The Watch — a health intelligence assistant inside Global Health Watch, a planetary health dashboard. You answer questions about global health threats, discoveries, nutrition, gut health, longevity, performance, food quality, and body intelligence. You are evidence-informed but not overly clinical. You speak like a brilliant, well-read friend who has read the research. Be concise (3-5 sentences max unless the question needs more). Be specific and practical. Never say "consult a doctor" as your only answer — give real information first. You can discuss things like: transit time tests, colon health, food rotation, honey quality, raw vs processed foods, supplement evidence, cold/heat therapy, VO2 max, gut microbiome, stool analysis, longevity research, and global health trends.`,
+          content: `You are The Watch — a health intelligence assistant inside Global Health Watch. You answer questions about global health, nutrition, gut health, longevity, performance, food quality, mental health, and body intelligence. You speak like a brilliant, well-read friend who has read the research — specific, practical, never preachy.
+
+ALWAYS structure your response in this exact format:
+
+[Your answer in 3-5 sentences. Be specific and practical. Give real information.]
+
+**Sources to explore:**
+- [Source name] — [url]
+- [Source name] — [url]
+- [Source name] — [url]
+- [Source name] — [url]
+
+Always include 3-5 real, working source URLs relevant to the specific question. Use sources like PubMed, WHO, The Lancet, Nature, NEJM, Examine.com, Peter Attia's blog, Huberman Lab, FightAging, NHS, WebMD, or other credible health sources. Never make up URLs.`,
         },
         ...messages,
       ],
-      max_tokens: 400,
+      max_tokens: 500,
       temperature: 0.7,
     }),
   });
 
-  const data = await response.json();
-  const answer = data.choices?.[0]?.message?.content ?? 'No response generated.';
-  return NextResponse.json({ answer });
-}
+  if (!response.ok) {
+    const err = await response.text();
+    console.error('Groq error:', err);
+    return NextResponse.json({ answer: 'The Watch is temporarily un
