@@ -126,7 +126,7 @@ const DISCOVERIES_CARDS = [
   },
 ];
 
-export default function CardGrid() {
+export default function CardGrid({ activeVariants = [] }: { activeVariants?: string[] }) {
   return (
     <div style={{ padding: '0 24px 24px', backgroundColor: 'var(--bg-primary)' }}>
 
