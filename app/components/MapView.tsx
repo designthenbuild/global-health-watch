@@ -26,6 +26,7 @@ const REGION_VIEWS: Record<string, { center: [number, number]; zoom: number }> =
 interface MapViewProps {
   variant: string;
   region: string;
+  threats?: Dot[];
 }
 
 interface Dot {
@@ -43,22 +44,14 @@ interface Dot {
   coordinates: [number, number];
 }
 
-export default function MapView({ variant, region }: MapViewProps) {
+export default function MapView({ variant, region, threats = [] }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [threatDots, setThreatDots] = useState<Dot[]>([]);
   const [activeDot, setActiveDot] = useState<Dot | null>(null);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/threats')
-      .then(r => r.json())
-      .then(data => { if (data.threats?.length > 0) setThreatDots(data.threats); })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
@@ -83,7 +76,7 @@ export default function MapView({ variant, region }: MapViewProps) {
     const addDots = () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
-      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : threatDots;
+      const dots = variant === 'DISCOVERIES' ? DISCOVERIES_DOTS : threats;
 
       dots.forEach(dot => {
         const el = document.createElement('div');
@@ -105,7 +98,7 @@ export default function MapView({ variant, region }: MapViewProps) {
 
     if (map.current.isStyleLoaded()) addDots();
     else map.current.on('load', addDots);
-  }, [variant, threatDots]);
+  }, [variant, threats]);
 
   const askClaude = async () => {
     if (!question.trim() || !activeDot) return;
