@@ -22,28 +22,29 @@ interface Threat {
   coordinates: [number, number];
 }
 
-function calculatePulse(threats: Threat[]): { score: number; label: string; color: string; reason: string } {
-  if (threats.length === 0) return { score: 2, label: 'PULSE 2', color: '#FFD166', reason: 'Baseline monitoring — no live data loaded.' };
+interface PulseData {
+  score: number;
+  label: string;
+  color: string;
+  reason: string;
+}
 
+function calculatePulse(threats: Threat[]): PulseData {
+  if (threats.length === 0) return { score: 2, label: 'PULSE 2', color: '#FFD166', reason: 'Baseline monitoring — no live data loaded.' };
   const highAlert = threats.filter(t => t.severity === 'HIGH ALERT').length;
   const elevated = threats.filter(t => t.severity === 'ELEVATED').length;
   const total = threats.length;
-
   let score = 1;
   score += Math.min(3, Math.floor(total / 3));
   score += highAlert * 1.5;
   score += elevated * 0.5;
   score = Math.min(10, Math.round(score));
-
   const color = score >= 8 ? '#FF4D6D' : score >= 6 ? '#FFB347' : score >= 4 ? '#FFD166' : '#00C9A7';
-  const label = `PULSE ${score}`;
-  const reason = `${total} active signals · ${highAlert} high alert · ${elevated} elevated`;
-
-  return { score, label, color, reason };
+  return { score, label: `PULSE ${score}`, color, reason: `${total} active signals · ${highAlert} high alert · ${elevated} elevated` };
 }
 
 export default function Home() {
-  const [variant, setVariant] = useState('THREATS');
+  const [activeVariants, setActiveVariants] = useState<string[]>(['THREATS']);
   const [region, setRegion] = useState('Global');
   const [showMyHealth, setShowMyHealth] = useState(false);
   const [threats, setThreats] = useState<Threat[]>([]);
@@ -55,19 +56,26 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  const toggleVariant = (v: string) => {
+    console.log('toggleVariant called', v);
+    setActiveVariants(prev =>
+      prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]
+    );
+  };
+
   const pulse = calculatePulse(threats);
 
   return (
     <main>
       <TopBar
-        variant={variant}
-        setVariant={setVariant}
+        activeVariants={activeVariants}
+        toggleVariant={toggleVariant}
         region={region}
         setRegion={setRegion}
         onMyHealth={() => setShowMyHealth(true)}
         pulse={pulse}
       />
-      <MapView variant={variant} region={region} threats={threats} />
+      <MapView activeVariants={activeVariants} region={region} threats={threats} />
       <BottomPanels />
       <CardGrid />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}

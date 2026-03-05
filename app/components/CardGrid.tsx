@@ -167,7 +167,7 @@ export default function CardGrid() {
               backgroundColor: 'var(--bg-secondary)',
               borderRadius: '8px',
               padding: '16px',
-              borderTop: '2px solid var(--accent-teal)',
+              borderTop: '2px solid #4CC9F0',
             }}>
               <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '4px' }}>{card.category}</div>
               <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '12px' }}>Updated just now</div>

@@ -74,7 +74,7 @@ function getSeverity(title: string): { severity: string; color: string } {
   if (t.includes('outbreak') || t.includes('confirmed') || t.includes('spread')) {
     return { severity: 'ELEVATED', color: '#FFB347' };
   }
-  return { severity: 'MONITORING', color: '#FFD166' };
+  return { severity: 'MONITORING', color: '#FF8FA3' };
 }
 
 export async function GET() {
