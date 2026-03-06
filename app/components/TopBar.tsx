@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const regions = ['Global', 'Europe', 'GCC·MENA', 'North America', 'SE Asia', 'LATAM', 'Africa', 'ANZ'];
 
@@ -48,8 +48,20 @@ const scaleItems = [
 const variants = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
 
 export default function TopBar({ activeVariants = [], toggleVariant, region, setRegion, onMyHealth, pulse, onShare }: TopBarProps) {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [showPulse, setShowPulse] = useState(false);
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
+
+  useEffect(() => {
+    // Start in light mode
+    document.documentElement.classList.add('light');
+
+    // Show mobile warning on small screens
+    if (window.innerWidth < 768) {
+      const dismissed = localStorage.getItem('mobileWarningDismissed');
+      if (!dismissed) setShowMobileWarning(true);
+    }
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -61,37 +73,79 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
     }
   };
 
+  const dismissMobileWarning = (dontShow: boolean) => {
+    if (dontShow) localStorage.setItem('mobileWarningDismissed', 'true');
+    setShowMobileWarning(false);
+  };
+
   return (
     <>
+      {/* Mobile Warning */}
+      {showMobileWarning && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ backgroundColor: '#0D1B2A', borderRadius: '16px', padding: '32px 28px', width: '100%', maxWidth: '360px', border: '1px solid rgba(0,201,167,0.3)', boxShadow: '0 0 40px rgba(0,201,167,0.15)' }}>
+            <div style={{ fontSize: '32px', textAlign: 'center', marginBottom: '16px' }}>🔭</div>
+            <div style={{ fontWeight: '800', fontSize: '18px', color: '#fff', textAlign: 'center', marginBottom: '8px' }}>
+              Better on Desktop
+            </div>
+            <div style={{ fontSize: '13px', color: '#8892A4', textAlign: 'center', lineHeight: '1.6', marginBottom: '8px' }}>
+              Global Health Watch is a live intelligence dashboard — maps, feeds, counters, and AI are best experienced on a larger screen.
+            </div>
+            <div style={{ fontSize: '12px', color: '#00C9A7', textAlign: 'center', marginBottom: '24px' }}>
+              What matters in health. Every day.
+            </div>
+            <button
+              onClick={() => dismissMobileWarning(false)}
+              style={{ width: '100%', backgroundColor: '#00C9A7', color: '#000', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px' }}
+            >
+              Continue Anyway
+            </button>
+            <button
+              onClick={() => dismissMobileWarning(true)}
+              style={{ width: '100%', backgroundColor: 'transparent', color: '#8892A4', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '12px', fontSize: '13px', cursor: 'pointer' }}
+            >
+              Don&apos;t show again
+            </button>
+          </div>
+        </div>
+      )}
+
       <header style={{
         backgroundColor: 'var(--bg-secondary)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        padding: '10px 20px',
+        borderBottom: '1px solid var(--border-color)',
+        padding: '8px 20px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
         flexWrap: 'nowrap',
         overflowX: 'auto',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          <span style={{ fontSize: '18px' }}>🌐</span>
-          <span style={{ color: 'var(--accent-teal)', fontWeight: '700', fontSize: '13px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-            GLOBAL HEALTH WATCH
-          </span>
+        {/* Logo + Tagline */}
+        <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0, gap: '1px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '16px' }}>🌐</span>
+            <span style={{ color: 'var(--accent-teal)', fontWeight: '800', fontSize: '13px', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+              GLOBAL HEALTH WATCH
+            </span>
+          </div>
+          <div style={{ fontSize: '9px', color: 'var(--text-secondary)', letterSpacing: '0.04em', paddingLeft: '22px', opacity: 0.7 }}>
+            What matters in health. Every day.
+          </div>
         </div>
 
         <select
           value={region}
           onChange={e => setRegion(e.target.value)}
-          style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', flexShrink: 0 }}
+          style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', flexShrink: 0 }}
         >
           {regions.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
 
         <div
           onClick={() => setShowPulse(true)}
-          style={{ color: '#00C9A7', border: '1.5px solid #00C9A7', backgroundColor: 'transparent', borderRadius: '6px', padding: '4px 10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+          style={{ color: pulse.color, border: `1.5px solid ${pulse.color}`, backgroundColor: 'transparent', borderRadius: '6px', padding: '4px 10px', fontWeight: '700', fontSize: '12px', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px' }}
         >
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: pulse.color, animation: 'pulseDot 2s infinite' }} />
           {pulse.label}
         </div>
 
@@ -106,7 +160,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
                 style={{
                   backgroundColor: isActive ? color : 'transparent',
                   color: isActive ? '#fff' : 'var(--text-secondary)',
-                  border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.12)'}`,
+                  border: `1px solid ${isActive ? color : 'var(--border-color)'}`,
                   borderRadius: '6px',
                   padding: '4px 8px',
                   fontSize: '11px',
@@ -134,28 +188,24 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
 
         <button
           onClick={onShare}
-          style={{ backgroundColor: '#fff', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px' }}
+          style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px' }}
         >
-          <span>↑</span> SHARE
+          ↑ SHARE
         </button>
 
         <button
           onClick={toggleTheme}
-          style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 8px', fontSize: '14px', cursor: 'pointer', flexShrink: 0 }}
+          style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '14px', cursor: 'pointer', flexShrink: 0 }}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
       </header>
 
+      {/* Pulse Modal */}
       {showPulse && (
-        <div
-          onClick={() => setShowPulse(false)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{ backgroundColor: '#0D1B2A', border: '1px solid #00C9A7', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', color: '#fff', boxShadow: '0 0 40px #00C9A733' }}
-          >
+        <div onClick={() => setShowPulse(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#0D1B2A', border: `1px solid ${pulse.color}`, borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', color: '#fff', boxShadow: `0 0 40px ${pulse.color}33` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
               <div>
                 <div style={{ fontSize: '11px', fontWeight: '700', color: '#00C9A7', letterSpacing: '0.1em', marginBottom: '8px' }}>GLOBAL HEALTH PULSE</div>
@@ -198,6 +248,13 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.8); }
+        }
+      `}</style>
     </>
   );
 }

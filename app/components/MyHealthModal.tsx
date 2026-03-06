@@ -40,7 +40,7 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
     setLoading(true);
     setBrief('');
     try {
-      const res = await fetch('/api/myhealth', {
+      const res = await fetch('/api/health', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ age, location, conditions, lifestyle }),
