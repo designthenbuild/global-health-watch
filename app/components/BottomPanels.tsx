@@ -16,6 +16,17 @@ const COUNTER_TABS = {
       { label: 'Children dying of hunger this year', annualRate: 3650000, source: 'UNICEF', url: 'https://www.unicef.org/nutrition' },
     ],
   },
+  DISCOVERIES: {
+    color: '#00B4D8',
+    items: [
+      { label: 'Active clinical trials globally', annualRate: 0, fixed: '421,000+', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
+      { label: 'New drug approvals this year', annualRate: 55, source: 'FDA', url: 'https://www.fda.gov/patients/drug-development-process/step-4-fda-drug-review' },
+      { label: 'Medical papers published this year', annualRate: 3000000, source: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov' },
+      { label: 'Cancer survivors globally', annualRate: 0, fixed: '53,800,000+', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/cancer' },
+      { label: 'CRISPR studies published this year', annualRate: 4000, source: 'Nature', url: 'https://www.nature.com' },
+      { label: 'mRNA therapy trials active', annualRate: 0, fixed: '200+', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
+    ],
+  },
   'MENTAL HEALTH': {
     color: '#7C3AED',
     items: [
@@ -47,17 +58,6 @@ const COUNTER_TABS = {
       { label: 'HBOT sessions performed this year', annualRate: 15000000, source: 'UHMS', url: 'https://www.uhms.org' },
       { label: 'Elite athletes using biometrics', annualRate: 0, fixed: '90%+', source: 'BJSM', url: 'https://bjsm.bmj.com' },
       { label: 'Cold therapy studies published this year', annualRate: 1200, source: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov' },
-    ],
-  },
-  DISCOVERIES: {
-    color: '#00B4D8',
-    items: [
-      { label: 'Active clinical trials globally', annualRate: 0, fixed: '421,000+', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
-      { label: 'New drug approvals this year', annualRate: 55, source: 'FDA', url: 'https://www.fda.gov/patients/drug-development-process/step-4-fda-drug-review' },
-      { label: 'Medical papers published this year', annualRate: 3000000, source: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov' },
-      { label: 'Cancer survivors globally', annualRate: 0, fixed: '53,800,000+', source: 'WHO', url: 'https://www.who.int/news-room/fact-sheets/detail/cancer' },
-      { label: 'CRISPR studies published this year', annualRate: 4000, source: 'Nature', url: 'https://www.nature.com' },
-      { label: 'mRNA therapy trials active', annualRate: 0, fixed: '200+', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
     ],
   },
   ECONOMY: {
@@ -292,7 +292,7 @@ export default function BottomPanels() {
   }
 
   const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
-  const counterTabKeys = Object.keys(COUNTER_TABS);
+  const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
 
   const panelStyle = {
     backgroundColor: 'var(--bg-secondary)',
@@ -360,21 +360,21 @@ export default function BottomPanels() {
       <div style={panelStyle}>
         <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#E63946', animation: 'pulseDot 2s infinite' }} />
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
             <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
             <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, marginLeft: 'auto' }}>est. from annual data</div>
           </div>
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {counterTabKeys.map(t => (
               <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>
-                {t === 'MENTAL HEALTH' ? 'MENTAL' : t}
+                {t}
               </button>
             ))}
           </div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1 }}>
           {activeCounterData.items.map((item, i) => (
-            <CounterRow key={i} item={item} color={activeCounterData.color} />
+            <CounterRow key={`${counterTab}-${i}`} item={item} color={activeCounterData.color} />
           ))}
         </div>
       </div>
@@ -401,7 +401,8 @@ export default function BottomPanels() {
             <div style={{ padding: '12px 14px' }}>
               <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, marginBottom: '10px', letterSpacing: '0.06em' }}>TRY ASKING</div>
               {shuffled.map((s, i) => (
-                <button key={i} onClick={() => askWatch(s)} style={{ display: 'block', width: '100%', textAlign: 'left', backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '5px', transition: 'all 0.15s ease' }}
+                <button key={i} onClick={() => askWatch(s)}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '5px', transition: 'all 0.15s ease' }}
                   onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.12)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                 >{s}</button>
@@ -428,7 +429,8 @@ export default function BottomPanels() {
           <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }} placeholder="Ask anything about health..."
             style={{ flex: 1, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: 'var(--text-primary)', outline: 'none' }}
           />
-          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()} style={{ backgroundColor: asking ? 'rgba(0,201,167,0.3)' : '#00C9A7', border: 'none', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: '700', color: '#000', cursor: asking ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
+          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()}
+            style={{ backgroundColor: asking ? 'rgba(0,201,167,0.3)' : '#00C9A7', border: 'none', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: '700', color: '#000', cursor: asking ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
             {asking ? '...' : '↑'}
           </button>
         </div>
