@@ -22,6 +22,9 @@ const FEEDS = [
   { url: 'https://www.nejm.org/rss/current.xml', source: 'NEJM', region: 'Global' },
   { url: 'https://www.nature.com/nm.rss', source: 'Nature Medicine', region: 'Global' },
   { url: 'https://www.sciencedaily.com/rss/health_medicine.xml', source: 'ScienceDaily', region: 'Global' },
+  { url: 'https://endpts.com/feed/', source: 'Endpoints News', region: 'Global' },
+  { url: 'https://www.labiotech.eu/feed/', source: 'Labiotech', region: 'Europe' },
+  { url: 'https://www.genengnews.com/feed/', source: 'GEN', region: 'Global' },
 
   // === LONGEVITY — research ===
   { url: 'https://www.fightaging.org/feed/', source: 'FightAging!', region: 'Global' },
@@ -30,8 +33,9 @@ const FEEDS = [
   { url: 'https://novoslabs.com/feed/', source: 'NOVOS Labs', region: 'Global' },
   { url: 'https://longevity.stanford.edu/feed/', source: 'Stanford Longevity', region: 'Global' },
   { url: 'https://www.buckinstitute.org/feed/', source: 'Buck Institute', region: 'North America' },
+  { url: 'https://peterattiamd.com/feed/', source: 'Peter Attia', region: 'Global' },
 
-  // === LONGEVITY — biotech companies (from CSV) ===
+  // === LONGEVITY — biotech companies ===
   { url: 'https://www.altoslabs.com/feed/', source: 'Altos Labs', region: 'Global' },
   { url: 'https://www.calicolabs.com/feed/', source: 'Calico', region: 'North America' },
   { url: 'https://insilico.com/blog/feed/', source: 'Insilico Medicine', region: 'Global' },
@@ -41,7 +45,7 @@ const FEEDS = [
   { url: 'https://www.maximon.com/feed/', source: 'Maximon', region: 'Europe' },
   { url: 'https://shiftbioscience.com/feed/', source: 'Shift Bioscience', region: 'Europe' },
 
-  // === LONGEVITY — clinics & centers (from CSV) ===
+  // === LONGEVITY — clinics & centers ===
   { url: 'https://www.fountainlife.com/blog/feed/', source: 'Fountain Life', region: 'North America' },
   { url: 'https://upgradelabs.com/blog/feed/', source: 'Upgrade Labs', region: 'North America' },
   { url: 'https://www.next-health.com/blog/feed/', source: 'Next Health', region: 'North America' },
@@ -61,7 +65,7 @@ const FEEDS = [
   { url: 'https://www.whoop.com/feed/', source: 'WHOOP', region: 'North America' },
   { url: 'https://ouraring.com/blog/feed/', source: 'Oura Ring', region: 'Global' },
 
-  // === PERFORMANCE — altitude & hyperbaric (from CSV) ===
+  // === PERFORMANCE — altitude & hyperbaric ===
   { url: 'https://hypoxico.com/feed/', source: 'Hypoxico', region: 'North America' },
   { url: 'https://www.altitudecentre.com/feed/', source: 'Altitude Centre', region: 'Europe' },
   { url: 'https://www.teamexos.com/feed/', source: 'EXOS', region: 'North America' },
@@ -75,8 +79,11 @@ const FEEDS = [
   { url: 'https://www.digitalhealth.net/feed/', source: 'Digital Health', region: 'Global' },
   { url: 'https://healthtechdigital.com/feed/', source: 'Health Tech Digital', region: 'Europe' },
   { url: 'https://www.mobihealthnews.com/feed', source: 'MobiHealthNews', region: 'Global' },
+  { url: 'https://techcrunch.com/tag/health/feed/', source: 'TechCrunch Health', region: 'Global' },
+  { url: 'https://www.frontofficesports.com/feed/', source: 'Front Office Sports', region: 'Global' },
+  { url: 'https://www.sportsbusinessjournal.com/feed/', source: 'Sports Business Journal', region: 'Global' },
 
-  // === ECONOMY — investors (from CSV) ===
+  // === ECONOMY — investors ===
   { url: 'https://www.flagshippioneering.com/feed/', source: 'Flagship Pioneering', region: 'Global' },
   { url: 'https://www.apollo.vc/feed/', source: 'Apollo Health Ventures', region: 'Europe' },
   { url: 'https://fprimecapital.com/feed/', source: 'F-Prime Capital', region: 'Global' },
@@ -110,6 +117,7 @@ const SOURCE_TAGS: Record<string, string> = {
   'FightAging!': 'LONGEVITY',
   'Longevity.Technology': 'LONGEVITY',
   'Lifespan.io': 'LONGEVITY',
+  'Peter Attia': 'LONGEVITY',
   'Stanford Longevity': 'LONGEVITY',
   'NOVOS Labs': 'LONGEVITY',
   'Buck Institute': 'LONGEVITY',
@@ -148,6 +156,9 @@ const SOURCE_TAGS: Record<string, string> = {
   'AACR': 'DISCOVERIES',
   'Nature Medicine': 'DISCOVERIES',
   'ScienceDaily': 'DISCOVERIES',
+  'Endpoints News': 'DISCOVERIES',
+  'Labiotech': 'DISCOVERIES',
+  'GEN': 'DISCOVERIES',
   // Outbreaks
   'ProMED': 'OUTBREAKS',
   'ECDC': 'OUTBREAKS',
@@ -162,12 +173,17 @@ const SOURCE_TAGS: Record<string, string> = {
   'Digital Health': 'ECONOMY',
   'Health Tech Digital': 'ECONOMY',
   'MobiHealthNews': 'ECONOMY',
+  'TechCrunch Health': 'ECONOMY',
+  'Front Office Sports': 'ECONOMY',
+  'Sports Business Journal': 'ECONOMY',
   'Flagship Pioneering': 'ECONOMY',
   'Apollo Health Ventures': 'ECONOMY',
   'F-Prime Capital': 'ECONOMY',
   'Healthspan Capital': 'ECONOMY',
   'Sapphire Sport': 'ECONOMY',
   'Mubadala': 'ECONOMY',
+  // GCC
+  'M42': 'DISCOVERIES',
 };
 
 function getTag(title: string, snippet: string, source: string): string {
