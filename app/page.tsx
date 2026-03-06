@@ -5,7 +5,6 @@ import TopBar from './components/TopBar';
 import MapView from './components/MapView';
 import AIBrief from './components/AIBrief';
 import BottomPanels from './components/BottomPanels';
-import CardGrid from './components/CardGrid';
 import MyHealthModal from './components/MyHealthModal';
 
 interface Threat {
@@ -88,7 +87,6 @@ export default function Home() {
       <MapView activeVariants={activeVariants} region={region} threats={threats} />
       <AIBrief />
       <BottomPanels />
-      <CardGrid activeVariants={activeVariants} />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}
     </main>
   );
