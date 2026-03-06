@@ -14,18 +14,6 @@ const NUMBERS = [
   { label: 'Active clinical trials globally', value: '421,883', trend: '↑', source: 'ClinicalTrials.gov', url: 'https://clinicaltrials.gov' },
 ];
 
-const COMMUNITY = [
-  { source: 'Reuters Health', headline: 'WHO declares end to mpox emergency in DRC as cases plateau', url: 'https://www.reuters.com/business/healthcare-pharmaceuticals/' },
-  { source: 'STAT News', headline: 'Biotech funding rebounds in Q1 2026 — AI drug discovery leads', url: 'https://statnews.com' },
-  { source: 'The Lancet', headline: 'Global burden of antimicrobial resistance now exceeds HIV and malaria combined', url: 'https://www.thelancet.com' },
-  { source: 'Al Jazeera Health', headline: 'GCC countries launch joint pandemic preparedness framework', url: 'https://www.aljazeera.com/tag/health/' },
-  { source: 'BBC Health', headline: 'Ultra-processed food linked to 32 health conditions in landmark study', url: 'https://www.bbc.com/news/health' },
-  { source: 'ProMED', headline: 'Novel orthopoxvirus detected in rodents — monitoring underway', url: 'https://promedmail.org' },
-  { source: 'FierceBiotech', headline: 'Pfizer acquires longevity biotech for $4.2B in gene therapy push', url: 'https://www.fiercebiotech.com' },
-  { source: 'Gulf News Health', headline: 'UAE launches national mental health strategy targeting 1M residents', url: 'https://gulfnews.com/uae/health' },
-  { source: 'Reddit r/medicine', headline: 'Physicians report surge in long COVID cognitive complaints in under-40s', url: 'https://www.reddit.com/r/medicine/' },
-];
-
 const SUGGESTED = [
   'Are eggs healthy to eat daily? How many is too many?',
   'What is the beetroot transit time test and what does it reveal?',
@@ -56,6 +44,75 @@ interface FeedItem {
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+}
+
+function ShareButton({ content }: { content: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    const clean = content
+      .replace(/\*\*(.*?)\*\*/g, '*$1*')
+      .replace(/^[-•*]\s/gm, '• ')
+      .trim();
+    const text = `${clean}\n\n🔭 via Global Health Watch\nglobal-health-watch.vercel.app`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleTwitter() {
+    const first = content.split('\n')[0].replace(/\*\*/g, '');
+    const tweet = `${first}\n\n🔭 via Global Health Watch\nglobal-health-watch.vercel.app`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+  }
+
+  function handleWhatsApp() {
+    const clean = content.replace(/\*\*(.*?)\*\*/g, '*$1*');
+    const wa = `🔭 *Global Health Watch*\n\n${clean}\n\nglobal-health-watch.vercel.app`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(wa)}`, '_blank');
+  }
+
+  const btnBase: React.CSSProperties = {
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '5px', padding: '4px 10px',
+    fontSize: '10px', fontWeight: 600,
+    cursor: 'pointer', transition: 'all 0.2s',
+    display: 'flex', alignItems: 'center', gap: '4px',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    color: 'var(--text-secondary)',
+  };
+
+  return (
+    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      <button
+        onClick={handleCopy}
+        style={{
+          ...btnBase,
+          backgroundColor: copied ? 'rgba(0,201,167,0.2)' : 'rgba(255,255,255,0.05)',
+          borderColor: copied ? 'rgba(0,201,167,0.4)' : 'rgba(255,255,255,0.1)',
+          color: copied ? '#00C9A7' : 'var(--text-secondary)',
+        }}
+      >
+        {copied ? '✓ Copied' : '⎘ Copy'}
+      </button>
+      <button
+        onClick={handleTwitter}
+        style={btnBase}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1DA1F2'; e.currentTarget.style.color = '#1DA1F2'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+      >
+        𝕏 Post
+      </button>
+      <button
+        onClick={handleWhatsApp}
+        style={btnBase}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#25D366'; e.currentTarget.style.color = '#25D366'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+      >
+        WhatsApp
+      </button>
+    </div>
+  );
 }
 
 function formatMessage(content: string) {
@@ -91,30 +148,37 @@ function formatMessage(content: string) {
     if (inSources || (isListItem && urlMatch)) {
       const colonIdx = text.indexOf(': http');
       let name = colonIdx > -1
-  ? text.slice(0, colonIdx).trim()
-  : text.replace(/https?:\/\/[^\s]+/g, '').trim();
+        ? text.slice(0, colonIdx).trim()
+        : text.replace(/https?:\/\/[^\s]+/g, '').trim();
 
-if (!name && urlMatch) {
-  try {
-    const hostname = new URL(urlMatch[0]).hostname.replace('www.', '');
-    const parts = hostname.split('.');
-    name = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-    if (parts[0] === 'pubmed') name = 'PubMed';
-    if (parts[0] === 'ncbi') name = 'NCBI / PubMed';
-    if (hostname.includes('who.int')) name = 'WHO';
-    if (hostname.includes('mayoclinic')) name = 'Mayo Clinic';
-    if (hostname.includes('healthline')) name = 'Healthline';
-    if (hostname.includes('acsm')) name = 'ACSM';
-    if (hostname.includes('bmj')) name = 'BMJ';
-    if (hostname.includes('nature')) name = 'Nature';
-    if (hostname.includes('lww') || hostname.includes('journals.lww')) name = 'LWW Journals';
-    if (hostname.includes('mindbodygreen')) name = 'MindBodyGreen';
-    if (hostname.includes('draxe')) name = 'Dr. Axe';
-  } catch {
-    name = 'Source';
-  }
-}
-if (!name) name = 'Source';
+      if (!name && urlMatch) {
+        try {
+          const hostname = new URL(urlMatch[0]).hostname.replace('www.', '');
+          const parts = hostname.split('.');
+          name = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+          if (hostname.includes('pubmed') || hostname.includes('ncbi')) name = 'PubMed';
+          if (hostname.includes('who.int')) name = 'WHO';
+          if (hostname.includes('mayoclinic')) name = 'Mayo Clinic';
+          if (hostname.includes('healthline')) name = 'Healthline';
+          if (hostname.includes('acsm')) name = 'ACSM';
+          if (hostname.includes('bmj')) name = 'BMJ';
+          if (hostname.includes('nature')) name = 'Nature';
+          if (hostname.includes('lww') || hostname.includes('journals.lww')) name = 'LWW Journals';
+          if (hostname.includes('mindbodygreen')) name = 'MindBodyGreen';
+          if (hostname.includes('draxe')) name = 'Dr. Axe';
+          if (hostname.includes('harvard')) name = 'Harvard Health';
+          if (hostname.includes('stanford')) name = 'Stanford Medicine';
+          if (hostname.includes('examine')) name = 'Examine.com';
+          if (hostname.includes('peterattia')) name = 'Peter Attia MD';
+          if (hostname.includes('fightaging')) name = 'FightAging!';
+          if (hostname.includes('statnews')) name = 'STAT News';
+          if (hostname.includes('a16z')) name = 'Andreessen Horowitz';
+        } catch {
+          name = 'Source';
+        }
+      }
+      if (!name) name = 'Source';
+
       const url = urlMatch ? urlMatch[0] : '#';
       return (
         <a key={j} href={url} target="_blank" rel="noopener noreferrer"
@@ -262,16 +326,16 @@ export default function BottomPanels() {
         </div>
       </div>
 
-      {/* CENTRE — Numbers / Community */}
+      {/* CENTRE — Numbers */}
       <div style={panelStyle}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <button style={tabStyle(numbersTab === 'NUMBERS', 'ALL')} onClick={() => setNumbersTab('NUMBERS')}>TODAY&apos;S NUMBERS</button>
-            <button style={tabStyle(numbersTab === 'COMMUNITY', 'ALL')} onClick={() => setNumbersTab('COMMUNITY')}>COMMUNITY SIGNALS</button>
+          <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>TODAY&apos;S NUMBERS</div>
+          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.6 }}>
+            Estimated from WHO annual data · updates live
           </div>
         </div>
         <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {numbersTab === 'NUMBERS' ? NUMBERS.map((n, i) => (
+          {NUMBERS.map((n, i) => (
             <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
               <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
@@ -285,16 +349,6 @@ export default function BottomPanels() {
                   <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-teal)' }}>{n.value}</div>
                   <div style={{ fontSize: '12px', color: n.trend === '↑' ? '#E63946' : 'var(--text-secondary)' }}>{n.trend}</div>
                 </div>
-              </div>
-            </a>
-          )) : COMMUNITY.map((c, i) => (
-            <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)')}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-              >
-                <div style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700', marginBottom: '4px' }}>{c.source} ↗</div>
-                <div style={{ fontSize: '13px', lineHeight: '1.4' }}>{c.headline}</div>
               </div>
             </a>
           ))}
@@ -316,7 +370,6 @@ export default function BottomPanels() {
                   border: 'none', borderRadius: '6px',
                   padding: '4px 10px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '4px',
-                  transition: 'opacity 0.15s',
                 }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -370,7 +423,12 @@ export default function BottomPanels() {
                   lineHeight: '1.7',
                   color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
                 }}>
-                  {m.role === 'assistant' ? formatMessage(m.content) : m.content}
+                  {m.role === 'assistant' ? (
+                    <div>
+                      {formatMessage(m.content)}
+                      <ShareButton content={m.content} />
+                    </div>
+                  ) : m.content}
                 </div>
               ))}
               {asking && (
