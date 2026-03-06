@@ -51,14 +51,14 @@ const VARIANT_SOURCES: Record<string, Source[]> = {
     { label: 'Examine.com', url: 'https://examine.com', type: 'Evidence DB' },
     { label: 'PubMed Exercise Science', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=exercise+performance', type: 'Research' },
     { label: 'NSCA Journal', url: 'https://journals.lww.com/nsca-jscr/pages/default.aspx', type: 'Journal' },
-    { label: 'Huberman Lab Research', url: 'https://www.hubermanlab.com/research-summaries', type: 'Summary' },
+    { label: 'WHOOP Research', url: 'https://www.whoop.com/us/en/thelocker/', type: 'Wearable' },
   ],
   ECONOMY: [
     { label: 'WHO Health Financing', url: 'https://www.who.int/health-topics/health-financing', type: 'Official' },
     { label: 'Reuters Health & Pharma', url: 'https://www.reuters.com/business/healthcare-pharmaceuticals/', type: 'News' },
     { label: 'STAT News Business', url: 'https://statnews.com/category/business/', type: 'News' },
     { label: 'BioPharma Dive', url: 'https://www.biopharmadive.com', type: 'Industry' },
-    { label: 'FiercePharma', url: 'https://www.fiercepharma.com', type: 'Industry' },
+    { label: 'Andreessen Horowitz', url: 'https://a16z.com/bio-health/', type: 'VC' },
   ],
   PULSE: [
     { label: 'WHO Newsroom', url: 'https://www.who.int/news-room', type: 'Official' },
@@ -142,7 +142,7 @@ export default function AIBrief() {
                     cursor: 'pointer',
                     transition: 'all 0.18s ease',
                     textAlign: 'left',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid var(--border-color)',
                     borderTop: `3px solid ${card.color}`,
                     position: 'relative',
                     outline: 'none',
@@ -185,26 +185,46 @@ export default function AIBrief() {
 
       {activeCard && (
         <div onClick={closeModal} style={{ position: 'fixed', inset: 0, zIndex: 9000, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', animation: 'fadeIn 0.15s ease' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#0d1117', border: `1px solid ${activeCard.color}44`, borderTop: `3px solid ${activeCard.color}`, borderRadius: '12px', width: '100%', maxWidth: '560px', maxHeight: '85vh', overflowY: 'auto', boxShadow: `0 24px 60px rgba(0,0,0,0.6), 0 0 40px ${activeCard.color}18`, animation: 'slideUp 0.2s ease' }}>
-
-            <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', position: 'sticky', top: 0, backgroundColor: '#0d1117', borderRadius: '12px 12px 0 0', zIndex: 1 }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            backgroundColor: 'var(--bg-secondary)',
+            border: `1px solid ${activeCard.color}44`,
+            borderTop: `3px solid ${activeCard.color}`,
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '560px',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            boxShadow: `0 24px 60px rgba(0,0,0,0.3), 0 0 40px ${activeCard.color}18`,
+            animation: 'slideUp 0.2s ease',
+          }}>
+            <div style={{
+              padding: '20px 24px 16px',
+              borderBottom: '1px solid var(--border-color)',
+              position: 'sticky',
+              top: 0,
+              backgroundColor: 'var(--bg-secondary)',
+              borderRadius: '12px 12px 0 0',
+              zIndex: 1,
+            }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{ fontSize: '20px' }}>{activeCard.icon}</span>
                     <span style={{ fontSize: '10px', fontWeight: 800, color: activeCard.color, letterSpacing: '0.12em' }}>{activeCard.title}</span>
                   </div>
-                  <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#CBD5E1', margin: 0, maxWidth: '440px' }}>{activeCard.content}</p>
+                  <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-primary)', margin: 0, maxWidth: '440px' }}>{activeCard.content}</p>
                 </div>
-                <button onClick={closeModal} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', color: '#8892A4', cursor: 'pointer', width: '28px', height: '28px', borderRadius: '50%', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '16px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.14)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.07)')}
+                <button
+                  onClick={closeModal}
+                  style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', cursor: 'pointer', width: '28px', height: '28px', borderRadius: '50%', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '16px' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--border-color)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-primary)')}
                 >✕</button>
               </div>
             </div>
 
             <div style={{ padding: '20px 24px' }}>
-              <div style={{ fontSize: '10px', fontWeight: 700, color: '#8892A4', letterSpacing: '0.12em', marginBottom: '12px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.12em', marginBottom: '12px' }}>
                 TRACKED SOURCES · {activeCard.sources.length} feeds
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -217,7 +237,7 @@ export default function AIBrief() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: `${activeCard.color}22`, color: activeCard.color, fontSize: '10px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</div>
                       <div>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#E2E8F0' }}>{s.label}</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{s.label}</div>
                         <div style={{ fontSize: '10px', color: activeCard.color, opacity: 0.8, marginTop: '1px' }}>{s.type}</div>
                       </div>
                     </div>
@@ -225,7 +245,7 @@ export default function AIBrief() {
                   </a>
                 ))}
               </div>
-              <div style={{ marginTop: '16px', padding: '12px 14px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '8px', fontSize: '11px', color: '#8892A4', lineHeight: '1.5' }}>
+              <div style={{ marginTop: '16px', padding: '12px 14px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
                 💡 AI brief generated by Groq from these live feeds · {cached ? 'Cached · refreshes every 6h' : 'Just generated'} · Click any source to read the latest directly.
               </div>
             </div>
