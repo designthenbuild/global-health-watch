@@ -89,6 +89,11 @@ const SUGGESTED = [
   'Cold therapy protocols — what actually has clinical evidence?',
   'How does sleep affect biological aging markers?',
   'What MedTech investments are growing fastest in 2026?',
+  "What's new with WHOOP in 2026?",
+  'How does hyperbaric oxygen therapy affect recovery?',
+  'What does Altos Labs research mean for aging?',
+  'Which longevity biotech companies are leading right now?',
+  'What is the GCC investing in health tech this year?',
 ];
 
 interface FeedItem {
@@ -129,6 +134,45 @@ function useCounter(annualRate: number): string {
     return () => clearInterval(interval);
   }, [annualRate]);
   return count.toLocaleString();
+}
+
+function useTypewriter(phrases: string[], typingSpeed = 45, pauseDuration = 2200, deletingSpeed = 22): string {
+  const [displayed, setDisplayed] = useState('');
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [pausing, setPausing] = useState(false);
+
+  useEffect(() => {
+    if (pausing) {
+      const t = setTimeout(() => { setPausing(false); setDeleting(true); }, pauseDuration);
+      return () => clearTimeout(t);
+    }
+    if (!deleting) {
+      if (charIdx < phrases[phraseIdx].length) {
+        const t = setTimeout(() => {
+          setDisplayed(phrases[phraseIdx].slice(0, charIdx + 1));
+          setCharIdx(c => c + 1);
+        }, typingSpeed);
+        return () => clearTimeout(t);
+      } else {
+        setPausing(true);
+      }
+    } else {
+      if (charIdx > 0) {
+        const t = setTimeout(() => {
+          setDisplayed(phrases[phraseIdx].slice(0, charIdx - 1));
+          setCharIdx(c => c - 1);
+        }, deletingSpeed);
+        return () => clearTimeout(t);
+      } else {
+        setDeleting(false);
+        setPhraseIdx(i => (i + 1) % phrases.length);
+      }
+    }
+  }, [charIdx, deleting, pausing, phraseIdx, phrases, typingSpeed, pauseDuration, deletingSpeed]);
+
+  return displayed;
 }
 
 function CounterRow({ item, color }: { item: CounterItem; color: string }) {
@@ -255,16 +299,238 @@ function formatMessage(content: string) {
   });
 }
 
+function AskTheWatch() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const typewriter = useTypewriter(SUGGESTED);
+
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  async function askWatch(question: string) {
+    if (!question.trim() || asking) return;
+    const q = question.trim();
+    setInput('');
+    setExpanded(true);
+    setMessages(prev => [...prev, { role: 'user', content: q }]);
+    setAsking(true);
+    try {
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, history: messages }),
+      });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.answer ?? 'No response.' }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Something went wrong. Try again.' }]);
+    } finally { setAsking(false); }
+  }
+
+  function handleReset() {
+    setMessages([]);
+    setExpanded(false);
+    setInput('');
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }
+
+  const chips = SUGGESTED.slice(0, 6);
+
+  return (
+    <div className="ask-watch-hero" style={{
+      backgroundColor: 'var(--bg-secondary)',
+      borderRadius: '12px',
+      border: '1px solid var(--border-color)',
+      overflow: 'hidden',
+      transition: 'all 0.3s ease',
+      marginBottom: '0',
+    }}>
+      {/* Header row */}
+      <div style={{
+        padding: '16px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
+        background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+          <span style={{ fontSize: '20px', lineHeight: 1 }}>🔭</span>
+          <div>
+            <div style={{ fontWeight: '800', fontSize: '15px', color: '#00C9A7', letterSpacing: '0.05em' }}>ASK THE WATCH</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', opacity: 0.6, marginTop: '1px' }}>
+              Health intelligence · food · body · longevity · performance · investments
+            </div>
+          </div>
+        </div>
+
+        {/* Input bar */}
+        <div style={{ flex: 2, display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'var(--bg-primary)',
+            border: `1px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`,
+            borderRadius: '10px',
+            padding: '0 14px',
+            gap: '8px',
+            transition: 'border-color 0.2s',
+            boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.1)' : 'none',
+          }}>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder={focused ? 'Ask anything about health, longevity, performance...' : typewriter}
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                border: 'none',
+                outline: 'none',
+                fontSize: '13px',
+                color: 'var(--text-primary)',
+                padding: '12px 0',
+                minWidth: 0,
+              }}
+            />
+            {input && (
+              <button onClick={() => setInput('')}
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0', opacity: 0.5 }}>
+                ×
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => askWatch(input)}
+            disabled={asking || !input.trim()}
+            style={{
+              backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.2)' : '#00C9A7',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '12px 20px',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: asking || !input.trim() ? 'var(--text-secondary)' : '#000',
+              cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
+              flexShrink: 0,
+              transition: 'all 0.2s',
+              whiteSpace: 'nowrap',
+            }}>
+            {asking ? '...' : '↑ Ask'}
+          </button>
+          {messages.length > 0 && (
+            <button onClick={handleReset}
+              style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+              ↺ Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Chip suggestions — shown only when not expanded */}
+      {!expanded && (
+        <div style={{
+          padding: '12px 24px',
+          display: 'flex',
+          gap: '8px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
+          {chips.map((s, i) => (
+            <button key={i} onClick={() => askWatch(s)}
+              style={{
+                backgroundColor: 'rgba(0,201,167,0.06)',
+                border: '1px solid rgba(0,201,167,0.18)',
+                borderRadius: '20px',
+                padding: '5px 12px',
+                fontSize: '11px',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.15)';
+                e.currentTarget.style.color = '#00C9A7';
+                e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)';
+              }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Conversation area — shown when expanded */}
+      {expanded && (
+        <div style={{
+          maxHeight: '340px',
+          overflowY: 'auto',
+          padding: '16px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}>
+          {messages.map((m, i) => (
+            <div key={i} style={{
+              alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '75%',
+              backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.12)' : 'var(--bg-primary)',
+              border: m.role === 'user' ? '1px solid rgba(0,201,167,0.25)' : '1px solid var(--border-color)',
+              borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+              padding: '10px 14px',
+              fontSize: '13px',
+              lineHeight: '1.7',
+              color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
+            }}>
+              {m.role === 'assistant'
+                ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div>
+                : m.content}
+            </div>
+          ))}
+          {asking && (
+            <div style={{
+              alignSelf: 'flex-start',
+              padding: '10px 14px',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '16px 16px 16px 4px',
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+              display: 'flex',
+              gap: '4px',
+              alignItems: 'center',
+            }}>
+              <span style={{ animation: 'pulseDot 1s infinite' }}>·</span>
+              <span style={{ animation: 'pulseDot 1s 0.2s infinite' }}>·</span>
+              <span style={{ animation: 'pulseDot 1s 0.4s infinite' }}>·</span>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BottomPanels() {
   const [feedTab, setFeedTab] = useState('ALL');
   const [counterTab, setCounterTab] = useState('THREATS');
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [asking, setAsking] = useState(false);
-  const [shuffled] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 6));
-  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFeedLoading(true);
@@ -273,23 +539,6 @@ export default function BottomPanels() {
       .then(data => { if (data.items?.length > 0) setFeedItems(data.items); setFeedLoading(false); })
       .catch(() => setFeedLoading(false));
   }, [feedTab]);
-
-  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-
-  async function askWatch(question: string) {
-    if (!question.trim() || asking) return;
-    const q = question.trim();
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: q }]);
-    setAsking(true);
-    try {
-      const res = await fetch('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, history: messages }) });
-      const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.answer ?? 'No response.' }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Something went wrong. Try again.' }]);
-    } finally { setAsking(false); }
-  }
 
   const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
@@ -320,126 +569,80 @@ export default function BottomPanels() {
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
 
   return (
-    <div className="bottom-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', padding: '16px 24px 24px', backgroundColor: 'var(--bg-primary)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 24px' }}>
 
-      {/* LEFT — Feed */}
-      <div style={panelStyle}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '8px', color: 'var(--accent-teal)' }}>LIVE INTELLIGENCE FEED</div>
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            {feedTabs.map(t => (
-              <button key={t} style={tabStyle(feedTab === t, FEED_TAB_COLORS[t] || '#00C9A7')} onClick={() => setFeedTab(t)}>{t}</button>
+      {/* ASK THE WATCH — full width hero */}
+      <div style={{ marginBottom: '16px' }}>
+        <AskTheWatch />
+      </div>
+
+      {/* BOTTOM TWO PANELS */}
+      <div className="bottom-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
+        {/* LEFT — Feed */}
+        <div style={panelStyle}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
+            <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '8px', color: 'var(--accent-teal)' }}>LIVE INTELLIGENCE FEED</div>
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              {feedTabs.map(t => (
+                <button key={t} style={tabStyle(feedTab === t, FEED_TAB_COLORS[t] || '#00C9A7')} onClick={() => setFeedTab(t)}>{t}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
+            {feedLoading ? (
+              <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading feed...</div>
+            ) : feedItems.map((item, i) => (
+              <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)' }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700' }}>{item.source}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>{item.time}</span>
+                  </div>
+                  <div style={{ fontSize: '13px', lineHeight: '1.4', marginBottom: '4px', color: 'var(--text-primary)' }}>{item.headline}</div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <span style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>{item.tag}</span>
+                    <span style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>{item.region}</span>
+                  </div>
+                </div>
+              </a>
             ))}
           </div>
         </div>
-        <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {feedLoading ? (
-            <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading feed...</div>
-          ) : feedItems.map((item, i) => (
-            <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-              <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)' }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ color: 'var(--accent-teal)', fontSize: '11px', fontWeight: '700' }}>{item.source}</span>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>{item.time}</span>
-                </div>
-                <div style={{ fontSize: '13px', lineHeight: '1.4', marginBottom: '4px', color: 'var(--text-primary)' }}>{item.headline}</div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <span style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>{item.tag}</span>
-                  <span style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>{item.region}</span>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
 
-      {/* CENTRE — Live Counters */}
-      <div style={panelStyle}>
-        <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
-            <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
-            <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, marginLeft: 'auto' }}>est. from annual data</div>
+        {/* RIGHT — Live Counters */}
+        <div style={panelStyle}>
+          <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
+              <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, marginLeft: 'auto' }}>est. from annual data</div>
+            </div>
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              {counterTabKeys.map(t => (
+                <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            {counterTabKeys.map(t => (
-              <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>
-                {t}
-              </button>
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {activeCounterData.items.map((item, i) => (
+              <CounterRow key={`${counterTab}-${i}`} item={item} color={activeCounterData.color} />
             ))}
           </div>
-        </div>
-        <div style={{ overflowY: 'auto', flex: 1 }}>
-          {activeCounterData.items.map((item, i) => (
-            <CounterRow key={`${counterTab}-${i}`} item={item} color={activeCounterData.color} />
-          ))}
-        </div>
-      </div>
-
-      {/* RIGHT — Ask the Watch */}
-      <div style={panelStyle}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px' }}>🔭</span>
-            <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--accent-teal)' }}>ASK THE WATCH</div>
-            {messages.length > 0 && (
-              <button onClick={() => setMessages([])} style={{ marginLeft: 'auto', fontSize: '10px', fontWeight: 700, color: '#000', background: '#00C9A7', border: 'none', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}>
-                ↺ Ask New
-              </button>
-            )}
-          </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.7 }}>
-            Health intelligence · food · body · longevity · performance
-          </div>
-        </div>
-
-        <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0' }}>
-          {messages.length === 0 ? (
-            <div style={{ padding: '12px 14px' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, marginBottom: '10px', letterSpacing: '0.06em' }}>TRY ASKING</div>
-              {shuffled.map((s, i) => (
-                <button key={i} onClick={() => askWatch(s)}
-                  style={{ display: 'block', width: '100%', textAlign: 'left', backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '6px', padding: '7px 10px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '5px', transition: 'all 0.15s ease' }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.12)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                >{s}</button>
-              ))}
-            </div>
-          ) : (
-            <div style={{ padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {messages.map((m, i) => (
-                <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '92%', backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.15)' : 'var(--bg-primary)', border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid var(--border-color)', borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px', padding: '8px 12px', fontSize: '12px', lineHeight: '1.7', color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)' }}>
-                  {m.role === 'assistant' ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div> : m.content}
-                </div>
-              ))}
-              {asking && (
-                <div style={{ alignSelf: 'flex-start', padding: '8px 12px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px 12px 12px 2px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  Thinking...
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding: '10px 12px', borderTop: '1px solid var(--border-color)', flexShrink: 0, display: 'flex', gap: '8px' }}>
-          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }} placeholder="Ask anything about health..."
-            style={{ flex: 1, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: 'var(--text-primary)', outline: 'none' }}
-          />
-          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()}
-            style={{ backgroundColor: asking ? 'rgba(0,201,167,0.3)' : '#00C9A7', border: 'none', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: '700', color: '#000', cursor: asking ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
-            {asking ? '...' : '↑'}
-          </button>
         </div>
       </div>
 
       <style>{`
         @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @media (max-width: 1024px) { .bottom-panels { grid-template-columns: 1fr 1fr !important; } }
-        @media (max-width: 640px) { .bottom-panels { grid-template-columns: 1fr !important; } }
+        @media (max-width: 768px) {
+          .bottom-panels { grid-template-columns: 1fr !important; }
+          .ask-watch-hero { border-radius: 8px !important; }
+        }
       `}</style>
     </div>
   );
