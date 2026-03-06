@@ -75,7 +75,6 @@ const COUNTER_TABS = {
 
 const SUGGESTED = [
   'Are eggs healthy to eat daily? How many is too many?',
-  'What is the beetroot transit time test and what does it reveal?',
   'How does saliva health affect your immune system?',
   'Are home gut microbiome tests like Zoe actually reliable?',
   'What is a safe colon flush and how does castor oil work?',
@@ -229,7 +228,6 @@ function ShareButton({ content }: { content: string }) {
       flexWrap: 'wrap',
     }}>
       <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>SHARE</span>
-
       <button onClick={handleCopy} style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)',
@@ -245,7 +243,6 @@ function ShareButton({ content }: { content: string }) {
         <span style={{ fontSize: '13px' }}>{copied ? '✓' : '⎘'}</span>
         {copied ? 'Copied!' : 'Copy'}
       </button>
-
       <button onClick={handleTwitter} style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         backgroundColor: 'rgba(29,161,242,0.07)',
@@ -261,7 +258,6 @@ function ShareButton({ content }: { content: string }) {
         <span style={{ fontSize: '13px', fontWeight: 800 }}>𝕏</span>
         Post
       </button>
-
       <button onClick={handleWhatsApp} style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         backgroundColor: 'rgba(37,211,102,0.07)',
@@ -345,6 +341,7 @@ function AskTheWatch() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typewriter = useTypewriter(SUGGESTED);
+  const [chips] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 7));
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -375,7 +372,6 @@ function AskTheWatch() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }
 
-const chips = SUGGESTED.slice(0, 8);
   return (
     <div className="ask-watch-hero" style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -390,10 +386,9 @@ const chips = SUGGESTED.slice(0, 8);
         display: 'flex',
         alignItems: 'center',
         gap: '16px',
-        borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
+        borderBottom: '1px solid var(--border-color)',
         background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)',
       }}>
-        {/* Label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
           <span style={{ fontSize: '22px', lineHeight: 1 }}>🔭</span>
           <div>
@@ -404,7 +399,6 @@ const chips = SUGGESTED.slice(0, 8);
           </div>
         </div>
 
-        {/* Input */}
         <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
           <div style={{
             flex: 1,
@@ -444,7 +438,6 @@ const chips = SUGGESTED.slice(0, 8);
               </button>
             )}
           </div>
-
           <button
             onClick={() => askWatch(input)}
             disabled={asking || !input.trim()}
@@ -463,7 +456,6 @@ const chips = SUGGESTED.slice(0, 8);
             }}>
             {asking ? '···' : '↑ Ask'}
           </button>
-
           {messages.length > 0 && (
             <button onClick={handleReset}
               style={{
@@ -487,7 +479,7 @@ const chips = SUGGESTED.slice(0, 8);
         </div>
       </div>
 
-      {/* Chip suggestions */}
+      {/* Chip suggestions — 2 rows max */}
       {!expanded && (
         <div style={{
           padding: '10px 24px 14px',
@@ -495,7 +487,8 @@ const chips = SUGGESTED.slice(0, 8);
           gap: '8px',
           flexWrap: 'wrap',
           alignItems: 'center',
-          borderTop: '1px solid var(--border-color)',
+          maxHeight: '76px',
+          overflow: 'hidden',
         }}>
           <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
           {chips.map((s, i) => (
@@ -595,7 +588,7 @@ export default function BottomPanels() {
       .catch(() => setFeedLoading(false));
   }, [feedTab]);
 
-  const feedTabs = ['ALL', 'OUTBREAKS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY', 'RECALLS'];
+  const feedTabs = ['ALL', 'THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
 
   const panelStyle = {
@@ -608,9 +601,13 @@ export default function BottomPanels() {
   };
 
   const FEED_TAB_COLORS: Record<string, string> = {
-    ALL: '#00C9A7', OUTBREAKS: '#E63946', DISCOVERIES: '#00B4D8',
-    'MENTAL HEALTH': '#7C3AED', LONGEVITY: '#059669',
-    PERFORMANCE: '#2563EB', ECONOMY: '#D97706', RECALLS: '#E63946',
+    ALL: '#00C9A7',
+    THREATS: '#E63946',
+    DISCOVERIES: '#00B4D8',
+    'MENTAL HEALTH': '#7C3AED',
+    LONGEVITY: '#059669',
+    PERFORMANCE: '#2563EB',
+    ECONOMY: '#D97706',
   };
 
   const tabStyle = (active: boolean, color: string) => ({
@@ -626,28 +623,17 @@ export default function BottomPanels() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 24px' }}>
 
-      {/* ASK THE WATCH — full width hero */}
       <div style={{ marginBottom: '16px' }}>
         <AskTheWatch />
       </div>
 
-      {/* FEED + COUNTERS */}
       <div className="bottom-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 
         {/* LEFT — Feed */}
         <div style={panelStyle}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '8px', color: 'var(--accent-teal)' }}>LIVE INTELLIGENCE FEED</div>
-            <div style={{
-  padding: '10px 24px 14px',
-  display: 'flex',
-  gap: '8px',
-  flexWrap: 'nowrap',
-  alignItems: 'center',
-  borderTop: '1px solid var(--border-color)',
-  overflowX: 'auto',
-  scrollbarWidth: 'none',
-}}>
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
               {feedTabs.map(t => (
                 <button key={t} style={tabStyle(feedTab === t, FEED_TAB_COLORS[t] || '#00C9A7')} onClick={() => setFeedTab(t)}>{t}</button>
               ))}
