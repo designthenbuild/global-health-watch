@@ -218,26 +218,63 @@ function ShareButton({ content }: { content: string }) {
     window.open(`https://wa.me/?text=${encodeURIComponent(wa)}`, '_blank');
   }
 
-  const btnBase: React.CSSProperties = {
-    border: '1px solid var(--border-color)', borderRadius: '5px', padding: '4px 10px',
-    fontSize: '10px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-    display: 'flex', alignItems: 'center', gap: '4px',
-    backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)',
-  };
-
   return (
-    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-      <button onClick={handleCopy} style={{ ...btnBase, backgroundColor: copied ? 'rgba(0,201,167,0.2)' : 'var(--bg-primary)', borderColor: copied ? 'rgba(0,201,167,0.4)' : 'var(--border-color)', color: copied ? '#00C9A7' : 'var(--text-secondary)' }}>
-        {copied ? '✓ Copied' : '⎘ Copy'}
+    <div style={{
+      marginTop: '14px',
+      paddingTop: '12px',
+      borderTop: '1px solid var(--border-color)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      flexWrap: 'wrap',
+    }}>
+      <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>SHARE</span>
+
+      <button onClick={handleCopy} style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)',
+        border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.25)'}`,
+        borderRadius: '8px', padding: '6px 14px',
+        fontSize: '12px', fontWeight: 600,
+        color: copied ? '#00C9A7' : 'var(--text-secondary)',
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}
+        onMouseEnter={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)'; e.currentTarget.style.color = '#00C9A7'; } }}
+        onMouseLeave={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
+      >
+        <span style={{ fontSize: '13px' }}>{copied ? '✓' : '⎘'}</span>
+        {copied ? 'Copied!' : 'Copy'}
       </button>
-      <button onClick={handleTwitter} style={btnBase}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1DA1F2'; e.currentTarget.style.color = '#1DA1F2'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
-        𝕏 Post
+
+      <button onClick={handleTwitter} style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        backgroundColor: 'rgba(29,161,242,0.07)',
+        border: '1px solid rgba(29,161,242,0.25)',
+        borderRadius: '8px', padding: '6px 14px',
+        fontSize: '12px', fontWeight: 600,
+        color: 'var(--text-secondary)',
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.15)'; e.currentTarget.style.color = '#1DA1F2'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.25)'; }}
+      >
+        <span style={{ fontSize: '13px', fontWeight: 800 }}>𝕏</span>
+        Post
       </button>
-      <button onClick={handleWhatsApp} style={btnBase}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#25D366'; e.currentTarget.style.color = '#25D366'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+
+      <button onClick={handleWhatsApp} style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        backgroundColor: 'rgba(37,211,102,0.07)',
+        border: '1px solid rgba(37,211,102,0.25)',
+        borderRadius: '8px', padding: '6px 14px',
+        fontSize: '12px', fontWeight: 600,
+        color: 'var(--text-secondary)',
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.15)'; e.currentTarget.style.color = '#25D366'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.25)'; }}
+      >
+        <span style={{ fontSize: '13px' }}>💬</span>
         WhatsApp
       </button>
     </div>
@@ -347,39 +384,39 @@ function AskTheWatch() {
       border: '1px solid var(--border-color)',
       overflow: 'hidden',
       transition: 'all 0.3s ease',
-      marginBottom: '0',
     }}>
-      {/* Header row */}
+      {/* Header + input row */}
       <div style={{
         padding: '16px 24px',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
+        gap: '16px',
         borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
         background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-          <span style={{ fontSize: '20px', lineHeight: 1 }}>🔭</span>
+        {/* Label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <span style={{ fontSize: '22px', lineHeight: 1 }}>🔭</span>
           <div>
-            <div style={{ fontWeight: '800', fontSize: '15px', color: '#00C9A7', letterSpacing: '0.05em' }}>ASK THE WATCH</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', opacity: 0.6, marginTop: '1px' }}>
-              Health intelligence · food · body · longevity · performance · investments
+            <div style={{ fontWeight: '800', fontSize: '14px', color: '#00C9A7', letterSpacing: '0.06em' }}>ASK THE WATCH</div>
+            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>
+              health · food · body · longevity · performance · investments
             </div>
           </div>
         </div>
 
-        {/* Input bar */}
-        <div style={{ flex: 2, display: 'flex', gap: '8px', alignItems: 'center' }}>
+        {/* Input */}
+        <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
           <div style={{
             flex: 1,
             display: 'flex',
             alignItems: 'center',
             backgroundColor: 'var(--bg-primary)',
-            border: `1px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`,
+            border: `1.5px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`,
             borderRadius: '10px',
             padding: '0 14px',
             gap: '8px',
-            transition: 'border-color 0.2s',
+            transition: 'all 0.2s',
             boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.1)' : 'none',
           }}>
             <input
@@ -389,7 +426,7 @@ function AskTheWatch() {
               onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder={focused ? 'Ask anything about health, longevity, performance...' : typewriter}
+              placeholder={focused || input ? 'Ask anything about health, longevity, performance...' : typewriter}
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
@@ -397,61 +434,78 @@ function AskTheWatch() {
                 outline: 'none',
                 fontSize: '13px',
                 color: 'var(--text-primary)',
-                padding: '12px 0',
+                padding: '13px 0',
                 minWidth: 0,
               }}
             />
             {input && (
               <button onClick={() => setInput('')}
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0', opacity: 0.5 }}>
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0', opacity: 0.4 }}>
                 ×
               </button>
             )}
           </div>
+
           <button
             onClick={() => askWatch(input)}
             disabled={asking || !input.trim()}
             style={{
-              backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.2)' : '#00C9A7',
+              backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.15)' : '#00C9A7',
               border: 'none',
               borderRadius: '10px',
-              padding: '12px 20px',
+              padding: '13px 22px',
               fontSize: '13px',
               fontWeight: '700',
-              color: asking || !input.trim() ? 'var(--text-secondary)' : '#000',
+              color: asking || !input.trim() ? 'rgba(0,201,167,0.5)' : '#000',
               cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
               flexShrink: 0,
               transition: 'all 0.2s',
               whiteSpace: 'nowrap',
             }}>
-            {asking ? '...' : '↑ Ask'}
+            {asking ? '···' : '↑ Ask'}
           </button>
+
           {messages.length > 0 && (
             <button onClick={handleReset}
-              style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+              style={{
+                backgroundColor: 'transparent',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '13px 14px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#00C9A7'; e.currentTarget.style.color = '#00C9A7'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               ↺ Reset
             </button>
           )}
         </div>
       </div>
 
-      {/* Chip suggestions — shown only when not expanded */}
+      {/* Chip suggestions */}
       {!expanded && (
         <div style={{
-          padding: '12px 24px',
+          padding: '10px 24px 14px',
           display: 'flex',
           gap: '8px',
           flexWrap: 'wrap',
           alignItems: 'center',
+          borderTop: '1px solid var(--border-color)',
         }}>
-          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
           {chips.map((s, i) => (
             <button key={i} onClick={() => askWatch(s)}
               style={{
                 backgroundColor: 'rgba(0,201,167,0.06)',
-                border: '1px solid rgba(0,201,167,0.18)',
+                border: '1px solid rgba(0,201,167,0.15)',
                 borderRadius: '20px',
-                padding: '5px 12px',
+                padding: '5px 14px',
                 fontSize: '11px',
                 color: 'var(--text-secondary)',
                 cursor: 'pointer',
@@ -459,14 +513,14 @@ function AskTheWatch() {
                 whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.15)';
+                e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)';
                 e.currentTarget.style.color = '#00C9A7';
                 e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)';
                 e.currentTarget.style.color = 'var(--text-secondary)';
-                e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)';
+                e.currentTarget.style.borderColor = 'rgba(0,201,167,0.15)';
               }}>
               {s}
             </button>
@@ -474,24 +528,24 @@ function AskTheWatch() {
         </div>
       )}
 
-      {/* Conversation area — shown when expanded */}
+      {/* Conversation */}
       {expanded && (
         <div style={{
-          maxHeight: '340px',
+          maxHeight: '380px',
           overflowY: 'auto',
-          padding: '16px 24px',
+          padding: '20px 24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
+          gap: '14px',
         }}>
           {messages.map((m, i) => (
             <div key={i} style={{
               alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '75%',
+              maxWidth: '72%',
               backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.12)' : 'var(--bg-primary)',
               border: m.role === 'user' ? '1px solid rgba(0,201,167,0.25)' : '1px solid var(--border-color)',
               borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-              padding: '10px 14px',
+              padding: '12px 16px',
               fontSize: '13px',
               lineHeight: '1.7',
               color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
@@ -504,19 +558,21 @@ function AskTheWatch() {
           {asking && (
             <div style={{
               alignSelf: 'flex-start',
-              padding: '10px 14px',
+              padding: '12px 16px',
               backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
               borderRadius: '16px 16px 16px 4px',
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
               display: 'flex',
-              gap: '4px',
+              gap: '5px',
               alignItems: 'center',
             }}>
-              <span style={{ animation: 'pulseDot 1s infinite' }}>·</span>
-              <span style={{ animation: 'pulseDot 1s 0.2s infinite' }}>·</span>
-              <span style={{ animation: 'pulseDot 1s 0.4s infinite' }}>·</span>
+              {[0, 0.2, 0.4].map((delay, i) => (
+                <div key={i} style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  backgroundColor: '#00C9A7',
+                  animation: `pulseDot 1.2s ${delay}s infinite`,
+                }} />
+              ))}
             </div>
           )}
           <div ref={chatEndRef} />
@@ -576,7 +632,7 @@ export default function BottomPanels() {
         <AskTheWatch />
       </div>
 
-      {/* BOTTOM TWO PANELS */}
+      {/* FEED + COUNTERS */}
       <div className="bottom-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 
         {/* LEFT — Feed */}
@@ -638,10 +694,13 @@ export default function BottomPanels() {
       </div>
 
       <style>{`
-        @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
         @media (max-width: 768px) {
           .bottom-panels { grid-template-columns: 1fr !important; }
           .ask-watch-hero { border-radius: 8px !important; }
+        }
+        @media (max-width: 640px) {
+          .ask-watch-hero > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
         }
       `}</style>
     </div>
