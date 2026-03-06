@@ -96,11 +96,9 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
 
   useEffect(() => {
     if (!map.current) return;
-
     const addDots = () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
-
       const dots: Dot[] = [
         ...(activeVariants.includes('THREATS') ? threats : []),
         ...(activeVariants.includes('DISCOVERIES') ? DISCOVERIES_DOTS : []),
@@ -109,7 +107,6 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
         ...(activeVariants.includes('PERFORMANCE') ? PERFORMANCE_DOTS : []),
         ...(activeVariants.includes('ECONOMY') ? ECONOMY_DOTS : []),
       ];
-
       dots.forEach(dot => {
         const el = document.createElement('div');
         el.style.width = '14px';
@@ -120,14 +117,10 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
         el.style.cursor = 'pointer';
         el.style.boxShadow = `0 0 8px ${dot.color}`;
         el.addEventListener('click', () => { setActiveDot(dot); setQuestion(''); setAnswer(''); });
-
-        const marker = new mapboxgl.Marker({ element: el })
-          .setLngLat(dot.coordinates)
-          .addTo(map.current!);
+        const marker = new mapboxgl.Marker({ element: el }).setLngLat(dot.coordinates).addTo(map.current!);
         markersRef.current.push(marker);
       });
     };
-
     if (map.current.isStyleLoaded()) addDots();
     else map.current.on('load', addDots);
   }, [activeVariants, threats]);
@@ -153,31 +146,53 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
       <div ref={mapContainer} style={{ width: '100%', height: '55vh' }} />
 
       {activeDot && (
-        <div style={{ position: 'fixed', top: '80px', right: '24px', width: '320px', backgroundColor: '#1A2A3A', borderRadius: '10px', padding: '16px', zIndex: 1000, fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        <div style={{
+          position: 'fixed', top: '80px', right: '24px', width: '320px',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '10px', padding: '16px', zIndex: 1000,
+          fontFamily: 'Inter, sans-serif', fontSize: '13px',
+          color: 'var(--text-primary)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          border: '1px solid var(--border-color)',
+        }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <strong style={{ fontSize: '15px' }}>{activeDot.name}</strong>
+            <strong style={{ fontSize: '15px', color: 'var(--text-primary)' }}>{activeDot.name}</strong>
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
               <span style={{ background: activeDot.color, color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>{activeDot.severity}</span>
-              <button onClick={() => setActiveDot(null)} style={{ background: 'transparent', border: 'none', color: '#8892A4', cursor: 'pointer', fontSize: '16px' }}>✕</button>
+              <button onClick={() => setActiveDot(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px' }}>✕</button>
             </div>
           </div>
-          <div style={{ color: '#8892A4', marginBottom: '6px' }}>📍 {activeDot.location}</div>
-          <div style={{ marginBottom: '6px' }}><strong style={{ color: '#00C9A7' }}>Key stat:</strong> {activeDot.keyStat}</div>
-          <div style={{ marginBottom: '6px' }}><strong style={{ color: '#00C9A7' }}>Who&apos;s affected:</strong> {activeDot.ageContext}</div>
-          <div style={{ marginBottom: '6px' }}><strong style={{ color: '#00C9A7' }}>Why here:</strong> {activeDot.whyHere}</div>
-          <div style={{ marginBottom: '6px', color: '#8892A4', fontSize: '12px' }}>{activeDot.timeline}</div>
-          <div style={{ color: '#8892A4', fontSize: '12px', marginBottom: '12px' }}>
+
+          <div style={{ color: 'var(--text-secondary)', marginBottom: '6px' }}>📍 {activeDot.location}</div>
+          <div style={{ marginBottom: '6px' }}><strong style={{ color: 'var(--accent-teal)' }}>Key stat:</strong> <span style={{ color: 'var(--text-primary)' }}>{activeDot.keyStat}</span></div>
+          <div style={{ marginBottom: '6px' }}><strong style={{ color: 'var(--accent-teal)' }}>Who&apos;s affected:</strong> <span style={{ color: 'var(--text-primary)' }}>{activeDot.ageContext}</span></div>
+          <div style={{ marginBottom: '6px' }}><strong style={{ color: 'var(--accent-teal)' }}>Why here:</strong> <span style={{ color: 'var(--text-primary)' }}>{activeDot.whyHere}</span></div>
+          <div style={{ marginBottom: '6px', color: 'var(--text-secondary)', fontSize: '12px' }}>{activeDot.timeline}</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '12px' }}>
             Source: {activeDot.link
-              ? <a href={activeDot.link} target="_blank" rel="noopener noreferrer" style={{ color: '#00C9A7', textDecoration: 'underline' }}>{activeDot.source}</a>
+              ? <a href={activeDot.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-teal)', textDecoration: 'underline' }}>{activeDot.source}</a>
               : activeDot.source}
           </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: '#00C9A7', marginBottom: '8px' }}>EXPLAIN THIS TO ME</div>
+
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-teal)', marginBottom: '8px' }}>EXPLAIN THIS TO ME</div>
             <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-              <input value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => e.key === 'Enter' && askClaude()} placeholder="Ask a question..." style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '6px 10px', color: '#fff', fontSize: '12px' }} />
-              <button onClick={askClaude} disabled={loading} style={{ backgroundColor: '#00C9A7', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>{loading ? '...' : 'Ask'}</button>
+              <input
+                value={question}
+                onChange={e => setQuestion(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && askClaude()}
+                placeholder="Ask a question..."
+                style={{ flex: 1, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', color: 'var(--text-primary)', fontSize: '12px' }}
+              />
+              <button onClick={askClaude} disabled={loading} style={{ backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                {loading ? '...' : 'Ask'}
+              </button>
             </div>
-            {answer && <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#fff', backgroundColor: 'rgba(0,201,167,0.08)', padding: '10px', borderRadius: '6px' }}>{answer}</div>}
+            {answer && (
+              <div style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '6px' }}>
+                {answer}
+              </div>
+            )}
           </div>
         </div>
       )}
