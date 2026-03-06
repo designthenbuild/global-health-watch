@@ -375,8 +375,7 @@ function AskTheWatch() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }
 
-  const chips = SUGGESTED.slice(0, 6);
-
+const chips = SUGGESTED.slice(0, 8);
   return (
     <div className="ask-watch-hero" style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -639,7 +638,16 @@ export default function BottomPanels() {
         <div style={panelStyle}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontWeight: '700', fontSize: '13px', marginBottom: '8px', color: 'var(--accent-teal)' }}>LIVE INTELLIGENCE FEED</div>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            <div style={{
+  padding: '10px 24px 14px',
+  display: 'flex',
+  gap: '8px',
+  flexWrap: 'nowrap',
+  alignItems: 'center',
+  borderTop: '1px solid var(--border-color)',
+  overflowX: 'auto',
+  scrollbarWidth: 'none',
+}}>
               {feedTabs.map(t => (
                 <button key={t} style={tabStyle(feedTab === t, FEED_TAB_COLORS[t] || '#00C9A7')} onClick={() => setFeedTab(t)}>{t}</button>
               ))}
