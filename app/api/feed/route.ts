@@ -12,15 +12,12 @@ const parser = new Parser({
 });
 
 const FEEDS = [
-  // === THREATS / OUTBREAKS ===
   { url: 'https://tools.cdc.gov/api/v2/resources/media/316422.rss', source: 'CDC', region: 'North America' },
   { url: 'https://www.who.int/rss-feeds/news-releases.xml', source: 'WHO', region: 'Global' },
   { url: 'https://www.promedmail.org/feed/', source: 'ProMED', region: 'Global' },
   { url: 'https://www.ecdc.europa.eu/en/rss.xml', source: 'ECDC', region: 'Europe' },
   { url: 'https://www.ihme.uw.edu/rss', source: 'IHME', region: 'Global' },
   { url: 'https://www.foodsafetynews.com/feed/', source: 'Food Safety News', region: 'Global' },
-
-  // === DISCOVERIES / BIOTECH ===
   { url: 'https://www.fiercebiotech.com/rss/xml', source: 'FierceBiotech', region: 'Global' },
   { url: 'https://www.fiercepharma.com/rss/xml', source: 'FiercePharma', region: 'Global' },
   { url: 'https://www.statnews.com/feed/', source: 'STAT News', region: 'Global' },
@@ -33,8 +30,6 @@ const FEEDS = [
   { url: 'https://endpts.com/feed/', source: 'Endpoints News', region: 'Global' },
   { url: 'https://www.labiotech.eu/feed/', source: 'Labiotech', region: 'Europe' },
   { url: 'https://www.genengnews.com/feed/', source: 'GEN', region: 'Global' },
-
-  // === LONGEVITY — research ===
   { url: 'https://www.fightaging.org/feed/', source: 'FightAging!', region: 'Global' },
   { url: 'https://longevity.technology/feed/', source: 'Longevity.Technology', region: 'Global' },
   { url: 'https://www.lifespan.io/feed/', source: 'Lifespan.io', region: 'Global' },
@@ -42,8 +37,6 @@ const FEEDS = [
   { url: 'https://longevity.stanford.edu/feed/', source: 'Stanford Longevity', region: 'Global' },
   { url: 'https://www.buckinstitute.org/feed/', source: 'Buck Institute', region: 'North America' },
   { url: 'https://peterattiamd.com/feed/', source: 'Peter Attia', region: 'Global' },
-
-  // === LONGEVITY — biotech companies ===
   { url: 'https://www.altoslabs.com/feed/', source: 'Altos Labs', region: 'Global' },
   { url: 'https://www.calicolabs.com/feed/', source: 'Calico', region: 'North America' },
   { url: 'https://insilico.com/blog/feed/', source: 'Insilico Medicine', region: 'Global' },
@@ -52,33 +45,23 @@ const FEEDS = [
   { url: 'https://juvlabs.com/feed/', source: 'Juvenescence', region: 'Europe' },
   { url: 'https://www.maximon.com/feed/', source: 'Maximon', region: 'Europe' },
   { url: 'https://shiftbioscience.com/feed/', source: 'Shift Bioscience', region: 'Europe' },
-
-  // === LONGEVITY — clinics & centers ===
   { url: 'https://www.fountainlife.com/blog/feed/', source: 'Fountain Life', region: 'North America' },
   { url: 'https://upgradelabs.com/blog/feed/', source: 'Upgrade Labs', region: 'North America' },
   { url: 'https://www.next-health.com/blog/feed/', source: 'Next Health', region: 'North America' },
   { url: 'https://www.cliniquelaprairie.com/feed/', source: 'Clinique La Prairie', region: 'Europe' },
   { url: 'https://www.restore.com/feed/', source: 'Restore Hyper Wellness', region: 'North America' },
-
-  // === MENTAL HEALTH ===
   { url: 'https://www.nimh.nih.gov/news/rss/nimh-all-news.xml', source: 'NIMH', region: 'Global' },
   { url: 'https://www.thelancet.com/rssfeed/lanpsy_current.xml', source: 'The Lancet Psychiatry', region: 'Global' },
   { url: 'https://www.mentalhealthweekly.org/feed/', source: 'Mental Health Weekly', region: 'Global' },
   { url: 'https://www.mindful.org/feed/', source: 'Mindful.org', region: 'Global' },
-
-  // === PERFORMANCE ===
   { url: 'https://bjsm.bmj.com/rss/current.xml', source: 'BJSM', region: 'Global' },
   { url: 'https://sportstechnologyblog.com/feed/', source: 'Sports Technology Blog', region: 'Global' },
   { url: 'https://www.sciencedaily.com/rss/mind_brain/sports_science.xml', source: 'ScienceDaily Sports', region: 'Global' },
   { url: 'https://www.whoop.com/feed/', source: 'WHOOP', region: 'North America' },
   { url: 'https://ouraring.com/blog/feed/', source: 'Oura Ring', region: 'Global' },
-
-  // === PERFORMANCE — altitude & hyperbaric ===
   { url: 'https://hypoxico.com/feed/', source: 'Hypoxico', region: 'North America' },
   { url: 'https://www.altitudecentre.com/feed/', source: 'Altitude Centre', region: 'Europe' },
   { url: 'https://www.teamexos.com/feed/', source: 'EXOS', region: 'North America' },
-
-  // === ECONOMY / INVESTMENT ===
   { url: 'https://a16z.com/feed/', source: 'Andreessen Horowitz', region: 'Global' },
   { url: 'https://sifted.eu/feed/', source: 'Sifted', region: 'Europe' },
   { url: 'https://www.fiercehealthcare.com/feed', source: 'Fierce Healthcare', region: 'Global' },
@@ -90,43 +73,33 @@ const FEEDS = [
   { url: 'https://techcrunch.com/tag/health/feed/', source: 'TechCrunch Health', region: 'Global' },
   { url: 'https://www.frontofficesports.com/feed/', source: 'Front Office Sports', region: 'Global' },
   { url: 'https://www.sportsbusinessjournal.com/feed/', source: 'Sports Business Journal', region: 'Global' },
-
-  // === ECONOMY — investors ===
   { url: 'https://www.flagshippioneering.com/feed/', source: 'Flagship Pioneering', region: 'Global' },
   { url: 'https://www.apollo.vc/feed/', source: 'Apollo Health Ventures', region: 'Europe' },
   { url: 'https://fprimecapital.com/feed/', source: 'F-Prime Capital', region: 'Global' },
   { url: 'https://www.healthspancapital.vc/feed/', source: 'Healthspan Capital', region: 'Global' },
   { url: 'https://www.sapphiresport.com/feed/', source: 'Sapphire Sport', region: 'Global' },
-
-  // === RECALLS ===
   { url: 'https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml', source: 'FDA Recalls', region: 'North America' },
-  { url: 'https://www.foodsafetynews.com/feed/', source: 'Food Safety News', region: 'Global' },
   { url: 'https://www.efsa.europa.eu/en/rss/rss-all-news.xml', source: 'EFSA', region: 'Europe' },
-
-  // === GENERAL HEALTH ===
   { url: 'https://www.health.harvard.edu/blog/feed', source: 'Harvard Health', region: 'Global' },
   { url: 'https://feeds.reuters.com/reuters/healthNews', source: 'Reuters Health', region: 'Global' },
   { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml', source: 'NYT Health', region: 'Global' },
   { url: 'https://www.bbc.co.uk/news/health/rss.xml', source: 'BBC Health', region: 'Global' },
   { url: 'https://www.thelancet.com/rssfeed/lancet_online.xml', source: 'The Lancet', region: 'Global' },
-
-  // === GCC / MENA ===
   { url: 'https://m42.ae/feed/', source: 'M42', region: 'GCC·MENA' },
   { url: 'https://www.mubadala.com/en/rss', source: 'Mubadala', region: 'GCC·MENA' },
 ];
 
 const TAG_KEYWORDS: Record<string, string[]> = {
-  THREATS: ['outbreak', 'virus', 'disease', 'infection', 'epidemic', 'cholera', 'dengue', 'mpox', 'flu', 'measles', 'ebola', 'malaria', 'pathogen', 'surveillance', 'zoonotic', 'promed', 'alert', 'avian', 'h5n1', 'pandemic'],
+  RECALLS: ['recall', 'withdrawn', 'contamina', 'allergen', 'salmonella', 'listeria', 'mislabel', 'unsafe', 'undeclared', 'foreign material', 'e. coli', 'botulism', 'adulterat'],
+  THREATS: ['outbreak', 'virus', 'disease', 'infection', 'epidemic', 'cholera', 'dengue', 'mpox', 'flu', 'measles', 'ebola', 'malaria', 'pathogen', 'surveillance', 'zoonotic', 'alert', 'avian', 'h5n1', 'pandemic'],
   DISCOVERIES: ['approved', 'approval', 'trial', 'study', 'research', 'vaccine', 'therapy', 'treatment', 'drug', 'clinical', 'phase', 'breakthrough', 'gene', 'cell therapy', 'biomarker', 'crispr', 'mrna', 'ai drug', 'insilico'],
   'MENTAL HEALTH': ['mental', 'depression', 'anxiety', 'suicide', 'psychiatric', 'behavioral', 'opioid', 'substance', 'psychedelic', 'ptsd', 'burnout', 'wellbeing', 'stress', 'mindful', 'ketamine', 'mdma'],
   LONGEVITY: ['longevity', 'aging', 'ageing', 'lifespan', 'healthspan', 'senolytic', 'rapamycin', 'nad+', 'telomere', 'rejuvenation', 'anti-aging', 'life extension', 'epigenetic', 'altos', 'calico', 'retro bio', 'reprogramming', 'senescence'],
   PERFORMANCE: ['performance', 'exercise', 'fitness', 'recovery', 'vo2', 'training', 'sport', 'muscle', 'sleep', 'cold therapy', 'heat therapy', 'biohack', 'nutrition', 'supplement', 'whoop', 'oura', 'wearable', 'altitude', 'hyperbaric', 'hbot', 'hypoxico'],
-  ECONOMY: ['funding', 'investment', 'acquisition', 'merger', 'ipo', 'startup', 'biotech stock', 'venture', 'series a', 'series b', 'raises', 'billion', 'million', 'deal', 'market', 'a16z', 'flagship', 'mubadala', 'valuation', 'exits'],
-  RECALLS: ['recall', 'withdrawn', 'contamina', 'allergen', 'salmonella', 'listeria', 'mislabel', 'unsafe', 'undeclared', 'foreign material', 'e. coli', 'botulism', 'adulterat'],
+  ECONOMY: ['funding', 'investment', 'acquisition', 'merger', 'ipo', 'startup', 'venture', 'series a', 'series b', 'raises', 'billion', 'million', 'deal', 'market', 'a16z', 'flagship', 'mubadala', 'valuation'],
 };
 
 const SOURCE_TAGS: Record<string, string> = {
-  // Longevity
   'FightAging!': 'LONGEVITY',
   'Longevity.Technology': 'LONGEVITY',
   'Lifespan.io': 'LONGEVITY',
@@ -147,12 +120,10 @@ const SOURCE_TAGS: Record<string, string> = {
   'Next Health': 'LONGEVITY',
   'Clinique La Prairie': 'LONGEVITY',
   'Restore Hyper Wellness': 'LONGEVITY',
-  // Mental Health
   'NIMH': 'MENTAL HEALTH',
   'Mental Health Weekly': 'MENTAL HEALTH',
   'The Lancet Psychiatry': 'MENTAL HEALTH',
   'Mindful.org': 'MENTAL HEALTH',
-  // Performance
   'BJSM': 'PERFORMANCE',
   'Sports Technology Blog': 'PERFORMANCE',
   'ScienceDaily Sports': 'PERFORMANCE',
@@ -161,7 +132,6 @@ const SOURCE_TAGS: Record<string, string> = {
   'Hypoxico': 'PERFORMANCE',
   'Altitude Centre': 'PERFORMANCE',
   'EXOS': 'PERFORMANCE',
-  // Discoveries
   'FierceBiotech': 'DISCOVERIES',
   'FiercePharma': 'DISCOVERIES',
   'NEJM': 'DISCOVERIES',
@@ -172,15 +142,13 @@ const SOURCE_TAGS: Record<string, string> = {
   'Endpoints News': 'DISCOVERIES',
   'Labiotech': 'DISCOVERIES',
   'GEN': 'DISCOVERIES',
-  // Threats
+  'M42': 'DISCOVERIES',
   'ProMED': 'THREATS',
   'ECDC': 'THREATS',
   'IHME': 'THREATS',
-  // Recalls
   'FDA Recalls': 'RECALLS',
   'EFSA': 'RECALLS',
   'Food Safety News': 'RECALLS',
-  // Economy
   'Andreessen Horowitz': 'ECONOMY',
   'Sifted': 'ECONOMY',
   'LifeSciVC': 'ECONOMY',
@@ -198,32 +166,39 @@ const SOURCE_TAGS: Record<string, string> = {
   'Healthspan Capital': 'ECONOMY',
   'Sapphire Sport': 'ECONOMY',
   'Mubadala': 'ECONOMY',
-  // GCC
-  'M42': 'DISCOVERIES',
 };
 
 function extractImage(item: any): string | undefined {
   try {
-    if (item.mediaContent && item.mediaContent.$ && item.mediaContent.$.url) return item.mediaContent.$.url;
-    if (item.mediaContent && item.mediaContent.url) return item.mediaContent.url;
-    if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) return item.mediaThumbnail.$.url;
-    if (item.mediaThumbnail && item.mediaThumbnail.url) return item.mediaThumbnail.url;
-    if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) return item.enclosure.url;
-    const content = item['content:encoded'] || item.content || item.summary || '';
+    if (item.mediaContent && item.mediaContent.$ && item.mediaContent.$.url) {
+      return item.mediaContent.$.url;
+    }
+    if (item.mediaContent && item.mediaContent.url) {
+      return item.mediaContent.url;
+    }
+    if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
+      return item.mediaThumbnail.$.url;
+    }
+    if (item.mediaThumbnail && item.mediaThumbnail.url) {
+      return item.mediaThumbnail.url;
+    }
+    if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) {
+      return item.enclosure.url;
+    }
+    const content: string = item['content:encoded'] || item.content || item.summary || '';
     const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (imgMatch) return imgMatch[1];
-  } catch { return undefined; }
+  } catch (e) {
+    return undefined;
+  }
   return undefined;
 }
 
 function getTag(title: string, snippet: string, source: string): string {
   if (SOURCE_TAGS[source]) return SOURCE_TAGS[source];
   const text = (title + ' ' + snippet).toLowerCase();
-  // Check RECALLS first — more specific than THREATS
-  if (TAG_KEYWORDS.RECALLS.some(k => text.includes(k))) return 'RECALLS';
   for (const [tag, keywords] of Object.entries(TAG_KEYWORDS)) {
-    if (tag === 'RECALLS') continue;
-    if (keywords.some(k => text.includes(k))) return tag;
+    if (keywords.some((k: string) => text.includes(k))) return tag;
   }
   return 'UPDATE';
 }
@@ -262,3 +237,31 @@ export async function GET(request: Request) {
 
         const region = getRegionFromTitle(title, feed.region);
         const image = extractImage(item);
+
+        items.push({
+          source: feed.source,
+          headline: title,
+          time: item.pubDate ? new Date(item.pubDate).toLocaleDateString() : 'Recently',
+          tag,
+          region,
+          link: item.link || '#',
+          image,
+          summary: item.contentSnippet ? item.contentSnippet.slice(0, 200) : undefined,
+        });
+      }
+      return items;
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const results = await Promise.allSettled(feedPromises);
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      allItems.push(...result.value);
+    }
+  }
+
+  const sorted = allItems.slice(0, 60);
+  return NextResponse.json({ items: sorted });
+}
