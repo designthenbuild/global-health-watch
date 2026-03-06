@@ -203,18 +203,16 @@ const SOURCE_TAGS: Record<string, string> = {
 };
 
 function extractImage(item: any): string | undefined {
-  // Try media:content
-  if (item.mediaContent?.$ ?.url) return item.mediaContent.$.url;
-  if (item.mediaContent?.url) return item.mediaContent.url;
-  // Try media:thumbnail
-  if (item.mediaThumbnail?.$ ?.url) return item.mediaThumbnail.$.url;
-  if (item.mediaThumbnail?.url) return item.mediaThumbnail.url;
-  // Try enclosure (podcasts / some news feeds)
-  if (item.enclosure?.url && item.enclosure?.type?.startsWith('image')) return item.enclosure.url;
-  // Try scraping img from content
-  const content = item['content:encoded'] || item.content || item.summary || '';
-  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch) return imgMatch[1];
+  try {
+    if (item.mediaContent && item.mediaContent.$ && item.mediaContent.$.url) return item.mediaContent.$.url;
+    if (item.mediaContent && item.mediaContent.url) return item.mediaContent.url;
+    if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) return item.mediaThumbnail.$.url;
+    if (item.mediaThumbnail && item.mediaThumbnail.url) return item.mediaThumbnail.url;
+    if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) return item.enclosure.url;
+    const content = item['content:encoded'] || item.content || item.summary || '';
+    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch) return imgMatch[1];
+  } catch { return undefined; }
   return undefined;
 }
 
