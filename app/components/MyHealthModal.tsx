@@ -55,8 +55,8 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
     setLoading(false);
   };
 
-  const overlay = {
-    position: 'fixed' as const,
+  const overlay: React.CSSProperties = {
+    position: 'fixed',
     top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.7)',
     zIndex: 100,
@@ -65,28 +65,50 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
     justifyContent: 'center',
   };
 
-  const modal = {
-    backgroundColor: '#0D1B2A',
+  const modal: React.CSSProperties = {
+    backgroundColor: 'var(--bg-secondary)',
     borderRadius: '12px',
     padding: '32px',
     width: '560px',
     maxWidth: '95vw',
     maxHeight: '85vh',
-    overflowY: 'auto' as const,
-    border: '1px solid rgba(255,255,255,0.1)',
-    position: 'relative' as const,
+    overflowY: 'auto',
+    border: '1px solid var(--border-color)',
+    position: 'relative',
   };
 
-  const chipStyle = (active: boolean) => ({
-    backgroundColor: active ? 'var(--accent-teal)' : 'rgba(255,255,255,0.06)',
+  const chipStyle = (active: boolean): React.CSSProperties => ({
+    backgroundColor: active ? 'var(--accent-teal)' : 'var(--bg-primary)',
     color: active ? '#000' : 'var(--text-primary)',
-    border: `1px solid ${active ? 'var(--accent-teal)' : 'rgba(255,255,255,0.12)'}`,
+    border: `1px solid ${active ? 'var(--accent-teal)' : 'var(--border-color)'}`,
     borderRadius: '20px',
     padding: '6px 14px',
     fontSize: '12px',
     cursor: 'pointer',
     fontWeight: active ? '700' : '400',
   });
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    backgroundColor: 'var(--bg-primary)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '8px',
+    padding: '10px 14px',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    boxSizing: 'border-box',
+  };
+
+  const backBtn: React.CSSProperties = {
+    flex: 1,
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '8px',
+    padding: '12px',
+    fontSize: '14px',
+    cursor: 'pointer',
+  };
 
   return (
     <div style={overlay} onClick={onClose}>
@@ -101,33 +123,21 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
           {step === 4 && 'Your Personal Health Brief'}
         </h2>
 
-        {/* Progress */}
         <div style={{ display: 'flex', gap: '6px', marginBottom: '28px' }}>
           {[1,2,3,4].map(s => (
-            <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', backgroundColor: s <= step ? 'var(--accent-teal)' : 'rgba(255,255,255,0.1)' }} />
+            <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', backgroundColor: s <= step ? 'var(--accent-teal)' : 'var(--border-color)' }} />
           ))}
         </div>
 
-        {/* Step 1 — Age & Location */}
         {step === 1 && (
           <div>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Your age</label>
-              <input
-                value={age}
-                onChange={e => setAge(e.target.value)}
-                placeholder="e.g. 34"
-                style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '10px 14px', color: 'var(--text-primary)', fontSize: '14px', boxSizing: 'border-box' as const }}
-              />
+              <input value={age} onChange={e => setAge(e.target.value)} placeholder="e.g. 34" style={inputStyle} />
             </div>
             <div style={{ marginBottom: '28px' }}>
               <label style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Your location</label>
-              <input
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-                placeholder="e.g. Milan, Italy"
-                style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '10px 14px', color: 'var(--text-primary)', fontSize: '14px', boxSizing: 'border-box' as const }}
-              />
+              <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Milan, Italy" style={inputStyle} />
             </div>
             <button onClick={() => setStep(2)} style={{ width: '100%', backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
               Continue →
@@ -135,23 +145,21 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
           </div>
         )}
 
-        {/* Step 2 — Conditions */}
         {step === 2 && (
           <div>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Select any that apply. This helps us highlight what's relevant to you.</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Select any that apply. This helps us highlight what&apos;s relevant to you.</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '28px' }}>
               {CONDITIONS.map(c => (
                 <button key={c} style={chipStyle(conditions.includes(c))} onClick={() => toggleCondition(c)}>{c}</button>
               ))}
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setStep(1)} style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '12px', fontSize: '14px', cursor: 'pointer' }}>← Back</button>
+              <button onClick={() => setStep(1)} style={backBtn}>← Back</button>
               <button onClick={() => setStep(3)} style={{ flex: 2, backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* Step 3 — Lifestyle */}
         {step === 3 && (
           <div>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Select any that apply.</p>
@@ -161,7 +169,7 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
               ))}
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setStep(2)} style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '12px', fontSize: '14px', cursor: 'pointer' }}>← Back</button>
+              <button onClick={() => setStep(2)} style={backBtn}>← Back</button>
               <button onClick={generateBrief} disabled={loading} style={{ flex: 2, backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
                 {loading ? 'Generating your brief...' : 'Generate My Health Brief →'}
               </button>
@@ -169,14 +177,13 @@ export default function MyHealthModal({ onClose }: MyHealthModalProps) {
           </div>
         )}
 
-        {/* Step 4 — Brief */}
         {step === 4 && (
           <div>
-            <div style={{ backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.2)', borderRadius: '10px', padding: '20px', marginBottom: '20px' }}>
+            <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '20px', marginBottom: '20px' }}>
               <div style={{ fontSize: '14px', lineHeight: '1.8', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{brief}</div>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => { setStep(1); setBrief(''); }} style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '12px', fontSize: '14px', cursor: 'pointer' }}>Update Profile</button>
+              <button onClick={() => { setStep(1); setBrief(''); }} style={backBtn}>Update Profile</button>
               <button onClick={onClose} style={{ flex: 1, backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>Done</button>
             </div>
           </div>

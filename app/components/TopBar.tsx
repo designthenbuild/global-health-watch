@@ -53,10 +53,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
   const [showMobileWarning, setShowMobileWarning] = useState(false);
 
   useEffect(() => {
-    // Start in light mode
     document.documentElement.classList.add('light');
-
-    // Show mobile warning on small screens
     if (window.innerWidth < 768) {
       const dismissed = localStorage.getItem('mobileWarningDismissed');
       if (!dismissed) setShowMobileWarning(true);
@@ -78,31 +75,41 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
     setShowMobileWarning(false);
   };
 
+  const isLight = theme === 'light';
+
   return (
     <>
       {/* Mobile Warning */}
       {showMobileWarning && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-          <div style={{ backgroundColor: '#0D1B2A', borderRadius: '16px', padding: '32px 28px', width: '100%', maxWidth: '360px', border: '1px solid rgba(0,201,167,0.3)', boxShadow: '0 0 40px rgba(0,201,167,0.15)' }}>
+          <div style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderRadius: '16px',
+            padding: '32px 28px',
+            width: '100%',
+            maxWidth: '360px',
+            border: '1px solid rgba(0,201,167,0.3)',
+            boxShadow: '0 0 40px rgba(0,201,167,0.15)',
+          }}>
             <div style={{ fontSize: '32px', textAlign: 'center', marginBottom: '16px' }}>🔭</div>
-            <div style={{ fontWeight: '800', fontSize: '18px', color: '#fff', textAlign: 'center', marginBottom: '8px' }}>
+            <div style={{ fontWeight: '800', fontSize: '18px', color: 'var(--text-primary)', textAlign: 'center', marginBottom: '8px' }}>
               Better on Desktop
             </div>
-            <div style={{ fontSize: '13px', color: '#8892A4', textAlign: 'center', lineHeight: '1.6', marginBottom: '8px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: '1.6', marginBottom: '8px' }}>
               Global Health Watch is a live intelligence dashboard — maps, feeds, counters, and AI are best experienced on a larger screen.
             </div>
-            <div style={{ fontSize: '12px', color: '#00C9A7', textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--accent-teal)', textAlign: 'center', marginBottom: '24px' }}>
               What matters in health. Every day.
             </div>
             <button
               onClick={() => dismissMobileWarning(false)}
-              style={{ width: '100%', backgroundColor: '#00C9A7', color: '#000', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px' }}
+              style={{ width: '100%', backgroundColor: 'var(--accent-teal)', color: '#000', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px' }}
             >
               Continue Anyway
             </button>
             <button
               onClick={() => dismissMobileWarning(true)}
-              style={{ width: '100%', backgroundColor: 'transparent', color: '#8892A4', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '12px', fontSize: '13px', cursor: 'pointer' }}
+              style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px', fontSize: '13px', cursor: 'pointer' }}
             >
               Don&apos;t show again
             </button>
@@ -120,7 +127,6 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
         flexWrap: 'nowrap',
         overflowX: 'auto',
       }}>
-        {/* Logo + Tagline */}
         <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0, gap: '1px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '16px' }}>🌐</span>
@@ -196,44 +202,58 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
         <button
           onClick={toggleTheme}
           style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '14px', cursor: 'pointer', flexShrink: 0 }}
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {isLight ? '🌙' : '☀️'}
         </button>
       </header>
 
       {/* Pulse Modal */}
       {showPulse && (
-        <div onClick={() => setShowPulse(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#0D1B2A', border: `1px solid ${pulse.color}`, borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', color: '#fff', boxShadow: `0 0 40px ${pulse.color}33` }}>
+        <div onClick={() => setShowPulse(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            backgroundColor: 'var(--bg-secondary)',
+            border: `1px solid ${pulse.color}`,
+            borderRadius: '12px',
+            padding: '32px',
+            width: '480px',
+            maxWidth: '90vw',
+            boxShadow: `0 0 40px ${pulse.color}33`,
+          }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: '#00C9A7', letterSpacing: '0.1em', marginBottom: '8px' }}>GLOBAL HEALTH PULSE</div>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-teal)', letterSpacing: '0.1em', marginBottom: '8px' }}>GLOBAL HEALTH PULSE</div>
                 <div style={{ fontSize: '64px', fontWeight: '800', color: pulse.color, lineHeight: '1' }}>{pulse.score}</div>
-                <div style={{ fontSize: '13px', color: '#8892A4', marginTop: '4px' }}>out of 10</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>out of 10</div>
               </div>
-              <button onClick={() => setShowPulse(false)} style={{ background: 'transparent', border: 'none', color: '#8892A4', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+              <button onClick={() => setShowPulse(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', height: '6px', borderRadius: '3px', overflow: 'hidden', marginBottom: '6px' }}>
                 {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                  <div key={n} style={{ flex: 1, backgroundColor: n <= pulse.score ? (pulse.score >= 8 ? '#E63946' : pulse.score >= 6 ? '#FFB347' : pulse.score >= 4 ? '#FFD166' : '#00C9A7') : 'rgba(255,255,255,0.1)', marginRight: n < 10 ? '2px' : 0 }} />
+                  <div key={n} style={{
+                    flex: 1,
+                    backgroundColor: n <= pulse.score
+                      ? (pulse.score >= 8 ? '#E63946' : pulse.score >= 6 ? '#FFB347' : pulse.score >= 4 ? '#FFD166' : '#00C9A7')
+                      : 'var(--border-color)',
+                    marginRight: n < 10 ? '2px' : 0,
+                  }} />
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#8892A4' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-secondary)' }}>
                 <span>CALM</span><span>WATCH</span><span>ELEVATED</span><span>CRITICAL</span>
               </div>
             </div>
 
-            <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: '#8892A4', marginBottom: '12px' }}>SIGNAL BREAKDOWN</div>
-              <div style={{ fontSize: '13px', color: '#fff' }}>{pulse.reason}</div>
+            <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '8px', padding: '16px', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '12px' }}>SIGNAL BREAKDOWN</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{pulse.reason}</div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: '#00C9A7', marginBottom: '8px' }}>WHAT THIS MEANS</div>
-              <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#CBD5E1' }}>{getPulseExplanation(pulse.score)}</div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-teal)', marginBottom: '8px' }}>WHAT THIS MEANS</div>
+              <div style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>{getPulseExplanation(pulse.score)}</div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -241,7 +261,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
                 <div key={s.range} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: s.color, flexShrink: 0 }} />
                   <span style={{ color: s.color, fontWeight: '700' }}>{s.range}</span>
-                  <span style={{ color: '#8892A4' }}>{s.label}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
                 </div>
               ))}
             </div>
