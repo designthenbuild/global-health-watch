@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 
-const parser = new Parser();
+const parser = new Parser({
+  customFields: {
+    item: [
+      ['media:content', 'mediaContent', { keepArray: false }],
+      ['media:thumbnail', 'mediaThumbnail', { keepArray: false }],
+      ['enclosure', 'enclosure', { keepArray: false }],
+    ],
+  },
+});
 
 const FEEDS = [
   // === THREATS / OUTBREAKS ===
@@ -90,6 +98,11 @@ const FEEDS = [
   { url: 'https://www.healthspancapital.vc/feed/', source: 'Healthspan Capital', region: 'Global' },
   { url: 'https://www.sapphiresport.com/feed/', source: 'Sapphire Sport', region: 'Global' },
 
+  // === RECALLS ===
+  { url: 'https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml', source: 'FDA Recalls', region: 'North America' },
+  { url: 'https://www.foodsafetynews.com/feed/', source: 'Food Safety News', region: 'Global' },
+  { url: 'https://www.efsa.europa.eu/en/rss/rss-all-news.xml', source: 'EFSA', region: 'Europe' },
+
   // === GENERAL HEALTH ===
   { url: 'https://www.health.harvard.edu/blog/feed', source: 'Harvard Health', region: 'Global' },
   { url: 'https://feeds.reuters.com/reuters/healthNews', source: 'Reuters Health', region: 'Global' },
@@ -103,13 +116,13 @@ const FEEDS = [
 ];
 
 const TAG_KEYWORDS: Record<string, string[]> = {
-  OUTBREAKS: ['outbreak', 'virus', 'disease', 'infection', 'epidemic', 'cholera', 'dengue', 'mpox', 'flu', 'measles', 'ebola', 'malaria', 'pathogen', 'surveillance', 'zoonotic', 'promed', 'alert', 'food safety', 'contamina', 'recall'],
+  THREATS: ['outbreak', 'virus', 'disease', 'infection', 'epidemic', 'cholera', 'dengue', 'mpox', 'flu', 'measles', 'ebola', 'malaria', 'pathogen', 'surveillance', 'zoonotic', 'promed', 'alert', 'avian', 'h5n1', 'pandemic'],
   DISCOVERIES: ['approved', 'approval', 'trial', 'study', 'research', 'vaccine', 'therapy', 'treatment', 'drug', 'clinical', 'phase', 'breakthrough', 'gene', 'cell therapy', 'biomarker', 'crispr', 'mrna', 'ai drug', 'insilico'],
   'MENTAL HEALTH': ['mental', 'depression', 'anxiety', 'suicide', 'psychiatric', 'behavioral', 'opioid', 'substance', 'psychedelic', 'ptsd', 'burnout', 'wellbeing', 'stress', 'mindful', 'ketamine', 'mdma'],
   LONGEVITY: ['longevity', 'aging', 'ageing', 'lifespan', 'healthspan', 'senolytic', 'rapamycin', 'nad+', 'telomere', 'rejuvenation', 'anti-aging', 'life extension', 'epigenetic', 'altos', 'calico', 'retro bio', 'reprogramming', 'senescence'],
   PERFORMANCE: ['performance', 'exercise', 'fitness', 'recovery', 'vo2', 'training', 'sport', 'muscle', 'sleep', 'cold therapy', 'heat therapy', 'biohack', 'nutrition', 'supplement', 'whoop', 'oura', 'wearable', 'altitude', 'hyperbaric', 'hbot', 'hypoxico'],
   ECONOMY: ['funding', 'investment', 'acquisition', 'merger', 'ipo', 'startup', 'biotech stock', 'venture', 'series a', 'series b', 'raises', 'billion', 'million', 'deal', 'market', 'a16z', 'flagship', 'mubadala', 'valuation', 'exits'],
-  RECALLS: ['recall', 'alert', 'warning', 'contamina', 'allergen', 'salmonella', 'listeria', 'mislabel', 'unsafe', 'withdrawn'],
+  RECALLS: ['recall', 'withdrawn', 'contamina', 'allergen', 'salmonella', 'listeria', 'mislabel', 'unsafe', 'undeclared', 'foreign material', 'e. coli', 'botulism', 'adulterat'],
 };
 
 const SOURCE_TAGS: Record<string, string> = {
@@ -159,11 +172,14 @@ const SOURCE_TAGS: Record<string, string> = {
   'Endpoints News': 'DISCOVERIES',
   'Labiotech': 'DISCOVERIES',
   'GEN': 'DISCOVERIES',
-  // Outbreaks
-  'ProMED': 'OUTBREAKS',
-  'ECDC': 'OUTBREAKS',
-  'IHME': 'OUTBREAKS',
-  'Food Safety News': 'OUTBREAKS',
+  // Threats
+  'ProMED': 'THREATS',
+  'ECDC': 'THREATS',
+  'IHME': 'THREATS',
+  // Recalls
+  'FDA Recalls': 'RECALLS',
+  'EFSA': 'RECALLS',
+  'Food Safety News': 'RECALLS',
   // Economy
   'Andreessen Horowitz': 'ECONOMY',
   'Sifted': 'ECONOMY',
@@ -186,10 +202,29 @@ const SOURCE_TAGS: Record<string, string> = {
   'M42': 'DISCOVERIES',
 };
 
+function extractImage(item: any): string | undefined {
+  // Try media:content
+  if (item.mediaContent?.$ ?.url) return item.mediaContent.$.url;
+  if (item.mediaContent?.url) return item.mediaContent.url;
+  // Try media:thumbnail
+  if (item.mediaThumbnail?.$ ?.url) return item.mediaThumbnail.$.url;
+  if (item.mediaThumbnail?.url) return item.mediaThumbnail.url;
+  // Try enclosure (podcasts / some news feeds)
+  if (item.enclosure?.url && item.enclosure?.type?.startsWith('image')) return item.enclosure.url;
+  // Try scraping img from content
+  const content = item['content:encoded'] || item.content || item.summary || '';
+  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch) return imgMatch[1];
+  return undefined;
+}
+
 function getTag(title: string, snippet: string, source: string): string {
   if (SOURCE_TAGS[source]) return SOURCE_TAGS[source];
   const text = (title + ' ' + snippet).toLowerCase();
+  // Check RECALLS first — more specific than THREATS
+  if (TAG_KEYWORDS.RECALLS.some(k => text.includes(k))) return 'RECALLS';
   for (const [tag, keywords] of Object.entries(TAG_KEYWORDS)) {
+    if (tag === 'RECALLS') continue;
     if (keywords.some(k => text.includes(k))) return tag;
   }
   return 'UPDATE';
@@ -228,29 +263,4 @@ export async function GET(request: Request) {
         if (tab !== 'ALL' && tag !== tab) continue;
 
         const region = getRegionFromTitle(title, feed.region);
-
-        items.push({
-          source: feed.source,
-          headline: title,
-          time: item.pubDate ? new Date(item.pubDate).toLocaleDateString() : 'Recently',
-          tag,
-          region,
-          link: item.link || '#',
-        });
-      }
-      return items;
-    } catch {
-      return [];
-    }
-  });
-
-  const results = await Promise.allSettled(feedPromises);
-  for (const result of results) {
-    if (result.status === 'fulfilled') {
-      allItems.push(...result.value);
-    }
-  }
-
-  const sorted = allItems.slice(0, 60);
-  return NextResponse.json({ items: sorted });
-}
+        const image = extractImage(item);
