@@ -181,7 +181,6 @@ function ModalPanel({ modal, color, onClose, isDark }: {
             >✕</button>
           </div>
           <div style={{ fontSize:'15px', fontWeight:700, color:textPrimary, lineHeight:1.45, marginBottom:'5px' }}>{modal.title}</div>
-          {modal.description && <div style={{ fontSize:'12px', color, marginBottom:'4px', fontWeight:500 }}>{modal.description}</div>}
           <div style={{ fontSize:'11px', color:textSecondary, marginBottom:'12px' }}>{modal.subtitle}</div>
           <div style={{ height:'1px', backgroundColor:borderCol }} />
         </div>
