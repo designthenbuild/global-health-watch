@@ -127,6 +127,7 @@ interface ModalItem {
   image?: string;
   summary?: string;
 }
+
 function useCounter(annualRate: number): string {
   const [count, setCount] = useState(() => {
     const now = new Date();
@@ -313,6 +314,7 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
     </>
   );
 }
+
 function ShareButton({ content }: { content: string }) {
   const [copied, setCopied] = useState(false);
   function handleCopy() {
@@ -403,7 +405,7 @@ function formatMessage(content: string) {
     if (isListItem) {
       return <div key={j} style={{ display: 'flex', gap: '6px', marginTop: '4px', paddingLeft: '4px', lineHeight: '1.5' }}><span style={{ color: '#00C9A7', flexShrink: 0 }}>·</span><span>{text}</span></div>;
     }
-    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }} {text}</p>;
+    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }}>{text}</p>;
   });
 }
 
@@ -448,7 +450,7 @@ function AskTheWatch() {
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: 'pulseDot 2s infinite' }} />
           <div>
             <div style={{ fontWeight: '800', fontSize: '14px', color: '#00C9A7', letterSpacing: '0.06em' }}>ASK THE WATCH</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>health · food · body · longevity · performance · investments</div>
+            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>health · food · body · longevity · performance · investments · <span style={{ color: '#00C9A7', opacity: 0.8 }}>Powered by Groq AI</span></div>
           </div>
         </div>
         <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
