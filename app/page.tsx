@@ -87,7 +87,7 @@ export default function Home() {
         onThemeChange={setIsDark}
       />
       <MapView activeVariants={activeVariants} region={region} threats={threats} isDark={isDark} />
-      <AIBrief />
+      <div style={{paddingBottom:"24px"}}><AIBrief /></div>
       <BottomPanels />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}
     </main>
