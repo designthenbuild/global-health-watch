@@ -140,7 +140,7 @@ export default function MapView({ activeVariants, region }: { activeVariants: st
     if (!leafletLoaded || !mapRef.current || mapInstanceRef.current) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const L = (window as any).L;
-    const map = L.map(mapRef.current, { center: [25, 20], zoom: 2, zoomControl: false, attributionControl: false });
+    const map = L.map(mapRef.current, { center: [25, 20], zoom: 2, zoomControl: false, attributionControl: false, worldCopyJump: false, maxBounds: [[-90,-180],[90,180]], maxBoundsViscosity: 1.0 });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
     mapInstanceRef.current = map;
