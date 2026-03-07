@@ -47,7 +47,7 @@ const scaleItems = [
   { range: '9-10', label: 'Critical', color: '#E63946' },
 ];
 
-const variants = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
+const variants = ['LONGEVITY', 'PERFORMANCE', 'INVESTMENTS', 'MENTAL HEALTH', 'DISCOVERIES', 'THREATS'];
 
 export default function TopBar({ activeVariants = [], toggleVariant, region, setRegion, onMyHealth, pulse, onShare, isDark = false, onThemeChange }: TopBarProps) {
   const [theme, setTheme] = useState<'dark' | 'light'>(isDark ? 'dark' : 'light');

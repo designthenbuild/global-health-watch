@@ -344,7 +344,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
           >
             <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
               <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(activeTopic), boxShadow:`0 0 5px ${c(activeTopic)}`}} />
-              <span style={{fontSize:'10px', fontWeight:700, color:c(activeTopic), letterSpacing:'0.08em'}}>SIGNALS</span>
+              <span style={{fontSize:'10px', fontWeight:700, color:c(activeTopic), letterSpacing:'0.08em'}}>LAYERS</span>
             </div>
             <span style={{fontSize:'10px', color:textMuted}}>{signalsPanelOpen ? '▲' : '▼'}</span>
           </div>
