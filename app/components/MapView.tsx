@@ -133,8 +133,6 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const textPrimary = isDark ? '#fff' : '#111';
   const textMuted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)';
   const textSecondary = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  const modalBg = isDark ? '#13131f' : '#ffffff';
-  const modalBorderAlpha = isDark ? '55' : '33';
   const hoverBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
 
   // Init signals for all active topics
@@ -505,16 +503,19 @@ export default function MapView({ activeVariants, region, isDark = true }: {
           onClick={() => setModal(null)}
         >
           <div
-            style={{backgroundColor:modalBg, border:`1px solid ${c(modal.topic)}${modalBorderAlpha}`, borderRadius:'14px', maxWidth:'420px', width:'100%', padding:'24px', boxShadow:`0 24px 80px rgba(0,0,0,0.4), 0 0 40px ${c(modal.topic)}22`}}
+            style={{backgroundColor:'var(--modal-bg)', border:`1px solid ${c(modal.topic)}33`, borderRadius:'14px', maxWidth:'420px', width:'100%', padding:'24px', boxShadow:`0 24px 80px rgba(0,0,0,0.4), 0 0 40px ${c(modal.topic)}22`, position:'relative'}}
             onClick={e => e.stopPropagation()}
           >
-            <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'14px'}}>
+            {/* ✕ close */}
+            <button onClick={() => setModal(null)} style={{position:'absolute', top:'14px', right:'14px', background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer', fontSize:'18px', lineHeight:1, padding:'2px 6px'}}>✕</button>
+
+            <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'14px', paddingRight:'24px'}}>
               <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(modal.topic), boxShadow:`0 0 6px ${c(modal.topic)}`}} />
               <span style={{fontSize:'10px', fontWeight:700, color:c(modal.topic), letterSpacing:'0.1em'}}>{modal.topic}</span>
-              {modal.signal && <span style={{fontSize:'10px', color:textMuted}}>· {modal.signal}</span>}
-              {modal.isLive && <span style={{fontSize:'10px', color:textMuted, marginLeft:'4px'}}>● LIVE NEWS</span>}
+              {modal.signal && <span style={{fontSize:'10px', color:'var(--text-secondary)'}}>· {modal.signal}</span>}
+              {modal.isLive && <span style={{fontSize:'10px', color:'var(--text-secondary)', marginLeft:'4px'}}>● LIVE NEWS</span>}
             </div>
-            <div style={{fontSize:'15px', fontWeight:700, color:textPrimary, lineHeight:1.45, marginBottom:'6px'}}>
+            <div style={{fontSize:'15px', fontWeight:700, color:'var(--text-primary)', lineHeight:1.45, marginBottom:'6px'}}>
               {modal.title}
             </div>
             {modal.description && (
@@ -522,26 +523,20 @@ export default function MapView({ activeVariants, region, isDark = true }: {
                 {modal.description}
               </div>
             )}
-            <div style={{fontSize:'11px', color:textMuted, marginBottom:'20px'}}>
+            <div style={{fontSize:'11px', color:'var(--text-secondary)', marginBottom:'20px'}}>
               {modal.subtitle}
             </div>
-            <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
-              {modal.isLive ? (
-                <a href={modal.link} target="_blank" rel="noopener noreferrer"
-                  style={{backgroundColor:c(modal.topic), color:'#fff', padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none'}}>
-                  Read article ↗
-                </a>
-              ) : (
-                <a href={modal.link} target="_blank" rel="noopener noreferrer"
-                  style={{backgroundColor:'transparent', color:c(modal.topic), padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:600, textDecoration:'none', border:`1px solid ${c(modal.topic)}55`}}>
-                  View profile ↗
-                </a>
-              )}
-              <button onClick={() => setModal(null)}
-                style={{background:'none', border:`1px solid ${border}`, borderRadius:'8px', padding:'9px 16px', color:textMuted, fontSize:'12px', cursor:'pointer'}}>
-                Close
-              </button>
-            </div>
+            {modal.isLive ? (
+              <a href={modal.link} target="_blank" rel="noopener noreferrer"
+                style={{backgroundColor:c(modal.topic), color:'#fff', padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none', display:'inline-block'}}>
+                Read article ↗
+              </a>
+            ) : (
+              <a href={modal.link} target="_blank" rel="noopener noreferrer"
+                style={{backgroundColor:'transparent', color:c(modal.topic), padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:600, textDecoration:'none', border:`1px solid ${c(modal.topic)}55`, display:'inline-block'}}>
+                View profile ↗
+              </a>
+            )}
           </div>
         </div>
       )}

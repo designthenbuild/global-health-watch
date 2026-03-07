@@ -42,6 +42,12 @@ const TOPIC_COLORS: Record<string, string> = {
 const regions = ['Global', 'Europe', 'GCC·MENA', 'North America', 'SE Asia', 'LATAM', 'Africa', 'ANZ'];
 
 export default function TopBar({ activeVariants = [], toggleVariant, region, setRegion, onMyHealth, pulse, onShare, isDark = false, onThemeChange }: TopBarProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   const [showPulse, setShowPulse] = useState(false);
   const [showMobileWarning, setShowMobileWarning] = useState(true);
   const [dismissedMobile, setDismissedMobile] = useState(false);
@@ -52,9 +58,13 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
   };
 
   const toggleTheme = () => {
-    const newTheme = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    onThemeChange?.(!isDark);
+    const newIsDark = !isDark;
+    if (newIsDark) {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    onThemeChange?.(newIsDark);
   };
 
   return (
@@ -66,12 +76,12 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
         }
       `}</style>
 
-      {/* Mobile warning */}
-      {showMobileWarning && !dismissedMobile && (
+      {/* Mobile warning — only on actual mobile */}
+      {isMobile && showMobileWarning && !dismissedMobile && (
         <div style={{
           position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999,
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
-        }} className="md:hidden">
+        }}>
           <div style={{
             backgroundColor: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
@@ -194,15 +204,16 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
       {showPulse && (
         <div onClick={() => setShowPulse(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{
-            backgroundColor: 'var(--bg-secondary)',
+            backgroundColor: 'var(--modal-bg)',
             border: `1px solid ${pulse.color}44`,
             borderRadius: '16px', padding: '28px', maxWidth: '380px', width: '90%',
             boxShadow: `0 0 60px ${pulse.color}22`,
+            position: 'relative',
           }}>
+            <button onClick={() => setShowPulse(false)} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 6px' }}>✕</button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: pulse.color, boxShadow: `0 0 8px ${pulse.color}`, animation: 'pulseDot 2s infinite' }} />
               <span style={{ fontWeight: '800', fontSize: '18px', color: pulse.color }}>{pulse.label}</span>
-              <button onClick={() => setShowPulse(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', marginLeft: 'auto' }}>✕</button>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: '1.6', marginBottom: '12px' }}>
               {getPulseExplanation(pulse.score)}

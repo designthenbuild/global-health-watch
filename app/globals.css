@@ -1,39 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
+/* ── DARK MODE (default) ── */
 :root {
   --bg-primary: #0D1B2A;
   --bg-secondary: #1A2A3A;
   --accent-teal: #00C9A7;
   --text-primary: #FFFFFF;
   --text-secondary: #8892A4;
+  --border-color: rgba(255,255,255,0.12);
   --alert-red: #FF4D6D;
   --alert-amber: #FFB347;
   --alert-gold: #FFD166;
   --clinical-blue: #4CC9F0;
   --economy-purple: #7B2FBE;
   --mental-rose: #E8768A;
-  --border-color: rgba(255,255,255,0.12);
+  --modal-bg: #13131f;
+  --modal-border: rgba(255,255,255,0.08);
+  --card-bg: #1A2A3A;
 }
 
-.light {
+/* ── LIGHT MODE ── */
+[data-theme="light"] {
   --bg-primary: #F4F6F8;
   --bg-secondary: #FFFFFF;
+  --accent-teal: #00A88C;
   --text-primary: #0D1B2A;
   --text-secondary: #4A5568;
-  --accent-teal: #00A88C;
   --border-color: #E2E8F0;
+  --modal-bg: #FFFFFF;
+  --modal-border: rgba(0,0,0,0.08);
+  --card-bg: #FFFFFF;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 html {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-primary);
+  color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -43,8 +53,4 @@ body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-* {
-  font-variant-numeric: tabular-nums;
 }
