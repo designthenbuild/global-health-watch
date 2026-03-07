@@ -403,7 +403,7 @@ function formatMessage(content: string) {
     if (isListItem) {
       return <div key={j} style={{ display: 'flex', gap: '6px', marginTop: '4px', paddingLeft: '4px', lineHeight: '1.5' }}><span style={{ color: '#00C9A7', flexShrink: 0 }}>·</span><span>{text}</span></div>;
     }
-    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }} dangerouslySetInnerHTML={{ __html: trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />;
+    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }} {text}</p>;
   });
 }
 
