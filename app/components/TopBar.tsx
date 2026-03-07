@@ -23,8 +23,6 @@ interface PulseData {
 interface TopBarProps {
   activeVariants: string[];
   toggleVariant: (v: string) => void;
-  focusedTopic?: string | null;
-  setFocusedTopic?: (t: string | null) => void;
   region: string;
   setRegion: (r: string) => void;
   onMyHealth: () => void;
@@ -49,9 +47,9 @@ const scaleItems = [
   { range: '9-10', label: 'Critical', color: '#E63946' },
 ];
 
-const variants = ['LONGEVITY', 'PERFORMANCE', 'INVESTMENTS', 'MENTAL HEALTH', 'DISCOVERIES', 'THREATS'];
+const variants = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
 
-export default function TopBar({ activeVariants = [], toggleVariant, focusedTopic = null, setFocusedTopic, region, setRegion, onMyHealth, pulse, onShare, isDark = false, onThemeChange }: TopBarProps) {
+export default function TopBar({ activeVariants = [], toggleVariant, region, setRegion, onMyHealth, pulse, onShare, isDark = false, onThemeChange }: TopBarProps) {
   const [theme, setTheme] = useState<'dark' | 'light'>(isDark ? 'dark' : 'light');
   const [showPulse, setShowPulse] = useState(false);
   const [showMobileWarning, setShowMobileWarning] = useState(false);
@@ -172,16 +170,13 @@ export default function TopBar({ activeVariants = [], toggleVariant, focusedTopi
         <div style={{ display: 'flex', gap: '4px', flexShrink: 0, flexWrap: 'nowrap' }}>
           {variants.map(v => {
             const isActive = activeVariants.includes(v);
-            const isFocused = focusedTopic === v;
             const color = VARIANT_COLORS[v];
             return (
               <button
                 key={v}
-                onClick={() => { if (activeVariants.includes(v)) { setFocusedTopic?.(focusedTopic === v ? null : v); } else { toggleVariant(v); } }}
+                onClick={() => toggleVariant(v)}
                 style={{
                   backgroundColor: isActive ? color : 'transparent',
-                  outline: isFocused ? '2px solid #fff' : 'none',
-                  outlineOffset: '2px',
                   color: isActive ? '#fff' : 'var(--text-secondary)',
                   border: `1px solid ${isActive ? color : 'var(--border-color)'}`,
                   borderRadius: '6px',

@@ -44,7 +44,6 @@ function calculatePulse(threats: Threat[]): PulseData {
 
 export default function Home() {
   const [activeVariants, setActiveVariants] = useState<string[]>([]);
-  const [focusedTopic, setFocusedTopic] = useState<string | null>(null);
   const [region, setRegion] = useState('Global');
   const [showMyHealth, setShowMyHealth] = useState(false);
   const [threats, setThreats] = useState<Threat[]>([]);
@@ -78,8 +77,6 @@ export default function Home() {
     <main style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
       <TopBar
         activeVariants={activeVariants}
-        focusedTopic={focusedTopic}
-        setFocusedTopic={setFocusedTopic}
         toggleVariant={toggleVariant}
         region={region}
         setRegion={setRegion}
@@ -89,7 +86,7 @@ export default function Home() {
         isDark={isDark}
         onThemeChange={setIsDark}
       />
-      <MapView activeVariants={activeVariants} focusedTopic={focusedTopic} setFocusedTopic={setFocusedTopic} region={region} threats={threats} isDark={isDark} />
+      <MapView activeVariants={activeVariants} region={region} threats={threats} isDark={isDark} />
       <AIBrief />
       <BottomPanels />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}

@@ -105,8 +105,8 @@ const REGION_VIEWS: Record<string, {center:[number,number];zoom:number}> = {
   'ANZ': {center:[140,-25],zoom:3.5},
 };
 
-export default function MapView({ activeVariants, focusedTopic: focusedTopicProp = null, setFocusedTopic, region, isDark = true }: {
-  activeVariants: string[]; focusedTopic?: string | null; setFocusedTopic?: (t: string | null) => void; region?: string; threats?: unknown[]; isDark?: boolean;
+export default function MapView({ activeVariants, region, isDark = true }: {
+  activeVariants: string[]; region?: string; threats?: unknown[]; isDark?: boolean;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<unknown>(null);
@@ -123,7 +123,7 @@ export default function MapView({ activeVariants, focusedTopic: focusedTopicProp
   const [mapHeight, setMapHeight] = useState(500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
 
-  const activeTopic = focusedTopicProp ?? (activeVariants.length===1 ? activeVariants[0] : null);
+  const activeTopic = activeVariants.length===1 ? activeVariants[0] : null;
 
   const bg = isDark ? 'rgba(10,10,20,0.88)' : 'rgba(255,255,255,0.92)';
   const border = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
@@ -344,7 +344,7 @@ export default function MapView({ activeVariants, focusedTopic: focusedTopicProp
           >
             <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
               <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(activeTopic), boxShadow:`0 0 5px ${c(activeTopic)}`}} />
-              <span style={{fontSize:'10px', fontWeight:700, color:c(activeTopic), letterSpacing:'0.08em'}}>LAYERS</span>
+              <span style={{fontSize:'10px', fontWeight:700, color:c(activeTopic), letterSpacing:'0.08em'}}>SIGNALS</span>
             </div>
             <span style={{fontSize:'10px', color:textMuted}}>{signalsPanelOpen ? '▲' : '▼'}</span>
           </div>
