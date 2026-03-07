@@ -64,15 +64,15 @@ const FALLBACK: BriefItem[] = [
   { title: 'INVESTMENTS', icon: '📊', content: 'Global biotech funding strong in Q1 2026. GCC health infrastructure investment accelerating. EU pharma pricing reform advancing.', color: '#D97706', variant: 'INVESTMENTS', sources: VARIANT_SOURCES['INVESTMENTS'] },
   { title: 'MENTAL HEALTH', icon: '🧠', content: 'Psychedelic-assisted therapy advancing through regulatory pipelines globally. PTSD and treatment-resistant depression in focus.', color: '#7C3AED', variant: 'MENTAL HEALTH', sources: VARIANT_SOURCES['MENTAL HEALTH'] },
   { title: 'DISCOVERIES', icon: '🔬', content: 'Multiple Phase 3 oncology and neurology trials publishing results. CAR-T cell therapy showing promise beyond blood cancers.', color: '#00B4D8', variant: 'DISCOVERIES', sources: VARIANT_SOURCES['DISCOVERIES'] },
-  { title: 'THREATS', icon: '⚠️', content: 'Active outbreak monitoring across WHO, CDC, and ProMED networks. Respiratory signals elevated in Southeast Asia and West Africa.', color: '#E63946', variant: 'THREATS', sources: VARIANT_SOURCES['THREATS'] },
+  { title: 'THREATS', icon: '⚠️', content: 'Routine surveillance active across WHO, CDC, and ProMED networks. No critical escalations at this time.', color: '#E63946', variant: 'THREATS', sources: VARIANT_SOURCES['THREATS'] },
   { title: 'HEALTH PULSE', icon: '🌐', content: 'Global signals at Watch level. No critical escalations. 3 active outbreak investigations, 2 elevated regional alerts.', color: '#00C9A7', variant: 'PULSE', sources: VARIANT_SOURCES['PULSE'] },
 ];
 
 const CRITICAL_KEYWORDS = [
-  'pandemic', 'epidemic', 'outbreak', 'emergency', 'who declares', 'global alert',
-  'death toll', 'fatalities', 'mass casualty', 'natural disaster', 'earthquake',
-  'tsunami', 'hurricane', 'catastrophe', 'public health emergency', 'pheic',
-  'lockdown', 'quarantine', 'bioterror', 'chemical attack', 'nuclear',
+  'pandemic', 'epidemic', 'pheic declared', 'who declares pheic',
+  'mass casualty',
+  'bioterrorism', 'chemical attack declared',
+  
 ];
 
 function isCriticalThreat(content: string): boolean {
