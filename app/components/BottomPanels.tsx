@@ -472,7 +472,7 @@ function AskTheWatch() {
       </div>
 
       {!expanded && (
-        <div style={{ padding: '12px 24px 28px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '100px', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 24px 28px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '90px', overflow: 'hidden' }}>
           <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
           {chips.map((s, i) => (
             <button key={i} onClick={() => askWatch(s)} style={{ backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '20px', padding: '5px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s ease', whiteSpace: 'nowrap' }}
