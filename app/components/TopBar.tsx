@@ -127,17 +127,20 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
         flexWrap: 'nowrap',
         overflowX: 'auto',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0, gap: '1px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '16px' }}>🌐</span>
-            <span style={{ color: 'var(--accent-teal)', fontWeight: '800', fontSize: '13px', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
-              GLOBAL HEALTH WATCH
-            </span>
-          </div>
-          <div style={{ fontSize: '9px', color: 'var(--text-secondary)', letterSpacing: '0.04em', paddingLeft: '22px', opacity: 0.7 }}>
-            What matters in health. Every day.
-          </div>
-        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '22px' }}>
+  <div style={{ fontSize: '9px', color: 'var(--text-secondary)', letterSpacing: '0.04em', opacity: 0.7 }}>
+    What matters in health. Every day.
+  </div>
+  <div style={{ fontSize: '9px', color: 'var(--border-color)', opacity: 0.5 }}>·</div>
+  <a href="https://x.com/MariaMatloub" target="_blank" rel="noopener noreferrer"
+    style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, textDecoration: 'none', letterSpacing: '0.04em', transition: 'opacity 0.2s' }}
+    onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+    onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}>
+    @mariamatloub
+  </a>
+  <div style={{ fontSize: '9px', color: 'var(--border-color)', opacity: 0.5 }}>·</div>
+  <div style={{ fontSize: '8px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.06em' }}>v0.1</div>
+</div>
 
         <select
           value={region}
