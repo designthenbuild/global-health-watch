@@ -106,6 +106,259 @@ const REGION_VIEWS: Record<string, {center:[number,number];zoom:number}> = {
 };
 
 const TOPIC_ORDER = ['LONGEVITY','PERFORMANCE','INVESTMENTS','MENTAL HEALTH','DISCOVERIES','THREATS'];
+const GHW_URL = 'global-health-watch.vercel.app';
+
+// ── MODAL PANEL ───────────────────────────────────────────────────────────────
+
+function ModalPanel({ modal, color, onClose, isDark }: {
+  modal: ModalInfo; color: string; onClose: () => void; isDark: boolean;
+}) {
+  const [snapshot, setSnapshot] = useState('');
+  const [snapLoading, setSnapLoading] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [messages, setMessages] = useState<{role:'user'|'assistant';text:string}[]>([]);
+  const [input, setInput] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const modalBg = isDark ? '#0f1117' : '#ffffff';
+  const textPrimary = isDark ? '#ffffff' : '#111111';
+  const textSecondary = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
+  const borderCol = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+
+  // Auto-load AI snapshot for live dots
+  useEffect(() => {
+    if (!modal.isLive) return;
+    setSnapLoading(true);
+    fetch('/api/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: `In 2 plain-English sentences, summarise this health news for a general audience. Be factual and calm. Headline: "${modal.title}" — Source: ${modal.subtitle}`,
+        context: modal.title,
+      }),
+    })
+      .then(r => r.json())
+      .then(d => { setSnapshot(d.answer ?? d.content ?? ''); setSnapLoading(false); })
+      .catch(() => setSnapLoading(false));
+  }, [modal.title, modal.subtitle, modal.isLive]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  async function sendMessage() {
+    if (!input.trim() || asking) return;
+    const userMsg = input.trim();
+    setInput('');
+    setAsking(true);
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    try {
+      const res = await fetch('/api/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: userMsg,
+          context: `Topic: ${modal.topic}. Headline: "${modal.title}". Source: ${modal.subtitle}. Link: ${modal.link}`,
+        }),
+      });
+      const d = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', text: d.answer ?? d.content ?? 'No response.' }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Could not fetch a response. Try again.' }]);
+    }
+    setAsking(false);
+  }
+
+  function shareWhatsApp() {
+    const text = `🌍 *${modal.title}*\n\nVia Global Health Watch — real-time global health intelligence\n🔗 https://${GHW_URL}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function shareX() {
+    const text = `${modal.title}\n\n🌍 Via Global Health Watch\nhttps://${GHW_URL} #GlobalHealth #HealthWatch`;
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function copyText() {
+    navigator.clipboard.writeText(`${modal.title}\n\n🌍 Via Global Health Watch\nhttps://${GHW_URL}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div
+      style={{ position:'fixed', inset:0, zIndex:2000, backgroundColor:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
+      onClick={onClose}
+    >
+      <div
+        style={{ backgroundColor:modalBg, border:`1px solid ${color}33`, borderRadius:'16px', maxWidth:'440px', width:'100%', maxHeight:'88vh', overflowY:'auto', boxShadow:`0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${color}22`, position:'relative' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* ── HEADER ── */}
+        <div style={{ padding:'18px 18px 0', position:'sticky', top:0, backgroundColor:modalBg, zIndex:1, borderRadius:'16px 16px 0 0' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              <div style={{ width:'8px', height:'8px', borderRadius:'50%', backgroundColor:color, boxShadow:`0 0 6px ${color}` }} />
+              <span style={{ fontSize:'10px', fontWeight:700, color, letterSpacing:'0.1em' }}>{modal.topic}</span>
+              {modal.signal && <span style={{ fontSize:'10px', color:textSecondary }}>· {modal.signal}</span>}
+              {modal.isLive && <span style={{ fontSize:'10px', color:textSecondary }}>· ● LIVE</span>}
+            </div>
+            {/* X close */}
+            <button
+              onClick={onClose}
+              style={{ width:'28px', height:'28px', borderRadius:'50%', border:`1px solid ${borderCol}`, background:'transparent', color:textSecondary, cursor:'pointer', fontSize:'13px', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}
+            >✕</button>
+          </div>
+
+          <div style={{ fontSize:'15px', fontWeight:700, color:textPrimary, lineHeight:1.45, marginBottom:'5px' }}>
+            {modal.title}
+          </div>
+          {modal.description && (
+            <div style={{ fontSize:'12px', color, marginBottom:'4px', fontWeight:500 }}>{modal.description}</div>
+          )}
+          <div style={{ fontSize:'11px', color:textSecondary, marginBottom:'12px' }}>{modal.subtitle}</div>
+          <div style={{ height:'1px', backgroundColor:borderCol }} />
+        </div>
+
+        {/* ── BODY ── */}
+        <div style={{ padding:'14px 18px 18px' }}>
+
+          {/* AI Snapshot — live only */}
+          {modal.isLive && (
+            <div style={{ backgroundColor:`${color}0D`, border:`1px solid ${color}22`, borderRadius:'10px', padding:'12px 14px', marginBottom:'12px' }}>
+              <div style={{ fontSize:'10px', fontWeight:700, color, letterSpacing:'0.08em', marginBottom:'6px' }}>⚡ AI SNAPSHOT</div>
+              {snapLoading
+                ? <div style={{ fontSize:'12px', color:textSecondary, fontStyle:'italic' }}>Generating summary…</div>
+                : snapshot
+                  ? <div style={{ fontSize:'12px', color:textPrimary, lineHeight:1.65 }}>{snapshot}</div>
+                  : <div style={{ fontSize:'12px', color:textSecondary }}>Ask a question below to explore this story.</div>
+              }
+            </div>
+          )}
+
+          {/* Directory — about block */}
+          {!modal.isLive && modal.description && (
+            <div style={{ backgroundColor:`${color}0D`, border:`1px solid ${color}22`, borderRadius:'10px', padding:'12px 14px', marginBottom:'12px' }}>
+              <div style={{ fontSize:'10px', fontWeight:700, color, letterSpacing:'0.08em', marginBottom:'6px' }}>ABOUT</div>
+              <div style={{ fontSize:'12px', color:textPrimary, lineHeight:1.65 }}>{modal.description}</div>
+            </div>
+          )}
+
+          {/* Primary CTA */}
+          <a
+            href={modal.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display:'block', textAlign:'center', backgroundColor: modal.isLive ? color : 'transparent', color: modal.isLive ? '#fff' : color, padding:'10px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none', border: modal.isLive ? 'none' : `1px solid ${color}55`, marginBottom:'8px' }}
+          >
+            {modal.isLive ? 'Read full article ↗' : 'Visit website ↗'}
+          </a>
+
+          {/* Chat toggle */}
+          <button
+            onClick={() => setChatOpen(p => !p)}
+            style={{ width:'100%', backgroundColor:'transparent', border:`1px solid ${borderCol}`, borderRadius:'8px', padding:'9px', fontSize:'12px', color:textSecondary, cursor:'pointer', marginBottom:'10px', transition:'all 0.15s' }}
+          >
+            {chatOpen ? '▲ Hide chat' : `💬 Ask about this ${modal.isLive ? 'story' : 'place'}`}
+          </button>
+
+          {/* Chat panel */}
+          {chatOpen && (
+            <div style={{ border:`1px solid ${borderCol}`, borderRadius:'10px', overflow:'hidden', marginBottom:'14px' }}>
+              <div style={{ maxHeight:'200px', overflowY:'auto', padding:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
+                {messages.length === 0 && (
+                  <div style={{ fontSize:'11px', color:textSecondary, textAlign:'center', padding:'12px 0' }}>
+                    Ask anything about this {modal.isLive ? 'story' : 'place'}…
+                  </div>
+                )}
+                {messages.map((m, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      alignSelf: m.role==='user' ? 'flex-end' : 'flex-start',
+                      maxWidth:'85%',
+                      backgroundColor: m.role==='user' ? `${color}22` : inputBg,
+                      border: m.role==='user' ? `1px solid ${color}44` : `1px solid ${borderCol}`,
+                      borderRadius: m.role==='user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                      padding:'8px 12px',
+                      fontSize:'12px',
+                      lineHeight:1.6,
+                      color: m.role==='user' ? color : textPrimary,
+                    }}
+                  >
+                    {m.text}
+                  </div>
+                ))}
+                {asking && (
+                  <div style={{ alignSelf:'flex-start', padding:'8px 12px', backgroundColor:inputBg, border:`1px solid ${borderCol}`, borderRadius:'12px 12px 12px 2px', fontSize:'12px', color:textSecondary }}>
+                    Thinking…
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+              <div style={{ borderTop:`1px solid ${borderCol}`, padding:'8px', display:'flex', gap:'6px' }}>
+                <input
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => { if (e.key==='Enter') sendMessage(); }}
+                  placeholder="Ask a question…"
+                  style={{ flex:1, backgroundColor:inputBg, border:`1px solid ${borderCol}`, borderRadius:'6px', padding:'7px 10px', fontSize:'12px', color:textPrimary, outline:'none' }}
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={asking || !input.trim()}
+                  style={{ backgroundColor: asking ? `${color}44` : color, border:'none', borderRadius:'6px', padding:'7px 12px', fontSize:'12px', fontWeight:700, color:'#fff', cursor: asking ? 'not-allowed' : 'pointer' }}
+                >↑</button>
+              </div>
+            </div>
+          )}
+
+          {/* Share row — live only */}
+          {modal.isLive && (
+            <div style={{ borderTop:`1px solid ${borderCol}`, paddingTop:'12px' }}>
+              <div style={{ fontSize:'10px', color:textSecondary, marginBottom:'8px', letterSpacing:'0.06em', fontWeight:600 }}>SHARE VIA GLOBAL HEALTH WATCH</div>
+              <div style={{ display:'flex', gap:'8px' }}>
+                {/* WhatsApp */}
+                <button
+                  onClick={shareWhatsApp}
+                  style={{ flex:1, backgroundColor:'#25D366', border:'none', borderRadius:'8px', padding:'9px 6px', fontSize:'11px', fontWeight:700, color:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  WhatsApp
+                </button>
+                {/* X */}
+                <button
+                  onClick={shareX}
+                  style={{ flex:1, backgroundColor:'#000', border:`1px solid ${borderCol}`, borderRadius:'8px', padding:'9px 6px', fontSize:'11px', fontWeight:700, color:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px' }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  Post to X
+                </button>
+                {/* Copy */}
+                <button
+                  onClick={copyText}
+                  title="Copy to clipboard"
+                  style={{ backgroundColor:inputBg, border:`1px solid ${borderCol}`, borderRadius:'8px', padding:'9px 12px', fontSize:'13px', cursor:'pointer', color: copied ? color : textSecondary, fontWeight: copied ? 700 : 400, transition:'all 0.2s' }}
+                >
+                  {copied ? '✓' : '📋'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export default function MapView({ activeVariants, region, isDark = true }: {
   activeVariants: string[]; region?: string; threats?: unknown[]; isDark?: boolean;
@@ -120,7 +373,6 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const [timeFilter, setTimeFilter] = useState<'1h'|'24h'|'7d'|'all'>('24h');
   const [mapMode, setMapMode] = useState<'live'|'directory'|'both'>('both');
   const [activeSignals, setActiveSignals] = useState<Record<string,string[]>>({});
-  // layers panel always visible
   const [collapsedTopics, setCollapsedTopics] = useState<Record<string,boolean>>({});
   const [mapReady, setMapReady] = useState(false);
   const [counts, setCounts] = useState({static:0,live:0});
@@ -136,14 +388,11 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const textSecondary = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
   const hoverBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
 
-  // Init signals for all active topics
   useEffect(() => {
     setActiveSignals(prev => {
       const next = {...prev};
       activeVariants.forEach(topic => {
-        if (!next[topic]) {
-          next[topic] = [...(TOPIC_SIGNALS[topic] ?? [])];
-        }
+        if (!next[topic]) next[topic] = [...(TOPIC_SIGNALS[topic] ?? [])];
       });
       return next;
     });
@@ -152,9 +401,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const toggleSignal = useCallback((topic: string, signal: string) => {
     setActiveSignals(prev => {
       const current = prev[topic] ?? TOPIC_SIGNALS[topic] ?? [];
-      const updated = current.includes(signal)
-        ? current.filter(s => s !== signal)
-        : [...current, signal];
+      const updated = current.includes(signal) ? current.filter(s => s !== signal) : [...current, signal];
       return {...prev, [topic]: updated};
     });
   }, []);
@@ -342,110 +589,72 @@ export default function MapView({ activeVariants, region, isDark = true }: {
     window.addEventListener('mouseup', onUp);
   };
 
-  // Active topics in display order
   const activeTopicsOrdered = TOPIC_ORDER.filter(t => activeVariants.includes(t));
 
   return (
     <div style={{position:'relative', width:'100%', backgroundColor:'#0a0a0f'}}>
       <div ref={mapRef} style={{width:'100%', height:`${mapHeight}px`}} />
 
-      {/* LAYERS PANEL — always visible top left */}
+      {/* LAYERS PANEL */}
       <div style={{position:'absolute', top:'12px', left:'12px', zIndex:1000}}>
-        <div style={{
-            backgroundColor: bg,
-            border: `1px solid ${border}`,
-            borderRadius:'10px', minWidth:'200px', maxWidth:'220px', overflow:'hidden',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.35)',
-            maxHeight:'380px', overflowY:'auto',
-          }}>
-            <div style={{padding:'8px 12px', borderBottom:`1px solid ${border}`, display:'flex', alignItems:'center', gap:'6px'}}>
-              <svg width="11" height="11" viewBox="0 0 13 13" fill="none" style={{opacity:0.5}}>
-                <rect y="0" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
-                <rect y="5" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
-                <rect y="10" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
-              </svg>
-              <span style={{fontSize:'10px', fontWeight:700, color:textMuted, letterSpacing:'0.08em'}}>LAYERS</span>
-            </div>
-            {activeTopicsOrdered.length === 0 ? (
-              <div style={{padding:'14px 12px', fontSize:'11px', color:textMuted, textAlign:'center', lineHeight:1.6}}>
-                Select a topic above<br/>to explore the map
-              </div>
-            ) : (
-              activeTopicsOrdered.map(topic => {
-                const signals = TOPIC_SIGNALS[topic] ?? [];
-                const activeList = activeSignals[topic] ?? signals;
-                const allOn = signals.every(s => activeList.includes(s));
-                const isCollapsed = collapsedTopics[topic];
-                return (
-                  <div key={topic} style={{borderBottom:`1px solid ${border}`}}>
-                    {/* Topic header */}
-                    <div
-                      style={{
-                        display:'flex', alignItems:'center', justifyContent:'space-between',
-                        padding:'8px 12px', cursor:'pointer',
-                      }}
-                      onClick={() => setCollapsedTopics(p => ({...p, [topic]: !p[topic]}))}
-                    >
-                      <div style={{display:'flex', alignItems:'center', gap:'7px'}}>
-                        <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 5px ${c(topic)}`}} />
-                        <span style={{fontSize:'10px', fontWeight:800, color:c(topic), letterSpacing:'0.07em'}}>{topic}</span>
-                      </div>
-                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                        <button
-                          onClick={e => { e.stopPropagation(); toggleAllSignals(topic); }}
-                          style={{
-                            fontSize:'9px', color: allOn ? c(topic) : textMuted,
-                            background:'none', border:`1px solid ${allOn ? c(topic)+'44' : border}`,
-                            borderRadius:'4px', padding:'2px 6px', cursor:'pointer',
-                          }}
-                        >
-                          {allOn ? 'All on' : 'All off'}
-                        </button>
-                        <span style={{fontSize:'10px', color:textMuted}}>{isCollapsed ? '▶' : '▼'}</span>
-                      </div>
-                    </div>
-
-                    {/* Signal checkboxes */}
-                    {!isCollapsed && (
-                      <div style={{paddingBottom:'6px'}}>
-                        {signals.map(signal => {
-                          const isOn = activeList.includes(signal);
-                          const isLive = signal === 'Live News';
-                          return (
-                            <div
-                              key={signal}
-                              onClick={() => toggleSignal(topic, signal)}
-                              style={{
-                                display:'flex', alignItems:'center', gap:'8px',
-                                padding:'5px 12px 5px 24px', cursor:'pointer',
-                                opacity: isOn ? 1 : 0.35, transition:'all 0.15s',
-                              }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = hoverBg)}
-                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                            >
-                              <div style={{
-                                width:'12px', height:'12px', borderRadius:'3px', flexShrink:0,
-                                border:`1.5px solid ${isOn ? c(topic) : 'rgba(128,128,128,0.3)'}`,
-                                backgroundColor: isOn ? `${c(topic)}33` : 'transparent',
-                                display:'flex', alignItems:'center', justifyContent:'center',
-                              }}>
-                                {isOn && <span style={{fontSize:'8px', color:c(topic), fontWeight:700}}>✓</span>}
-                              </div>
-                              {isLive
-                                ? <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 4px ${c(topic)}`, flexShrink:0}} />
-                                : <div style={{width:'7px', height:'7px', borderRadius:'50%', border:`2px solid ${c(topic)}`, backgroundColor:`${c(topic)}22`, flexShrink:0}} />
-                              }
-                              <span style={{fontSize:'10px', color:textPrimary, whiteSpace:'nowrap'}}>{signal}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+        <div style={{ backgroundColor:bg, border:`1px solid ${border}`, borderRadius:'10px', minWidth:'200px', maxWidth:'220px', overflow:'hidden', boxShadow:'0 8px 32px rgba(0,0,0,0.35)', maxHeight:'380px', overflowY:'auto' }}>
+          <div style={{padding:'8px 12px', borderBottom:`1px solid ${border}`, display:'flex', alignItems:'center', gap:'6px'}}>
+            <svg width="11" height="11" viewBox="0 0 13 13" fill="none" style={{opacity:0.5}}>
+              <rect y="0" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+              <rect y="5" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+              <rect y="10" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+            </svg>
+            <span style={{fontSize:'10px', fontWeight:700, color:textMuted, letterSpacing:'0.08em'}}>LAYERS</span>
           </div>
+          {activeTopicsOrdered.length === 0 ? (
+            <div style={{padding:'14px 12px', fontSize:'11px', color:textMuted, textAlign:'center', lineHeight:1.6}}>
+              Select a topic above<br/>to explore the map
+            </div>
+          ) : (
+            activeTopicsOrdered.map(topic => {
+              const signals = TOPIC_SIGNALS[topic] ?? [];
+              const activeList = activeSignals[topic] ?? signals;
+              const allOn = signals.every(s => activeList.includes(s));
+              const isCollapsed = collapsedTopics[topic];
+              return (
+                <div key={topic} style={{borderBottom:`1px solid ${border}`}}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 12px', cursor:'pointer' }} onClick={() => setCollapsedTopics(p => ({...p, [topic]: !p[topic]}))}>
+                    <div style={{display:'flex', alignItems:'center', gap:'7px'}}>
+                      <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 5px ${c(topic)}`}} />
+                      <span style={{fontSize:'10px', fontWeight:800, color:c(topic), letterSpacing:'0.07em'}}>{topic}</span>
+                    </div>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                      <button onClick={e => { e.stopPropagation(); toggleAllSignals(topic); }} style={{ fontSize:'9px', color: allOn ? c(topic) : textMuted, background:'none', border:`1px solid ${allOn ? c(topic)+'44' : border}`, borderRadius:'4px', padding:'2px 6px', cursor:'pointer' }}>
+                        {allOn ? 'All on' : 'All off'}
+                      </button>
+                      <span style={{fontSize:'10px', color:textMuted}}>{isCollapsed ? '▶' : '▼'}</span>
+                    </div>
+                  </div>
+                  {!isCollapsed && (
+                    <div style={{paddingBottom:'6px'}}>
+                      {signals.map(signal => {
+                        const isOn = activeList.includes(signal);
+                        const isLive = signal === 'Live News';
+                        return (
+                          <div key={signal} onClick={() => toggleSignal(topic, signal)} style={{ display:'flex', alignItems:'center', gap:'8px', padding:'5px 12px 5px 24px', cursor:'pointer', opacity: isOn ? 1 : 0.35, transition:'all 0.15s' }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = hoverBg)} onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                            <div style={{ width:'12px', height:'12px', borderRadius:'3px', flexShrink:0, border:`1.5px solid ${isOn ? c(topic) : 'rgba(128,128,128,0.3)'}`, backgroundColor: isOn ? `${c(topic)}33` : 'transparent', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                              {isOn && <span style={{fontSize:'8px', color:c(topic), fontWeight:700}}>✓</span>}
+                            </div>
+                            {isLive
+                              ? <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 4px ${c(topic)}`, flexShrink:0}} />
+                              : <div style={{width:'7px', height:'7px', borderRadius:'50%', border:`2px solid ${c(topic)}`, backgroundColor:`${c(topic)}22`, flexShrink:0}} />
+                            }
+                            <span style={{fontSize:'10px', color:textPrimary, whiteSpace:'nowrap'}}>{signal}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* TOP CENTER — time filter + mode toggle */}
@@ -490,57 +699,19 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         © OpenStreetMap © CartoDB
       </div>
 
-      {/* DRAG HANDLE to resize map */}
-      <div
-        onMouseDown={onDragStart}
-        style={{position:'absolute', bottom:0, left:0, right:0, height:'10px', cursor:'ns-resize', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1001}}
-      >
+      {/* DRAG HANDLE */}
+      <div onMouseDown={onDragStart} style={{position:'absolute', bottom:0, left:0, right:0, height:'10px', cursor:'ns-resize', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1001}}>
         <div style={{width:'40px', height:'3px', borderRadius:'2px', backgroundColor: isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'}} />
       </div>
 
       {/* MODAL */}
       {modal && (
-        <div
-          style={{position:'fixed', inset:0, zIndex:2000, backgroundColor:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px'}}
-          onClick={() => setModal(null)}
-        >
-          <div
-            style={{backgroundColor:'var(--modal-bg)', border:`1px solid ${c(modal.topic)}33`, borderRadius:'14px', maxWidth:'420px', width:'100%', padding:'24px', boxShadow:`0 24px 80px rgba(0,0,0,0.4), 0 0 40px ${c(modal.topic)}22`, position:'relative'}}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* ✕ close */}
-            <button onClick={() => setModal(null)} style={{position:'absolute', top:'14px', right:'14px', background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer', fontSize:'18px', lineHeight:1, padding:'2px 6px'}}>✕</button>
-
-            <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'14px', paddingRight:'24px'}}>
-              <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(modal.topic), boxShadow:`0 0 6px ${c(modal.topic)}`}} />
-              <span style={{fontSize:'10px', fontWeight:700, color:c(modal.topic), letterSpacing:'0.1em'}}>{modal.topic}</span>
-              {modal.signal && <span style={{fontSize:'10px', color:'var(--text-secondary)'}}>· {modal.signal}</span>}
-              {modal.isLive && <span style={{fontSize:'10px', color:'var(--text-secondary)', marginLeft:'4px'}}>● LIVE NEWS</span>}
-            </div>
-            <div style={{fontSize:'15px', fontWeight:700, color:'var(--text-primary)', lineHeight:1.45, marginBottom:'6px'}}>
-              {modal.title}
-            </div>
-            {modal.description && (
-              <div style={{fontSize:'12px', color:c(modal.topic), marginBottom:'4px', fontWeight:500}}>
-                {modal.description}
-              </div>
-            )}
-            <div style={{fontSize:'11px', color:'var(--text-secondary)', marginBottom:'20px'}}>
-              {modal.subtitle}
-            </div>
-            {modal.isLive ? (
-              <a href={modal.link} target="_blank" rel="noopener noreferrer"
-                style={{backgroundColor:c(modal.topic), color:'#fff', padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none', display:'inline-block'}}>
-                Read article ↗
-              </a>
-            ) : (
-              <a href={modal.link} target="_blank" rel="noopener noreferrer"
-                style={{backgroundColor:'transparent', color:c(modal.topic), padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:600, textDecoration:'none', border:`1px solid ${c(modal.topic)}55`, display:'inline-block'}}>
-                View profile ↗
-              </a>
-            )}
-          </div>
-        </div>
+        <ModalPanel
+          modal={modal}
+          color={c(modal.topic)}
+          onClose={() => setModal(null)}
+          isDark={isDark}
+        />
       )}
 
       <style>{`
