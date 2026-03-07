@@ -31,7 +31,7 @@ const PERFORMANCE_DOTS = [
   { id: 'p2', name: 'VO2 Max Longevity Link', severity: 'RESEARCH', location: 'Dallas, USA', keyStat: 'Top VO2 max quintile has 5x lower mortality risk', ageContext: 'Adults 30-70', whyHere: 'Cooper Institute 20-year longitudinal study', timeline: 'Published last month', source: 'JAMA', link: 'https://jamanetwork.com', color: '#2563EB', coordinates: [-96.797, 32.7767] as [number, number] },
 ];
 
-const ECONOMY_DOTS = [
+const INVESTMENTS_DOTS = [
   { id: 'e1', name: 'GLP-1 Drug Pricing Dispute', severity: 'POLICY', location: 'Washington DC, USA', keyStat: 'Ozempic costs $900/month in USA vs $60 in Germany', ageContext: 'Affects 37M+ diabetes patients in USA', whyHere: 'Congressional hearing on drug pricing', timeline: 'Hearing this week', source: 'Reuters Health', link: 'https://www.reuters.com', color: '#D97706', coordinates: [-77.0369, 38.9072] as [number, number] },
   { id: 'e2', name: 'Biotech VC Funding Record', severity: 'FUNDING', location: 'San Francisco, USA', keyStat: '$4.2B raised in longevity biotech Q1 2026', ageContext: 'Global biotech investment landscape', whyHere: 'Silicon Valley biotech hub', timeline: 'Q1 2026 report', source: 'Nature Biotechnology', link: 'https://www.nature.com', color: '#D97706', coordinates: [-122.4194, 37.7749] as [number, number] },
 ];
@@ -105,7 +105,7 @@ export default function MapView({ activeVariants, region, threats = [] }: MapVie
         ...(activeVariants.includes('LONGEVITY') ? LONGEVITY_DOTS : []),
         ...(activeVariants.includes('MENTAL HEALTH') ? MENTAL_HEALTH_DOTS : []),
         ...(activeVariants.includes('PERFORMANCE') ? PERFORMANCE_DOTS : []),
-        ...(activeVariants.includes('ECONOMY') ? ECONOMY_DOTS : []),
+        ...(activeVariants.includes('INVESTMENTS') ? INVESTMENTS_DOTS : []),
       ];
       dots.forEach(dot => {
         const el = document.createElement('div');

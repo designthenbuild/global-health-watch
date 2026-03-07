@@ -10,7 +10,7 @@ const VARIANT_COLORS: Record<string, string> = {
   'MENTAL HEALTH': '#7C3AED',
   LONGEVITY: '#059669',
   PERFORMANCE: '#2563EB',
-  ECONOMY: '#D97706',
+  INVESTMENTS: '#D97706',
 };
 
 interface PulseData {
@@ -45,7 +45,7 @@ const scaleItems = [
   { range: '9-10', label: 'Critical', color: '#E63946' },
 ];
 
-const variants = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
+const variants = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
 
 export default function TopBar({ activeVariants = [], toggleVariant, region, setRegion, onMyHealth, pulse, onShare }: TopBarProps) {
   const [theme, setTheme] = useState<'dark' | 'light'>('light');

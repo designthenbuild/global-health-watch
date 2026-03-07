@@ -60,7 +60,7 @@ const COUNTER_TABS = {
       { label: 'Cold therapy studies published this year', annualRate: 1200, source: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov' },
     ],
   },
-  ECONOMY: {
+  INVESTMENTS: {
     color: '#D97706',
     items: [
       { label: 'Global health spending this year ($)', annualRate: 9800000000000, source: 'WHO', url: 'https://www.who.int/health-topics/health-financing' },
@@ -506,7 +506,7 @@ function AskTheWatch() {
 function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
-  const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
+  const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
   const tabStyle = (active: boolean, color: string) => ({ backgroundColor: active ? color : 'transparent', color: active ? '#fff' : 'var(--text-secondary)', border: `1px solid ${active ? color : 'var(--border-color)'}`, padding: '4px 8px', fontSize: '10px', fontWeight: '600' as const, cursor: 'pointer', borderRadius: '4px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s' });
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gridColumn: 'span 2', height: '420px' }}>
@@ -534,7 +534,7 @@ export default function BottomPanels() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
         <TopicCard topicId="PERFORMANCE" label="Performance" color="#2563EB" />
-        <TopicCard topicId="ECONOMY" label="Economy" color="#D97706" />
+        <TopicCard topicId="INVESTMENTS" label="Investments" color="#D97706" />
         <TopicCard topicId="MENTAL HEALTH" label="Mental Health" color="#7C3AED" />
         <TopicCard topicId="DISCOVERIES" label="Discoveries" color="#00B4D8" />
         <TopicCard topicId="THREATS" label="Threats" color="#E63946" />

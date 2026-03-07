@@ -20,7 +20,7 @@ const VARIANT_COLORS: Record<string, string> = {
   'MENTAL HEALTH': '#7C3AED',
   LONGEVITY: '#059669',
   PERFORMANCE: '#2563EB',
-  ECONOMY: '#D97706',
+  INVESTMENTS: '#D97706',
   PULSE: '#00C9A7',
 };
 
@@ -52,11 +52,11 @@ async function fetchRSSHeadlines(): Promise<string> {
     { url: 'https://bjsm.bmj.com/rss/current.xml', variant: 'PERFORMANCE' },
     { url: 'https://www.sciencedaily.com/rss/mind_brain/sports_science.xml', variant: 'PERFORMANCE' },
 
-    // ECONOMY — investors + industry
-    { url: 'https://www.fiercehealthcare.com/rss/xml', variant: 'ECONOMY' },
-    { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'ECONOMY' },
-    { url: 'https://a16z.com/feed/', variant: 'ECONOMY' },
-    { url: 'https://www.fiercepharma.com/rss/xml', variant: 'ECONOMY' },
+    // INVESTMENTS — investors + industry
+    { url: 'https://www.fiercehealthcare.com/rss/xml', variant: 'INVESTMENTS' },
+    { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'INVESTMENTS' },
+    { url: 'https://a16z.com/feed/', variant: 'INVESTMENTS' },
+    { url: 'https://www.fiercepharma.com/rss/xml', variant: 'INVESTMENTS' },
   ];
 
   const headlines: string[] = [];
@@ -92,7 +92,7 @@ export async function GET() {
 
     const headlines = await fetchRSSHeadlines();
 
-    const prompt = `You are the AI editor of Global Health Watch, a real-time global health intelligence platform covering threats, discoveries, longevity, mental health, performance, and health economy.
+    const prompt = `You are the AI editor of Global Health Watch, a real-time global health intelligence platform covering threats, discoveries, longevity, mental health, performance, and health investments.
 
 Based on these live headlines from today:
 ${headlines || 'No live headlines available — use your knowledge of current global health trends as of early 2026.'}
@@ -106,7 +106,7 @@ Return ONLY valid JSON, no markdown, no explanation:
   {"variant": "MENTAL HEALTH", "title": "MENTAL HEALTH SIGNAL", "content": "2-3 sentence brief on a key mental health development, research finding, or treatment advance."},
   {"variant": "LONGEVITY", "title": "LONGEVITY SIGNAL", "content": "2-3 sentence brief on longevity science, senolytics, NAD+, reprogramming, or anti-aging biotech. Can reference Altos Labs, Calico, Retro Bio, or clinical findings."},
   {"variant": "PERFORMANCE", "title": "PERFORMANCE SIGNAL", "content": "2-3 sentence brief on human performance, sports science, wearables, or optimization protocols."},
-  {"variant": "ECONOMY", "title": "ECONOMY SIGNAL", "content": "2-3 sentence brief on health economy — biotech funding, drug pricing, VC activity, or health policy. Can reference a16z, Flagship Pioneering, Apollo Health Ventures, Mubadala, or deal news."},
+  {"variant": "INVESTMENTS", "title": "INVESTMENTS SIGNAL", "content": "2-3 sentence brief on health investments — biotech funding, drug pricing, VC activity, or health policy. Can reference a16z, Flagship Pioneering, Apollo Health Ventures, Mubadala, or deal news."},
   {"variant": "PULSE", "title": "HEALTH PULSE EXPLAINED", "content": "2-3 sentence summary of overall global health status right now — calm, watch, or elevated and why."}
 ]`;
 

@@ -8,11 +8,11 @@ async function getTodaysHeadlines(): Promise<string> {
     { url: 'https://longevity.technology/feed/', variant: 'LONGEVITY' },
     { url: 'https://www.nimh.nih.gov/rss/news', variant: 'MENTAL HEALTH' },
     { url: 'https://statnews.com/feed/', variant: 'DISCOVERIES' },
-    { url: 'https://www.fiercehealthcare.com/rss/xml', variant: 'ECONOMY' },
-    { url: 'https://medcitynews.com/feed/', variant: 'ECONOMY' },
+    { url: 'https://www.fiercehealthcare.com/rss/xml', variant: 'INVESTMENTS' },
+    { url: 'https://medcitynews.com/feed/', variant: 'INVESTMENTS' },
     { url: 'https://www.sciencedaily.com/rss/health_medicine.xml', variant: 'PERFORMANCE' },
-    { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'ECONOMY' },
-    { url: 'https://a16z.com/feed/', variant: 'ECONOMY' },
+    { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'INVESTMENTS' },
+    { url: 'https://a16z.com/feed/', variant: 'INVESTMENTS' },
     { url: 'https://lifespan.io/feed/', variant: 'LONGEVITY' },
   ];
 

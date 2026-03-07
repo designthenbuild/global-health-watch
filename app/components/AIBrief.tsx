@@ -53,7 +53,7 @@ const VARIANT_SOURCES: Record<string, Source[]> = {
     { label: 'NSCA Journal', url: 'https://journals.lww.com/nsca-jscr/pages/default.aspx', type: 'Journal' },
     { label: 'WHOOP Research', url: 'https://www.whoop.com/us/en/thelocker/', type: 'Wearable' },
   ],
-  ECONOMY: [
+  INVESTMENTS: [
     { label: 'WHO Health Financing', url: 'https://www.who.int/health-topics/health-financing', type: 'Official' },
     { label: 'Reuters Health & Pharma', url: 'https://www.reuters.com/business/healthcare-pharmaceuticals/', type: 'News' },
     { label: 'STAT News Business', url: 'https://statnews.com/category/business/', type: 'News' },
@@ -74,7 +74,7 @@ const FALLBACK: BriefItem[] = [
   { title: 'MENTAL HEALTH', icon: '🧠', content: 'Psychedelic-assisted therapy advancing through regulatory pipelines globally. PTSD and treatment-resistant depression in focus.', color: '#7C3AED', variant: 'MENTAL HEALTH', sources: VARIANT_SOURCES['MENTAL HEALTH'] },
   { title: 'LONGEVITY SIGNAL', icon: '⏳', content: 'Senolytics and NAD+ supplementation remain the most active areas. New rapamycin trial data expected Q2 2026.', color: '#059669', variant: 'LONGEVITY', sources: VARIANT_SOURCES['LONGEVITY'] },
   { title: 'PERFORMANCE', icon: '⚡', content: 'Cold and heat therapy gaining clinical validation globally. VO2 max emerging as the strongest all-cause mortality predictor.', color: '#2563EB', variant: 'PERFORMANCE', sources: VARIANT_SOURCES['PERFORMANCE'] },
-  { title: 'ECONOMY SIGNAL', icon: '📊', content: 'Global biotech funding strong in Q1 2026. GCC health infrastructure investment accelerating. EU pharma pricing reform advancing.', color: '#D97706', variant: 'ECONOMY', sources: VARIANT_SOURCES['ECONOMY'] },
+  { title: 'INVESTMENTS SIGNAL', icon: '📊', content: 'Global biotech funding strong in Q1 2026. GCC health infrastructure investment accelerating. EU pharma pricing reform advancing.', color: '#D97706', variant: 'INVESTMENTS', sources: VARIANT_SOURCES['INVESTMENTS'] },
   { title: 'HEALTH PULSE', icon: '🌐', content: 'Global signals at Watch level. No critical escalations. 3 active outbreak investigations, 2 elevated regional alerts.', color: '#00C9A7', variant: 'PULSE', sources: VARIANT_SOURCES['PULSE'] },
 ];
 
