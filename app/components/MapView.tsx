@@ -122,7 +122,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const [activeSignals, setActiveSignals] = useState<Record<string,string[]>>({});
   // layers panel always visible
   const [collapsedTopics, setCollapsedTopics] = useState<Record<string,boolean>>({});
-  const [counts, setCounts] = useState({static:0,live:0});
+  const [mapReady, setMapReady] = useState(false);
   const [mapHeight, setMapHeight] = useState(500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
 
@@ -229,6 +229,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
     }).addTo(map);
     L.control.zoom({position: 'topright'}).addTo(map);
     mapInstanceRef.current = map;
+    setMapReady(true);
   }, [leafletLoaded]);
 
   useEffect(() => {
@@ -248,7 +249,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   }, [mapHeight]);
 
   useEffect(() => {
-    if (!leafletLoaded || !mapInstanceRef.current) return;
+    if (!mapReady || !mapInstanceRef.current) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const L = (window as any).L;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -262,7 +263,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
 
     if (mapMode !== 'live') {
       staticLocs.forEach(loc => {
-        const topicActive = activeVariants.length===0 || activeVariants.includes(loc.topic);
+        const topicActive = activeVariants.length > 0 && activeVariants.includes(loc.topic);
         if (!topicActive) return;
         const sigName = loc.signal ?? loc.type ?? '';
         const topicSignals = activeSignals[loc.topic];
@@ -291,7 +292,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
 
     if (mapMode !== 'directory') {
       liveDots.forEach(dot => {
-        const topicActive = activeVariants.length===0 || activeVariants.includes(dot.topic);
+        const topicActive = activeVariants.length > 0 && activeVariants.includes(dot.topic);
         if (!topicActive) return;
         if (dot.age > timeMs) return;
         const topicSignals = activeSignals[dot.topic];
@@ -320,7 +321,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
     }
 
     setCounts({static: sCount, live: lCount});
-  }, [leafletLoaded, staticLocs, liveDots, activeVariants, activeSignals, activeTopic, timeFilter, mapMode]);
+  }, [mapReady, staticLocs, liveDots, activeVariants, activeSignals, activeTopic, timeFilter, mapMode]);
 
   const c = (t: string) => TOPIC_COLORS[t] ?? '#999';
 
@@ -365,8 +366,8 @@ export default function MapView({ activeVariants, region, isDark = true }: {
               <span style={{fontSize:'10px', fontWeight:700, color:textMuted, letterSpacing:'0.08em'}}>LAYERS</span>
             </div>
             {activeTopicsOrdered.length === 0 ? (
-              <div style={{padding:'14px 12px', fontSize:'11px', color:textMuted, textAlign:'center', lineHeight:1.5}}>
-                Select a topic<br/>to filter layers
+              <div style={{padding:'14px 12px', fontSize:'11px', color:textMuted, textAlign:'center', lineHeight:1.6}}>
+                Select a topic above<br/>to explore the map
               </div>
             ) : (
               activeTopicsOrdered.map(topic => {
@@ -476,7 +477,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         </div>
         <div style={{width:'1px', height:'12px', backgroundColor:border}} />
         {Object.entries(TOPIC_COLORS).map(([topic, color]) => (
-          <div key={topic} style={{display:'flex', alignItems:'center', gap:'4px', opacity: activeVariants.length===0 || activeVariants.includes(topic) ? 1 : 0.2, transition:'opacity 0.2s'}}>
+          <div key={topic} style={{display:'flex', alignItems:'center', gap:'4px', opacity: activeVariants.length===0 ? 0.2 : activeVariants.includes(topic) ? 1 : 0.2, transition:'opacity 0.2s'}}>
             <div style={{width:'6px', height:'6px', borderRadius:'50%', backgroundColor:color}} />
             <span style={{fontSize:'9px', color:textMuted, whiteSpace:'nowrap'}}>{topic==='MENTAL HEALTH' ? 'MENTAL' : topic}</span>
           </div>
