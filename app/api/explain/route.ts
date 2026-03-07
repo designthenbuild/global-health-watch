@@ -1,41 +1,35 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 export async function POST(request: Request) {
   try {
     const { question, context } = await request.json();
 
-    console.log('API Key present:', !!process.env.ANTHROPIC_API_KEY);
-    console.log('Question:', question);
+    const prompt = `You are a trusted global health intelligence assistant for Global Health Watch.
 
-    const message = await client.messages.create({
-      model: 'claude-opus-4-5',
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: `You are a trusted global health intelligence assistant. Answer this question about a health event clearly and concisely in 2-3 sentences. Be informative but not alarmist.
+Context: ${context}
 
-Health event context:
-- Name: ${context.name}
-- Location: ${context.location}
-- Severity: ${context.severity}
-- Key stat: ${context.keyStat}
-- Source: ${context.source}
+Task: ${question}
 
-User question: ${question}`,
-        },
-      ],
+Be factual, calm, and clear. Do not be alarmist. Respond in plain English suitable for a general audience.`;
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }],
+      }),
     });
 
-    const response = message.content[0].type === 'text' ? message.content[0].text : '';
-    return NextResponse.json({ response });
+    const data = await response.json();
+    const answer = data.choices?.[0]?.message?.content ?? 'No summary available.';
+    return NextResponse.json({ answer });
   } catch (error) {
     console.error('Explain error:', error);
-    return NextResponse.json({ response: 'Unable to get explanation right now.' }, { status: 500 });
+    return NextResponse.json({ answer: 'Unable to generate summary right now.' }, { status: 500 });
   }
 }
