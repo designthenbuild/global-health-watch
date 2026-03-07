@@ -105,8 +105,8 @@ const REGION_VIEWS: Record<string, {center:[number,number];zoom:number}> = {
   'ANZ': {center:[140,-25],zoom:3.5},
 };
 
-export default function MapView({ activeVariants, region, isDark = true }: {
-  activeVariants: string[]; region?: string; threats?: unknown[]; isDark?: boolean;
+export default function MapView({ activeVariants, focusedTopic: focusedTopicProp = null, setFocusedTopic, region, isDark = true }: {
+  activeVariants: string[]; focusedTopic?: string | null; setFocusedTopic?: (t: string | null) => void; region?: string; threats?: unknown[]; isDark?: boolean;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<unknown>(null);
@@ -123,7 +123,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const [mapHeight, setMapHeight] = useState(500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
 
-  const activeTopic = activeVariants.length===1 ? activeVariants[0] : null;
+  const activeTopic = focusedTopicProp ?? (activeVariants.length===1 ? activeVariants[0] : null);
 
   const bg = isDark ? 'rgba(10,10,20,0.88)' : 'rgba(255,255,255,0.92)';
   const border = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
