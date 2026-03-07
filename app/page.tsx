@@ -84,7 +84,7 @@ export default function Home() {
         pulse={pulse}
         onShare={handleShare}
       />
-      <MapView activeVariants={activeVariants} region={region} threats={threats} />
+      <MapView activeVariants={activeVariants} region={region} threats={threats} isDark={!isLight} />
       <AIBrief />
       <BottomPanels />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}
