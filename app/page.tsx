@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import TopBar from './components/TopBar';
 import MapView from './components/MapView';
@@ -48,6 +47,7 @@ export default function Home() {
   const [region, setRegion] = useState('Global');
   const [showMyHealth, setShowMyHealth] = useState(false);
   const [threats, setThreats] = useState<Threat[]>([]);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     fetch('/api/threats')
@@ -83,8 +83,10 @@ export default function Home() {
         onMyHealth={() => setShowMyHealth(true)}
         pulse={pulse}
         onShare={handleShare}
+        isDark={isDark}
+        onThemeChange={setIsDark}
       />
-      <MapView activeVariants={activeVariants} region={region} threats={threats} isDark={true} />
+      <MapView activeVariants={activeVariants} region={region} threats={threats} isDark={isDark} />
       <AIBrief />
       <BottomPanels />
       {showMyHealth && <MyHealthModal onClose={() => setShowMyHealth(false)} />}
