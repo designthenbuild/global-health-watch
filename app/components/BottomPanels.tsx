@@ -73,16 +73,6 @@ const COUNTER_TABS = {
   },
 };
 
-const TOPIC_CARDS = [
-  { id: 'LONGEVITY', label: 'Longevity', color: '#059669' },
-  { id: 'PERFORMANCE', label: 'Performance', color: '#2563EB' },
-  { id: 'ECONOMY', label: 'Economy', color: '#D97706' },
-  { id: 'MENTAL HEALTH', label: 'Mental Health', color: '#7C3AED' },
-  { id: 'DISCOVERIES', label: 'Discoveries', color: '#00B4D8' },
-  { id: 'THREATS', label: 'Threats', color: '#E63946' },
-  { id: 'RECALLS', label: 'Recalls', color: '#F97316' },
-];
-
 const SUGGESTED = [
   'Are eggs healthy to eat daily? How many is too many?',
   'How does saliva health affect your immune system?',
@@ -137,7 +127,6 @@ interface ModalItem {
   image?: string;
   summary?: string;
 }
-
 function useCounter(annualRate: number): string {
   const [count, setCount] = useState(() => {
     const now = new Date();
@@ -162,7 +151,6 @@ function useTypewriter(phrases: string[], typingSpeed = 45, pauseDuration = 2200
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
   const [pausing, setPausing] = useState(false);
-
   useEffect(() => {
     if (pausing) {
       const t = setTimeout(() => { setPausing(false); setDeleting(true); }, pauseDuration);
@@ -170,26 +158,16 @@ function useTypewriter(phrases: string[], typingSpeed = 45, pauseDuration = 2200
     }
     if (!deleting) {
       if (charIdx < phrases[phraseIdx].length) {
-        const t = setTimeout(() => {
-          setDisplayed(phrases[phraseIdx].slice(0, charIdx + 1));
-          setCharIdx(c => c + 1);
-        }, typingSpeed);
+        const t = setTimeout(() => { setDisplayed(phrases[phraseIdx].slice(0, charIdx + 1)); setCharIdx(c => c + 1); }, typingSpeed);
         return () => clearTimeout(t);
       } else { setPausing(true); }
     } else {
       if (charIdx > 0) {
-        const t = setTimeout(() => {
-          setDisplayed(phrases[phraseIdx].slice(0, charIdx - 1));
-          setCharIdx(c => c - 1);
-        }, deletingSpeed);
+        const t = setTimeout(() => { setDisplayed(phrases[phraseIdx].slice(0, charIdx - 1)); setCharIdx(c => c - 1); }, deletingSpeed);
         return () => clearTimeout(t);
-      } else {
-        setDeleting(false);
-        setPhraseIdx(i => (i + 1) % phrases.length);
-      }
+      } else { setDeleting(false); setPhraseIdx(i => (i + 1) % phrases.length); }
     }
   }, [charIdx, deleting, pausing, phraseIdx, phrases, typingSpeed, pauseDuration, deletingSpeed]);
-
   return displayed;
 }
 
@@ -198,11 +176,9 @@ function CounterRow({ item, color }: { item: CounterItem; color: string }) {
   const display = item.fixed ?? value;
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-      <div
-        style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
-        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-      >
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
         <div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>{item.label}</div>
           <div style={{ fontSize: '10px', color, opacity: 0.7 }}>{item.source} ↗</div>
@@ -216,25 +192,10 @@ function CounterRow({ item, color }: { item: CounterItem; color: string }) {
   );
 }
 
-function StoryModal({ item, topicColor, topicLabel, onClose }: {
-  item: ModalItem; topicColor: string; topicLabel: string; onClose: () => void;
-}) {
+function StoryModal({ item, topicColor, topicLabel, onClose }: { item: ModalItem; topicColor: string; topicLabel: string; onClose: () => void; }) {
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 1000,
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px',
-    }} onClick={onClose}>
-      <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: `1px solid ${topicColor}44`,
-        borderRadius: '14px',
-        maxWidth: '560px',
-        width: '100%',
-        overflow: 'hidden',
-        boxShadow: `0 24px 80px rgba(0,0,0,0.5)`,
-      }} onClick={e => e.stopPropagation()}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={onClose}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${topicColor}44`, borderRadius: '14px', maxWidth: '560px', width: '100%', overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
         {item.image && (
           <div style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
             <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -244,29 +205,14 @@ function StoryModal({ item, topicColor, topicLabel, onClose }: {
         <div style={{ padding: '20px 24px 24px' }}>
           <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '10px', letterSpacing: '0.06em' }}>
             <span style={{ color: topicColor }}>{topicLabel.toUpperCase()}</span>
-            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>
-            {item.source}
-            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>
-            {item.time}
+            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>{item.source}
+            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>{item.time}
           </div>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '16px' }}>
-            {item.headline}
-          </div>
-          {item.summary && (
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '20px' }}>{item.summary}</p>
-          )}
+          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '16px' }}>{item.headline}</div>
+          {item.summary && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '20px' }}>{item.summary}</p>}
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              backgroundColor: topicColor, color: '#000',
-              padding: '9px 18px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 700, textDecoration: 'none',
-            }}>Read full article ↗</a>
-            <button onClick={onClose} style={{
-              background: 'none', border: '1px solid var(--border-color)',
-              borderRadius: '8px', padding: '9px 16px',
-              color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer',
-            }}>Close</button>
+            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: topicColor, color: '#000', padding: '9px 18px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, textDecoration: 'none' }}>Read full article ↗</a>
+            <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '9px 16px', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>Close</button>
           </div>
         </div>
       </div>
@@ -274,9 +220,7 @@ function StoryModal({ item, topicColor, topicLabel, onClose }: {
   );
 }
 
-function TopicCard({ topicId, label, color, fullWidth = false }: {
-  topicId: string; label: string; color: string; fullWidth?: boolean;
-}) {
+function TopicCard({ topicId, label, color }: { topicId: string; label: string; color: string; }) {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -297,125 +241,83 @@ function TopicCard({ topicId, label, color, fullWidth = false }: {
 
   return (
     <>
-      {modal && (
-        <StoryModal
-          item={modal}
-          topicColor={color}
-          topicLabel={label}
-          onClose={() => setModal(null)}
-        />
-      )}
-      <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: `1px solid var(--border-color)`,
-        borderRadius: '10px',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'border-color 0.2s',
-        gridColumn: fullWidth ? 'span 2' : undefined,
-      }}
+      {modal && <StoryModal item={modal} topicColor={color} topicLabel={label} onClose={() => setModal(null)} />}
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', height: '420px' }}
         onMouseEnter={e => (e.currentTarget.style.borderColor = `${color}44`)}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-color)')}
-      >
-        {/* Header */}
-        <div style={{
-          padding: '10px 14px',
-          borderBottom: '1px solid var(--border-color)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: `linear-gradient(90deg, ${color}10 0%, transparent 100%)`,
-        }}>
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-color)')}>
+
+        <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: `linear-gradient(90deg, ${color}10 0%, transparent 100%)` }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
           <span style={{ fontSize: '11px', fontWeight: 800, color, letterSpacing: '0.1em' }}>{label.toUpperCase()}</span>
-          {!loading && <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4 }}>{items.length} stories</span>}
+          {!loading && (
+            <span onClick={expanded ? () => setExpanded(false) : undefined}
+              style={{ marginLeft: 'auto', fontSize: '10px', color: expanded ? color : 'var(--text-secondary)', opacity: expanded ? 0.9 : 0.4, cursor: expanded ? 'pointer' : 'default', letterSpacing: '0.06em', fontWeight: expanded ? 700 : 400, userSelect: 'none' }}>
+              {expanded ? '↑ SHOW LESS' : `${items.length} stories`}
+            </span>
+          )}
         </div>
 
-        {loading ? (
-          <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>Loading...</div>
-        ) : items.length === 0 ? (
-          <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>No stories right now.</div>
-        ) : (
-          <>
-            {/* Lead story */}
-            {lead.image && (
-              <div style={{ height: '130px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-                onClick={() => setModal(lead)}>
-                <img src={lead.image} alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.3s' }}
-                  onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.03)')}
-                  onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-                />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 5%, transparent 65%)' }} />
-              </div>
-            )}
-            <div
-              onClick={() => setModal(lead)}
-              style={{
-                padding: '10px 14px',
-                borderBottom: '1px solid var(--border-color)',
-                display: 'flex', gap: '10px', alignItems: 'flex-start',
-                cursor: 'pointer', transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '5px' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '4px' }}>{lead.headline}</div>
-                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>{lead.source} · {lead.time}</div>
-              </div>
-            </div>
-
-            {/* Secondary stories */}
-            {visible.map((item, i) => (
-              <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                <div style={{
-                  padding: '9px 14px',
-                  borderBottom: '1px solid var(--border-color)',
-                  display: 'flex', gap: '10px', alignItems: 'flex-start',
-                  transition: 'background 0.15s',
-                }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '6px', opacity: 0.5 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '11.5px', color: 'var(--text-primary)', lineHeight: 1.4, marginBottom: '3px' }}>{item.headline}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45 }}>{item.source} · {item.time}</div>
-                  </div>
+        <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {loading ? (
+            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>Loading...</div>
+          ) : items.length === 0 ? (
+            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>No stories right now.</div>
+          ) : (
+            <>
+              {lead.image && (
+                <div style={{ height: '130px', overflow: 'hidden', position: 'relative', cursor: 'pointer', flexShrink: 0 }}
+                  onClick={() => setModal(lead)}>
+                  <img src={lead.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.3s' }}
+                    onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.03)')}
+                    onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 5%, transparent 65%)' }} />
                 </div>
-              </a>
-            ))}
+              )}
+              <div onClick={() => setModal(lead)}
+                style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: 'pointer', transition: 'background 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '5px' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '4px' }}>{lead.headline}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>{lead.source} · {lead.time}</div>
+                </div>
+              </div>
 
-            {hasMore && (
-              <button onClick={() => setExpanded(e => !e)} style={{
-                width: '100%', padding: '8px 14px',
-                backgroundColor: 'transparent', border: 'none',
-                color, fontSize: '10px', fontWeight: 700,
-                cursor: 'pointer', letterSpacing: '0.06em', textAlign: 'left',
-                transition: 'background 0.15s',
-              }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = `${color}10`)}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-              >
-                {expanded ? '↑ SHOW LESS' : `+ ${rest.length - 2} MORE STORIES`}
-              </button>
-            )}
-          </>
-        )}
+              {visible.map((item, i) => (
+                <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block', flexShrink: 0 }}>
+                  <div style={{ padding: '9px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '10px', alignItems: 'flex-start', transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '6px', opacity: 0.5 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-primary)', lineHeight: 1.4, marginBottom: '3px' }}>{item.headline}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45 }}>{item.source} · {item.time}</div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+
+              {hasMore && !expanded && (
+                <button onClick={() => setExpanded(true)}
+                  style={{ width: '100%', padding: '8px 14px', backgroundColor: 'transparent', border: 'none', borderTop: '1px solid var(--border-color)', color, fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textAlign: 'left', transition: 'background 0.15s', flexShrink: 0 }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = `${color}10`)}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                  + {rest.length - 2} MORE
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </>
   );
 }
-
 function ShareButton({ content }: { content: string }) {
   const [copied, setCopied] = useState(false);
-
   function handleCopy() {
     const clean = content.replace(/\*\*(.*?)\*\*/g, '*$1*').replace(/^[-•*]\s/gm, '• ').trim();
-    navigator.clipboard.writeText(`${clean}\n\n via Global Health Watch\nglobal-health-watch.vercel.app`);
+    navigator.clipboard.writeText(`${clean}\n\nvia Global Health Watch\nglobal-health-watch.vercel.app`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -427,42 +329,22 @@ function ShareButton({ content }: { content: string }) {
     const wa = `*Global Health Watch*\n\n${content.replace(/\*\*(.*?)\*\*/g, '*$1*')}\n\nglobal-health-watch.vercel.app`;
     window.open(`https://wa.me/?text=${encodeURIComponent(wa)}`, '_blank');
   }
-
   return (
     <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
       <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>SHARE</span>
-      <button onClick={handleCopy} style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)',
-        border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.25)'}`,
-        borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600,
-        color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s',
-      }}
+      <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)', border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.25)'}`, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
         onMouseEnter={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)'; e.currentTarget.style.color = '#00C9A7'; } }}
-        onMouseLeave={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
-      >
+        onMouseLeave={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}>
         <span style={{ fontSize: '13px' }}>{copied ? '✓' : '⎘'}</span>{copied ? 'Copied!' : 'Copy'}
       </button>
-      <button onClick={handleTwitter} style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.25)',
-        borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600,
-        color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s',
-      }}
+      <button onClick={handleTwitter} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.25)', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
         onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.15)'; e.currentTarget.style.color = '#1DA1F2'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.25)'; }}
-      >
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.25)'; }}>
         <span style={{ fontSize: '13px', fontWeight: 800 }}>𝕏</span>Post
       </button>
-      <button onClick={handleWhatsApp} style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.25)',
-        borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600,
-        color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s',
-      }}
+      <button onClick={handleWhatsApp} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
         onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.15)'; e.currentTarget.style.color = '#25D366'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.25)'; }}
-      >
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.25)'; }}>
         <span style={{ fontSize: '13px' }}>💬</span>WhatsApp
       </button>
     </div>
@@ -513,8 +395,9 @@ function formatMessage(content: string) {
         <a key={j} href={urlMatch ? urlMatch[0] : '#'} target="_blank" rel="noopener noreferrer"
           style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', color: '#00C9A7', fontSize: '11px', textDecoration: 'none', padding: '5px 8px', backgroundColor: 'rgba(0,201,167,0.08)', borderRadius: '5px', border: '1px solid rgba(0,201,167,0.18)', transition: 'all 0.15s' }}
           onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.18)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)'; }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)'; }}
-        ><span style={{ fontSize: '10px' }}>↗</span><span>{name}</span></a>
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)'; }}>
+          <span style={{ fontSize: '10px' }}>↗</span><span>{name}</span>
+        </a>
       );
     }
     if (isListItem) {
@@ -545,11 +428,7 @@ function AskTheWatch() {
     setMessages(prev => [...prev, { role: 'user', content: q }]);
     setAsking(true);
     try {
-      const res = await fetch('/api/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, history: messages }),
-      });
+      const res = await fetch('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, history: messages }) });
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.answer ?? 'No response.' }]);
     } catch {
@@ -558,84 +437,32 @@ function AskTheWatch() {
   }
 
   function handleReset() {
-    setMessages([]);
-    setExpanded(false);
-    setInput('');
+    setMessages([]); setExpanded(false); setInput('');
     setTimeout(() => inputRef.current?.focus(), 100);
   }
 
   return (
-    <div className="ask-watch-hero" style={{
-      backgroundColor: 'var(--bg-secondary)',
-      borderRadius: '12px',
-      border: '1px solid var(--border-color)',
-      overflow: 'hidden',
-      transition: 'all 0.3s ease',
-    }}>
-      <div style={{
-        padding: '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        borderBottom: '1px solid var(--border-color)',
-        background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)',
-      }}>
+    <div className="ask-watch-hero" style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden', transition: 'all 0.3s ease' }}>
+      <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: 'pulseDot 2s infinite' }} />
           <div>
             <div style={{ fontWeight: '800', fontSize: '14px', color: '#00C9A7', letterSpacing: '0.06em' }}>ASK THE WATCH</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>
-              health · food · body · longevity · performance · investments
-            </div>
+            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>health · food · body · longevity · performance · investments</div>
           </div>
         </div>
-
         <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div style={{
-            flex: 1, display: 'flex', alignItems: 'center',
-            backgroundColor: 'var(--bg-primary)',
-            border: `1.5px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`,
-            borderRadius: '10px', padding: '0 14px', gap: '8px',
-            transition: 'all 0.2s',
-            boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.1)' : 'none',
-          }}>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-primary)', border: `1.5px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`, borderRadius: '10px', padding: '0 14px', gap: '8px', transition: 'all 0.2s', boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.1)' : 'none' }}>
+            <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
               placeholder={focused || input ? 'Ask anything about health, longevity, performance...' : typewriter}
-              style={{
-                flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none',
-                fontSize: '13px', color: 'var(--text-primary)', padding: '13px 0', minWidth: 0,
-              }}
-            />
-            {input && (
-              <button onClick={() => setInput('')}
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0', opacity: 0.4 }}>
-                ×
-              </button>
-            )}
+              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', padding: '13px 0', minWidth: 0 }} />
+            {input && <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0', opacity: 0.4 }}>×</button>}
           </div>
-          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()} style={{
-            backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.15)' : '#00C9A7',
-            border: 'none', borderRadius: '10px', padding: '13px 22px',
-            fontSize: '13px', fontWeight: '700',
-            color: asking || !input.trim() ? 'rgba(0,201,167,0.5)' : '#000',
-            cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
-            flexShrink: 0, transition: 'all 0.2s', whiteSpace: 'nowrap',
-          }}>
+          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()} style={{ backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.15)' : '#00C9A7', border: 'none', borderRadius: '10px', padding: '13px 22px', fontSize: '13px', fontWeight: '700', color: asking || !input.trim() ? 'rgba(0,201,167,0.5)' : '#000', cursor: asking || !input.trim() ? 'not-allowed' : 'pointer', flexShrink: 0, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
             {asking ? '···' : '↑ Ask'}
           </button>
           {messages.length > 0 && (
-            <button onClick={handleReset} style={{
-              backgroundColor: 'transparent', border: '1px solid var(--border-color)',
-              borderRadius: '10px', padding: '13px 14px', fontSize: '12px', fontWeight: 600,
-              color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0,
-              whiteSpace: 'nowrap', transition: 'all 0.2s',
-            }}
+            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '13px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap', transition: 'all 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#00C9A7'; e.currentTarget.style.color = '#00C9A7'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               ↺ Reset
@@ -645,18 +472,10 @@ function AskTheWatch() {
       </div>
 
       {!expanded && (
-        <div style={{
-          padding: '10px 24px 14px',
-          display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center',
-          maxHeight: '76px', overflow: 'hidden',
-        }}>
+        <div style={{ padding: '12px 24px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '80px', overflow: 'hidden' }}>
           <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
           {chips.map((s, i) => (
-            <button key={i} onClick={() => askWatch(s)} style={{
-              backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)',
-              borderRadius: '20px', padding: '5px 14px', fontSize: '11px',
-              color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s ease', whiteSpace: 'nowrap',
-            }}
+            <button key={i} onClick={() => askWatch(s)} style={{ backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '20px', padding: '5px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s ease', whiteSpace: 'nowrap' }}
               onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)'; e.currentTarget.style.color = '#00C9A7'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.15)'; }}>
               {s}
@@ -666,34 +485,15 @@ function AskTheWatch() {
       )}
 
       {expanded && (
-        <div style={{
-          maxHeight: '380px', overflowY: 'auto', padding: '20px 24px',
-          display: 'flex', flexDirection: 'column', gap: '14px',
-        }}>
+        <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {messages.map((m, i) => (
-            <div key={i} style={{
-              alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '72%',
-              backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.12)' : 'var(--bg-primary)',
-              border: m.role === 'user' ? '1px solid rgba(0,201,167,0.25)' : '1px solid var(--border-color)',
-              borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-              padding: '12px 16px', fontSize: '13px', lineHeight: '1.7',
-              color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
-            }}>
-              {m.role === 'assistant'
-                ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div>
-                : m.content}
+            <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '72%', backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.12)' : 'var(--bg-primary)', border: m.role === 'user' ? '1px solid rgba(0,201,167,0.25)' : '1px solid var(--border-color)', borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', padding: '12px 16px', fontSize: '13px', lineHeight: '1.7', color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)' }}>
+              {m.role === 'assistant' ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div> : m.content}
             </div>
           ))}
           {asking && (
-            <div style={{
-              alignSelf: 'flex-start', padding: '12px 16px',
-              backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)',
-              borderRadius: '16px 16px 16px 4px', display: 'flex', gap: '5px', alignItems: 'center',
-            }}>
-              {[0, 0.2, 0.4].map((delay, i) => (
-                <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: `pulseDot 1.2s ${delay}s infinite` }} />
-              ))}
+            <div style={{ alignSelf: 'flex-start', padding: '12px 16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px 16px 16px 4px', display: 'flex', gap: '5px', alignItems: 'center' }}>
+              {[0, 0.2, 0.4].map((delay, i) => <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: `pulseDot 1.2s ${delay}s infinite` }} />)}
             </div>
           )}
           <div ref={chatEndRef} />
@@ -707,26 +507,9 @@ function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'ECONOMY'];
-
-  const tabStyle = (active: boolean, color: string) => ({
-    backgroundColor: active ? color : 'transparent',
-    color: active ? '#fff' : 'var(--text-secondary)',
-    border: `1px solid ${active ? color : 'var(--border-color)'}`,
-    padding: '4px 8px', fontSize: '10px', fontWeight: '600' as const,
-    cursor: 'pointer', borderRadius: '4px', whiteSpace: 'nowrap' as const,
-    transition: 'all 0.15s',
-  });
-
+  const tabStyle = (active: boolean, color: string) => ({ backgroundColor: active ? color : 'transparent', color: active ? '#fff' : 'var(--text-secondary)', border: `1px solid ${active ? color : 'var(--border-color)'}`, padding: '4px 8px', fontSize: '10px', fontWeight: '600' as const, cursor: 'pointer', borderRadius: '4px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s' });
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-secondary)',
-      border: '1px solid var(--border-color)',
-      borderRadius: '10px',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      gridColumn: 'span 2',
-    }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gridColumn: 'span 2', height: '420px' }}>
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
@@ -734,17 +517,11 @@ function LiveCounters() {
           <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, marginLeft: 'auto' }}>est. from annual data</div>
         </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          {counterTabKeys.map(t => (
-            <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>
-              {t}
-            </button>
-          ))}
+          {counterTabKeys.map(t => <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>{t}</button>)}
         </div>
       </div>
       <div style={{ overflowY: 'auto', flex: 1 }}>
-        {activeCounterData.items.map((item, i) => (
-          <CounterRow key={`${counterTab}-${i}`} item={item} color={activeCounterData.color} />
-        ))}
+        {activeCounterData.items.map((item, i) => <CounterRow key={`${counterTab}-${i}`} item={item} color={activeCounterData.color} />)}
       </div>
     </div>
   );
@@ -753,42 +530,22 @@ function LiveCounters() {
 export default function BottomPanels() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 24px' }}>
-
-      {/* Ask the Watch */}
-      <div style={{ marginBottom: '16px' }}>
-        <AskTheWatch />
-      </div>
-
-      {/* Topic card grid — 3 columns */}
+      <div style={{ marginBottom: '16px' }}><AskTheWatch /></div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
-
-        {/* Row 1: Longevity · Performance · Economy */}
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
         <TopicCard topicId="PERFORMANCE" label="Performance" color="#2563EB" />
         <TopicCard topicId="ECONOMY" label="Economy" color="#D97706" />
-
-        {/* Row 2: Mental Health · Discoveries · Threats */}
         <TopicCard topicId="MENTAL HEALTH" label="Mental Health" color="#7C3AED" />
         <TopicCard topicId="DISCOVERIES" label="Discoveries" color="#00B4D8" />
         <TopicCard topicId="THREATS" label="Threats" color="#E63946" />
-
-        {/* Row 3: Recalls (1 col) · Live Counters (2 cols) */}
         <TopicCard topicId="RECALLS" label="Recalls" color="#F97316" />
         <LiveCounters />
-
       </div>
-
       <style>{`
         @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
-        @media (max-width: 1024px) {
-          .ask-watch-hero > div:first-child { flex-wrap: wrap; }
-        }
-        @media (max-width: 768px) {
-          .ask-watch-hero { border-radius: 8px !important; }
-        }
-        @media (max-width: 640px) {
-          .ask-watch-hero > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
-        }
+        @media (max-width: 1024px) { .ask-watch-hero > div:first-child { flex-wrap: wrap; } }
+        @media (max-width: 768px) { .ask-watch-hero { border-radius: 8px !important; } }
+        @media (max-width: 640px) { .ask-watch-hero > div:first-child { flex-direction: column !important; align-items: flex-start !important; } }
       `}</style>
     </div>
   );
