@@ -144,3 +144,4 @@ const LOCATIONS = [
   { name:'MHRA UK',lat:51.5074,lng:-0.1178,topic:'THREATS',signal:'Product Recalls',url:'https://mhra.gov.uk',region:'Europe'},
 ];
 export async function GET() { return NextResponse.json(LOCATIONS); }
+
