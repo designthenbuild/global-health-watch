@@ -222,8 +222,8 @@ function ModalPanel({ modal, color, onClose, isDark }: {
             {modal.isLive ? 'Read full article ↗' : 'Visit website ↗'}
           </a>
 
-          {/* Share — live only */}
-          {modal.isLive && (
+          {/* Share */}
+          {(
             <div style={{ borderTop:`1px solid ${borderCol}`, paddingTop:'12px' }}>
               <div style={{ fontSize:'10px', color:textSecondary, marginBottom:'8px', letterSpacing:'0.06em', fontWeight:600 }}>SHARE VIA GLOBAL HEALTH WATCH</div>
               <div style={{ display:'flex', gap:'8px' }}>
