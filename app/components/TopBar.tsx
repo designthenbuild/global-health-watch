@@ -144,7 +144,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
     @mariamatloub
   </a>
   <div style={{ fontSize: '9px', color: 'var(--border-color)', opacity: 0.5 }}>·</div>
-  <div style={{ fontSize: '8px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.06em' }}>v0.1</div>
+  <div style={{ fontSize: '8px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.06em' }}>v0.6</div>
 </div>
 </div>
         <select
