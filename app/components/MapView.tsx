@@ -105,6 +105,8 @@ const REGION_VIEWS: Record<string, {center:[number,number];zoom:number}> = {
   'ANZ': {center:[140,-25],zoom:3.5},
 };
 
+const TOPIC_ORDER = ['LONGEVITY','PERFORMANCE','INVESTMENTS','MENTAL HEALTH','DISCOVERIES','THREATS'];
+
 export default function MapView({ activeVariants, region, isDark = true }: {
   activeVariants: string[]; region?: string; threats?: unknown[]; isDark?: boolean;
 }) {
@@ -118,27 +120,35 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const [timeFilter, setTimeFilter] = useState<'1h'|'24h'|'7d'|'all'>('24h');
   const [mapMode, setMapMode] = useState<'live'|'directory'|'both'>('both');
   const [activeSignals, setActiveSignals] = useState<Record<string,string[]>>({});
-  const [signalsPanelOpen, setSignalsPanelOpen] = useState(true);
+  // layers panel always visible
+  const [collapsedTopics, setCollapsedTopics] = useState<Record<string,boolean>>({});
   const [counts, setCounts] = useState({static:0,live:0});
   const [mapHeight, setMapHeight] = useState(500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
 
   const activeTopic = activeVariants.length===1 ? activeVariants[0] : null;
 
-  const bg = isDark ? 'rgba(10,10,20,0.88)' : 'rgba(255,255,255,0.92)';
+  const bg = isDark ? 'rgba(10,10,20,0.92)' : 'rgba(255,255,255,0.95)';
   const border = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
   const textPrimary = isDark ? '#fff' : '#111';
   const textMuted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)';
+  const textSecondary = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
   const modalBg = isDark ? '#13131f' : '#ffffff';
   const modalBorderAlpha = isDark ? '55' : '33';
+  const hoverBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
 
+  // Init signals for all active topics
   useEffect(() => {
-    if (!activeTopic) { setActiveSignals({}); return; }
     setActiveSignals(prev => {
-      if (prev[activeTopic]) return prev;
-      return {...prev, [activeTopic]: [...(TOPIC_SIGNALS[activeTopic]??[])]};
+      const next = {...prev};
+      activeVariants.forEach(topic => {
+        if (!next[topic]) {
+          next[topic] = [...(TOPIC_SIGNALS[topic] ?? [])];
+        }
+      });
+      return next;
     });
-  }, [activeTopic]);
+  }, [activeVariants]);
 
   const toggleSignal = useCallback((topic: string, signal: string) => {
     setActiveSignals(prev => {
@@ -147,6 +157,15 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         ? current.filter(s => s !== signal)
         : [...current, signal];
       return {...prev, [topic]: updated};
+    });
+  }, []);
+
+  const toggleAllSignals = useCallback((topic: string) => {
+    setActiveSignals(prev => {
+      const all = TOPIC_SIGNALS[topic] ?? [];
+      const current = prev[topic] ?? all;
+      const allOn = all.every(s => current.includes(s));
+      return {...prev, [topic]: allOn ? [] : [...all]};
     });
   }, []);
 
@@ -248,9 +267,8 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         const topicActive = activeVariants.length===0 || activeVariants.includes(loc.topic);
         if (!topicActive) return;
         const sigName = loc.signal ?? loc.type ?? '';
-        if (activeTopic && activeSignals[activeTopic]) {
-          if (!activeSignals[activeTopic].includes(sigName)) return;
-        }
+        const topicSignals = activeSignals[loc.topic];
+        if (topicSignals && !topicSignals.includes(sigName)) return;
         const col = TOPIC_COLORS[loc.topic] ?? '#999';
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const icon = (L as any).divIcon({
@@ -278,7 +296,8 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         const topicActive = activeVariants.length===0 || activeVariants.includes(dot.topic);
         if (!topicActive) return;
         if (dot.age > timeMs) return;
-        if (activeTopic && activeSignals[activeTopic] && !activeSignals[activeTopic].includes('Live News')) return;
+        const topicSignals = activeSignals[dot.topic];
+        if (topicSignals && !topicSignals.includes('Live News')) return;
         const col = TOPIC_COLORS[dot.topic] ?? '#999';
         const freshness = Math.max(0, 1 - dot.age / Math.min(timeMs, 1440));
         const size = Math.round(7 + freshness * 7);
@@ -306,8 +325,6 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   }, [leafletLoaded, staticLocs, liveDots, activeVariants, activeSignals, activeTopic, timeFilter, mapMode]);
 
   const c = (t: string) => TOPIC_COLORS[t] ?? '#999';
-  const signals = activeTopic ? (TOPIC_SIGNALS[activeTopic] ?? []) : [];
-  const activeSignalList = activeTopic ? (activeSignals[activeTopic] ?? signals) : [];
 
   const onDragStart = (e: React.MouseEvent) => {
     dragRef.current = {startY: e.clientY, startH: mapHeight};
@@ -325,57 +342,111 @@ export default function MapView({ activeVariants, region, isDark = true }: {
     window.addEventListener('mouseup', onUp);
   };
 
+  // Active topics in display order
+  const activeTopicsOrdered = TOPIC_ORDER.filter(t => activeVariants.includes(t));
+
   return (
     <div style={{position:'relative', width:'100%', backgroundColor:'#0a0a0f'}}>
       <div ref={mapRef} style={{width:'100%', height:`${mapHeight}px`}} />
 
-      {/* SIGNALS PANEL — only when single topic active */}
-      {activeTopic && signals.length > 0 && (
+      {/* LAYERS PANEL — always visible top left */}
+      <div style={{position:'absolute', top:'12px', left:'12px', zIndex:1000}}>
         <div style={{
-          position:'absolute', top:'12px', left:'12px', zIndex:1000,
-          backgroundColor: bg,
-          border: `1px solid ${c(activeTopic)}44`,
-          borderRadius:'10px', minWidth:'175px', overflow:'hidden',
-          boxShadow:'0 8px 32px rgba(0,0,0,0.3)',
-        }}>
-          <div
-            onClick={() => setSignalsPanelOpen(p => !p)}
-            style={{padding:'8px 12px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', borderBottom: signalsPanelOpen ? `1px solid ${c(activeTopic)}33` : 'none'}}
-          >
-            <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
-              <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(activeTopic), boxShadow:`0 0 5px ${c(activeTopic)}`}} />
-              <span style={{fontSize:'10px', fontWeight:700, color:c(activeTopic), letterSpacing:'0.08em'}}>SIGNALS</span>
+            backgroundColor: bg,
+            border: `1px solid ${border}`,
+            borderRadius:'10px', minWidth:'200px', maxWidth:'220px', overflow:'hidden',
+            boxShadow:'0 8px 32px rgba(0,0,0,0.35)',
+            maxHeight:'380px', overflowY:'auto',
+          }}>
+            <div style={{padding:'8px 12px', borderBottom:`1px solid ${border}`, display:'flex', alignItems:'center', gap:'6px'}}>
+              <svg width="11" height="11" viewBox="0 0 13 13" fill="none" style={{opacity:0.5}}>
+                <rect y="0" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+                <rect y="5" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+                <rect y="10" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
+              </svg>
+              <span style={{fontSize:'10px', fontWeight:700, color:textMuted, letterSpacing:'0.08em'}}>LAYERS</span>
             </div>
-            <span style={{fontSize:'10px', color:textMuted}}>{signalsPanelOpen ? '▲' : '▼'}</span>
-          </div>
-          {signalsPanelOpen && (
-            <div style={{padding:'6px 0'}}>
-              {signals.map(signal => {
-                const isOn = activeSignalList.includes(signal);
-                const isLive = signal === 'Live News';
+            {activeTopicsOrdered.length === 0 ? (
+              <div style={{padding:'14px 12px', fontSize:'11px', color:textMuted, textAlign:'center', lineHeight:1.5}}>
+                Select a topic<br/>to filter layers
+              </div>
+            ) : (
+              activeTopicsOrdered.map(topic => {
+                const signals = TOPIC_SIGNALS[topic] ?? [];
+                const activeList = activeSignals[topic] ?? signals;
+                const allOn = signals.every(s => activeList.includes(s));
+                const isCollapsed = collapsedTopics[topic];
                 return (
-                  <div
-                    key={signal}
-                    onClick={() => toggleSignal(activeTopic, signal)}
-                    style={{display:'flex', alignItems:'center', gap:'8px', padding:'5px 12px', cursor:'pointer', opacity: isOn ? 1 : 0.3, transition:'all 0.15s'}}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)')}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    <div style={{width:'13px', height:'13px', borderRadius:'3px', flexShrink:0, border:`1.5px solid ${isOn ? c(activeTopic) : 'rgba(128,128,128,0.3)'}`, backgroundColor: isOn ? `${c(activeTopic)}33` : 'transparent', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                      {isOn && <span style={{fontSize:'8px', color:c(activeTopic), fontWeight:700}}>✓</span>}
+                  <div key={topic} style={{borderBottom:`1px solid ${border}`}}>
+                    {/* Topic header */}
+                    <div
+                      style={{
+                        display:'flex', alignItems:'center', justifyContent:'space-between',
+                        padding:'8px 12px', cursor:'pointer',
+                      }}
+                      onClick={() => setCollapsedTopics(p => ({...p, [topic]: !p[topic]}))}
+                    >
+                      <div style={{display:'flex', alignItems:'center', gap:'7px'}}>
+                        <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 5px ${c(topic)}`}} />
+                        <span style={{fontSize:'10px', fontWeight:800, color:c(topic), letterSpacing:'0.07em'}}>{topic}</span>
+                      </div>
+                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                        <button
+                          onClick={e => { e.stopPropagation(); toggleAllSignals(topic); }}
+                          style={{
+                            fontSize:'9px', color: allOn ? c(topic) : textMuted,
+                            background:'none', border:`1px solid ${allOn ? c(topic)+'44' : border}`,
+                            borderRadius:'4px', padding:'2px 6px', cursor:'pointer',
+                          }}
+                        >
+                          {allOn ? 'All on' : 'All off'}
+                        </button>
+                        <span style={{fontSize:'10px', color:textMuted}}>{isCollapsed ? '▶' : '▼'}</span>
+                      </div>
                     </div>
-                    {isLive
-                      ? <div style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:c(activeTopic), boxShadow:`0 0 5px ${c(activeTopic)}`, flexShrink:0}} />
-                      : <div style={{width:'8px', height:'8px', borderRadius:'50%', border:`2px solid ${c(activeTopic)}`, backgroundColor:`${c(activeTopic)}22`, flexShrink:0}} />
-                    }
-                    <span style={{fontSize:'10px', color:textPrimary, whiteSpace:'nowrap'}}>{signal}</span>
+
+                    {/* Signal checkboxes */}
+                    {!isCollapsed && (
+                      <div style={{paddingBottom:'6px'}}>
+                        {signals.map(signal => {
+                          const isOn = activeList.includes(signal);
+                          const isLive = signal === 'Live News';
+                          return (
+                            <div
+                              key={signal}
+                              onClick={() => toggleSignal(topic, signal)}
+                              style={{
+                                display:'flex', alignItems:'center', gap:'8px',
+                                padding:'5px 12px 5px 24px', cursor:'pointer',
+                                opacity: isOn ? 1 : 0.35, transition:'all 0.15s',
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = hoverBg)}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            >
+                              <div style={{
+                                width:'12px', height:'12px', borderRadius:'3px', flexShrink:0,
+                                border:`1.5px solid ${isOn ? c(topic) : 'rgba(128,128,128,0.3)'}`,
+                                backgroundColor: isOn ? `${c(topic)}33` : 'transparent',
+                                display:'flex', alignItems:'center', justifyContent:'center',
+                              }}>
+                                {isOn && <span style={{fontSize:'8px', color:c(topic), fontWeight:700}}>✓</span>}
+                              </div>
+                              {isLive
+                                ? <div style={{width:'7px', height:'7px', borderRadius:'50%', backgroundColor:c(topic), boxShadow:`0 0 4px ${c(topic)}`, flexShrink:0}} />
+                                : <div style={{width:'7px', height:'7px', borderRadius:'50%', border:`2px solid ${c(topic)}`, backgroundColor:`${c(topic)}22`, flexShrink:0}} />
+                              }
+                              <span style={{fontSize:'10px', color:textPrimary, whiteSpace:'nowrap'}}>{signal}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+              })
+            )}
+          </div>
+      </div>
 
       {/* TOP CENTER — time filter + mode toggle */}
       <div style={{position:'absolute', top:'12px', left:'50%', transform:'translateX(-50%)', zIndex:1000, display:'flex', gap:'6px', alignItems:'center'}}>
@@ -456,24 +527,18 @@ export default function MapView({ activeVariants, region, isDark = true }: {
             </div>
             <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
               {modal.isLive ? (
-                <a
-                  href={modal.link} target="_blank" rel="noopener noreferrer"
-                  style={{backgroundColor:c(modal.topic), color:'#fff', padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none'}}
-                >
+                <a href={modal.link} target="_blank" rel="noopener noreferrer"
+                  style={{backgroundColor:c(modal.topic), color:'#fff', padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:700, textDecoration:'none'}}>
                   Read article ↗
                 </a>
               ) : (
-                <a
-                  href={modal.link} target="_blank" rel="noopener noreferrer"
-                  style={{backgroundColor:'transparent', color:c(modal.topic), padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:600, textDecoration:'none', border:`1px solid ${c(modal.topic)}55`}}
-                >
+                <a href={modal.link} target="_blank" rel="noopener noreferrer"
+                  style={{backgroundColor:'transparent', color:c(modal.topic), padding:'9px 18px', borderRadius:'8px', fontSize:'12px', fontWeight:600, textDecoration:'none', border:`1px solid ${c(modal.topic)}55`}}>
                   View profile ↗
                 </a>
               )}
-              <button
-                onClick={() => setModal(null)}
-                style={{background:'none', border:`1px solid ${border}`, borderRadius:'8px', padding:'9px 16px', color:textMuted, fontSize:'12px', cursor:'pointer'}}
-              >
+              <button onClick={() => setModal(null)}
+                style={{background:'none', border:`1px solid ${border}`, borderRadius:'8px', padding:'9px 16px', color:textMuted, fontSize:'12px', cursor:'pointer'}}>
                 Close
               </button>
             </div>
