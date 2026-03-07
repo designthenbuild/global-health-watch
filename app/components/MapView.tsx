@@ -95,14 +95,14 @@ interface ModalInfo {
 }
 
 const REGION_VIEWS: Record<string, {center:[number,number];zoom:number}> = {
-  'Global': {center:[20,20],zoom:2},
-  'Europe': {center:[10,50],zoom:3.5},
-  'GCC·MENA': {center:[50,24],zoom:4},
-  'North America': {center:[-95,40],zoom:3},
-  'SE Asia': {center:[110,10],zoom:3.5},
-  'LATAM': {center:[-60,-15],zoom:3},
-  'Africa': {center:[20,5],zoom:3},
-  'ANZ': {center:[140,-25],zoom:3.5},
+  'Global':       {center:[20, 10],   zoom:2},
+  'Europe':       {center:[50, 10],   zoom:3.5},
+  'GCC·MENA':     {center:[24, 50],   zoom:4},
+  'North America':{center:[40, -95],  zoom:3},
+  'SE Asia':      {center:[10, 110],  zoom:3.5},
+  'LATAM':        {center:[-15, -60], zoom:3},
+  'Africa':       {center:[5, 20],    zoom:3},
+  'ANZ':          {center:[-25, 140], zoom:3.5},
 };
 
 const TOPIC_ORDER = ['LONGEVITY','PERFORMANCE','INVESTMENTS','MENTAL HEALTH','DISCOVERIES','THREATS'];
