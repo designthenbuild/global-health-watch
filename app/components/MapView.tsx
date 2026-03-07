@@ -123,6 +123,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   // layers panel always visible
   const [collapsedTopics, setCollapsedTopics] = useState<Record<string,boolean>>({});
   const [mapReady, setMapReady] = useState(false);
+  const [counts, setCounts] = useState({static:0,live:0});
   const [mapHeight, setMapHeight] = useState(500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
 
