@@ -285,7 +285,7 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
               </div>
 
               {visible.map((item, i) => (
-                <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block', flexShrink: 0 }}>
+                <div key={i} onClick={() => setModal({ headline: item.headline, source: item.source, time: item.time, link: item.link, image: item.image, summary: item.summary })} style={{ cursor: 'pointer', display: 'block', flexShrink: 0 }}>
                   <div style={{ padding: '9px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '10px', alignItems: 'flex-start', transition: 'background 0.15s' }}
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
@@ -295,7 +295,7 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
                       <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45 }}>{item.source} · {item.time}</div>
                     </div>
                   </div>
-                </a>
+                </div>
               ))}
 
               {hasMore && !expanded && (
@@ -472,7 +472,7 @@ function AskTheWatch() {
       </div>
 
       {!expanded && (
-        <div style={{ padding: '12px 24px 16px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '80px', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 24px 22px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '80px', overflow: 'hidden' }}>
           <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
           {chips.map((s, i) => (
             <button key={i} onClick={() => askWatch(s)} style={{ backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '20px', padding: '5px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s ease', whiteSpace: 'nowrap' }}
