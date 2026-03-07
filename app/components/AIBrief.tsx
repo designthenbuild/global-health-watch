@@ -95,6 +95,7 @@ export default function AIBrief() {
             ...FALLBACK[i],
             ...card,
             title: FALLBACK[i]?.title ?? card.title,
+            color: FALLBACK[i]?.color ?? card.color,
             sources: FALLBACK[i]?.sources ?? [],
           }));
           setBrief(merged);
