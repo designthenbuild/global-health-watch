@@ -100,97 +100,45 @@ const TAG_KEYWORDS: Record<string, string[]> = {
 };
 
 const SOURCE_TAGS: Record<string, string> = {
-  'FightAging!': 'LONGEVITY',
-  'Longevity.Technology': 'LONGEVITY',
-  'Lifespan.io': 'LONGEVITY',
-  'Peter Attia': 'LONGEVITY',
-  'Stanford Longevity': 'LONGEVITY',
-  'NOVOS Labs': 'LONGEVITY',
-  'Buck Institute': 'LONGEVITY',
-  'Altos Labs': 'LONGEVITY',
-  'Calico': 'LONGEVITY',
-  'Insilico Medicine': 'LONGEVITY',
-  'Retro Bio': 'LONGEVITY',
-  'Cambrian Bio': 'LONGEVITY',
-  'Juvenescence': 'LONGEVITY',
-  'Maximon': 'LONGEVITY',
-  'Shift Bioscience': 'LONGEVITY',
-  'Fountain Life': 'LONGEVITY',
-  'Upgrade Labs': 'LONGEVITY',
-  'Next Health': 'LONGEVITY',
-  'Clinique La Prairie': 'LONGEVITY',
-  'Restore Hyper Wellness': 'LONGEVITY',
-  'NIMH': 'MENTAL HEALTH',
-  'Mental Health Weekly': 'MENTAL HEALTH',
-  'The Lancet Psychiatry': 'MENTAL HEALTH',
-  'Mindful.org': 'MENTAL HEALTH',
-  'BJSM': 'PERFORMANCE',
-  'Sports Technology Blog': 'PERFORMANCE',
-  'ScienceDaily Sports': 'PERFORMANCE',
-  'WHOOP': 'PERFORMANCE',
-  'Oura Ring': 'PERFORMANCE',
-  'Hypoxico': 'PERFORMANCE',
-  'Altitude Centre': 'PERFORMANCE',
-  'EXOS': 'PERFORMANCE',
-  'FierceBiotech': 'DISCOVERIES',
-  'FiercePharma': 'DISCOVERIES',
-  'NEJM': 'DISCOVERIES',
-  'Drug Discovery Trends': 'DISCOVERIES',
-  'AACR': 'DISCOVERIES',
-  'Nature Medicine': 'DISCOVERIES',
-  'ScienceDaily': 'DISCOVERIES',
-  'Endpoints News': 'DISCOVERIES',
-  'Labiotech': 'DISCOVERIES',
-  'GEN': 'DISCOVERIES',
-  'M42': 'DISCOVERIES',
-  'ProMED': 'THREATS',
-  'ECDC': 'THREATS',
-  'IHME': 'THREATS',
-  'FDA Recalls': 'RECALLS',
-  'EFSA': 'RECALLS',
-  'Food Safety News': 'RECALLS',
-  'Andreessen Horowitz': 'INVESTMENTS',
-  'Sifted': 'INVESTMENTS',
-  'LifeSciVC': 'INVESTMENTS',
-  'BioPharma Dive': 'INVESTMENTS',
-  'Fierce Healthcare': 'INVESTMENTS',
-  'Digital Health': 'INVESTMENTS',
-  'Health Tech Digital': 'INVESTMENTS',
-  'MobiHealthNews': 'INVESTMENTS',
-  'TechCrunch Health': 'INVESTMENTS',
-  'Front Office Sports': 'INVESTMENTS',
-  'Sports Business Journal': 'INVESTMENTS',
-  'Flagship Pioneering': 'INVESTMENTS',
-  'Apollo Health Ventures': 'INVESTMENTS',
-  'F-Prime Capital': 'INVESTMENTS',
-  'Healthspan Capital': 'INVESTMENTS',
-  'Sapphire Sport': 'INVESTMENTS',
-  'Mubadala': 'INVESTMENTS',
+  'FightAging!': 'LONGEVITY', 'Longevity.Technology': 'LONGEVITY', 'Lifespan.io': 'LONGEVITY',
+  'Peter Attia': 'LONGEVITY', 'Stanford Longevity': 'LONGEVITY', 'NOVOS Labs': 'LONGEVITY',
+  'Buck Institute': 'LONGEVITY', 'Altos Labs': 'LONGEVITY', 'Calico': 'LONGEVITY',
+  'Insilico Medicine': 'LONGEVITY', 'Retro Bio': 'LONGEVITY', 'Cambrian Bio': 'LONGEVITY',
+  'Juvenescence': 'LONGEVITY', 'Maximon': 'LONGEVITY', 'Shift Bioscience': 'LONGEVITY',
+  'Fountain Life': 'LONGEVITY', 'Upgrade Labs': 'LONGEVITY', 'Next Health': 'LONGEVITY',
+  'Clinique La Prairie': 'LONGEVITY', 'Restore Hyper Wellness': 'LONGEVITY',
+  'NIMH': 'MENTAL HEALTH', 'Mental Health Weekly': 'MENTAL HEALTH',
+  'The Lancet Psychiatry': 'MENTAL HEALTH', 'Mindful.org': 'MENTAL HEALTH',
+  'BJSM': 'PERFORMANCE', 'Sports Technology Blog': 'PERFORMANCE',
+  'ScienceDaily Sports': 'PERFORMANCE', 'WHOOP': 'PERFORMANCE',
+  'Oura Ring': 'PERFORMANCE', 'Hypoxico': 'PERFORMANCE',
+  'Altitude Centre': 'PERFORMANCE', 'EXOS': 'PERFORMANCE',
+  'FierceBiotech': 'DISCOVERIES', 'FiercePharma': 'DISCOVERIES', 'NEJM': 'DISCOVERIES',
+  'Drug Discovery Trends': 'DISCOVERIES', 'AACR': 'DISCOVERIES', 'Nature Medicine': 'DISCOVERIES',
+  'ScienceDaily': 'DISCOVERIES', 'Endpoints News': 'DISCOVERIES', 'Labiotech': 'DISCOVERIES',
+  'GEN': 'DISCOVERIES', 'M42': 'DISCOVERIES',
+  'ProMED': 'THREATS', 'ECDC': 'THREATS', 'IHME': 'THREATS',
+  'FDA Recalls': 'RECALLS', 'EFSA': 'RECALLS', 'Food Safety News': 'RECALLS',
+  'Andreessen Horowitz': 'INVESTMENTS', 'Sifted': 'INVESTMENTS', 'LifeSciVC': 'INVESTMENTS',
+  'BioPharma Dive': 'INVESTMENTS', 'Fierce Healthcare': 'INVESTMENTS', 'Digital Health': 'INVESTMENTS',
+  'Health Tech Digital': 'INVESTMENTS', 'MobiHealthNews': 'INVESTMENTS',
+  'TechCrunch Health': 'INVESTMENTS', 'Front Office Sports': 'INVESTMENTS',
+  'Sports Business Journal': 'INVESTMENTS', 'Flagship Pioneering': 'INVESTMENTS',
+  'Apollo Health Ventures': 'INVESTMENTS', 'F-Prime Capital': 'INVESTMENTS',
+  'Healthspan Capital': 'INVESTMENTS', 'Sapphire Sport': 'INVESTMENTS', 'Mubadala': 'INVESTMENTS',
 };
 
 function extractImage(item: any): string | undefined {
   try {
-    if (item.mediaContent && item.mediaContent.$ && item.mediaContent.$.url) {
-      return item.mediaContent.$.url;
-    }
-    if (item.mediaContent && item.mediaContent.url) {
-      return item.mediaContent.url;
-    }
-    if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
-      return item.mediaThumbnail.$.url;
-    }
-    if (item.mediaThumbnail && item.mediaThumbnail.url) {
-      return item.mediaThumbnail.url;
-    }
-    if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) {
-      return item.enclosure.url;
-    }
+    if (item.mediaContent?..$?.url) return item.mediaContent.$.url;
+    if (item.mediaContent?.url) return item.mediaContent.url;
+    if (item.mediaThumbnail?..$?.url) return item.mediaThumbnail.$.url;
+    if (item.mediaThumbnail?.url) return item.mediaThumbnail.url;
+    if (item.enclosure?.url && item.enclosure?.type?.startsWith('image')) return item.enclosure.url;
     const content: string = item['content:encoded'] || item.content || item.summary || '';
     const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (imgMatch) return imgMatch[1];
-  } catch (e) {
-    return undefined;
-  }
+  } catch { return undefined; }
   return undefined;
 }
 
@@ -214,9 +162,19 @@ function getRegionFromTitle(title: string, defaultRegion: string): string {
   return defaultRegion;
 }
 
+// ── 30-minute in-memory cache ──────────────────────────────────────────────
+const cache: Map<string, { items: object[]; ts: number }> = new Map();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tab = searchParams.get('tab') || 'ALL';
+
+  // Return cached result if fresh
+  const cached = cache.get(tab);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    return NextResponse.json({ items: cached.items, cached: true });
+  }
 
   const allItems: object[] = [];
   const seen = new Set<string>();
@@ -229,15 +187,11 @@ export async function GET(request: Request) {
         const title = item.title || '';
         if (seen.has(title)) continue;
         seen.add(title);
-
         const snippet = item.contentSnippet || '';
         const tag = getTag(title, snippet, feed.source);
-
         if (tab !== 'ALL' && tag !== tab) continue;
-
         const region = getRegionFromTitle(title, feed.region);
         const image = extractImage(item);
-
         items.push({
           source: feed.source,
           headline: title,
@@ -250,18 +204,18 @@ export async function GET(request: Request) {
         });
       }
       return items;
-    } catch (e) {
-      return [];
-    }
+    } catch { return []; }
   });
 
   const results = await Promise.allSettled(feedPromises);
   for (const result of results) {
-    if (result.status === 'fulfilled') {
-      allItems.push(...result.value);
-    }
+    if (result.status === 'fulfilled') allItems.push(...result.value);
   }
 
   const sorted = allItems.slice(0, 60);
+
+  // Store in cache
+  cache.set(tab, { items: sorted, ts: Date.now() });
+
   return NextResponse.json({ items: sorted });
 }
