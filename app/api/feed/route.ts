@@ -130,15 +130,15 @@ const SOURCE_TAGS: Record<string, string> = {
 
 function extractImage(item: any): string | undefined {
   try {
-    if (item.mediaContent?..$?.url) return item.mediaContent.$.url;
-    if (item.mediaContent?.url) return item.mediaContent.url;
-    if (item.mediaThumbnail?..$?.url) return item.mediaThumbnail.$.url;
-    if (item.mediaThumbnail?.url) return item.mediaThumbnail.url;
-    if (item.enclosure?.url && item.enclosure?.type?.startsWith('image')) return item.enclosure.url;
+    if (item.mediaContent && item.mediaContent.$ && item.mediaContent.$.url) return item.mediaContent.$.url;
+    if (item.mediaContent && item.mediaContent.url) return item.mediaContent.url;
+    if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) return item.mediaThumbnail.$.url;
+    if (item.mediaThumbnail && item.mediaThumbnail.url) return item.mediaThumbnail.url;
+    if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) return item.enclosure.url;
     const content: string = item['content:encoded'] || item.content || item.summary || '';
     const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (imgMatch) return imgMatch[1];
-  } catch { return undefined; }
+  } catch (e) { return undefined; }
   return undefined;
 }
 
