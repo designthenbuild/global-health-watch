@@ -74,25 +74,18 @@ const COUNTER_TABS = {
 };
 
 const SUGGESTED = [
-  'Are eggs healthy to eat daily? How many is too many?',
-  'How does saliva health affect your immune system?',
-  'Are home gut microbiome tests like Zoe actually reliable?',
-  'What is a safe colon flush and how does castor oil work?',
-  'Why should you rotate foods and not eat ginger every day?',
-  'What does your stool colour and shape tell you about your health?',
-  'Raw honey vs regular honey — does the source actually matter?',
+  'Are eggs healthy to eat daily?',
+  'How does saliva health affect immunity?',
+  'Are gut microbiome tests like Zoe reliable?',
   'What is VO2 max and why does it predict lifespan?',
-  'What does elevated skin temperature at night mean on a wearable?',
-  'How does fear of death develop and how to manage it?',
-  'What are the top longevity biomarkers to track in 2026?',
-  'Cold therapy protocols — what actually has clinical evidence?',
+  'Why rotate foods and not eat ginger every day?',
+  'What do longevity biomarkers tell us in 2026?',
+  'Cold therapy protocols — what has clinical evidence?',
   'How does sleep affect biological aging markers?',
-  'What MedTech investments are growing fastest in 2026?',
-  "What's new with WHOOP in 2026?",
+  'What MedTech investments are growing fastest?',
   'How does hyperbaric oxygen therapy affect recovery?',
   'What does Altos Labs research mean for aging?',
-  'Which longevity biotech companies are leading right now?',
-  'What is the GCC investing in health tech this year?',
+  'What is the GCC investing in health tech?',
 ];
 
 interface FeedItem {
@@ -194,26 +187,51 @@ function CounterRow({ item, color }: { item: CounterItem; color: string }) {
 }
 
 function StoryModal({ item, topicColor, topicLabel, onClose }: { item: ModalItem; topicColor: string; topicLabel: string; onClose: () => void; }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', handleKey); document.body.style.overflow = ''; };
+  }, [onClose]);
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={onClose}>
-      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${topicColor}44`, borderRadius: '14px', maxWidth: '560px', width: '100%', overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 2000, backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${topicColor}55`, borderRadius: '16px', maxWidth: '560px', width: '100%', overflow: 'hidden', boxShadow: `0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px ${topicColor}22`, maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
         {item.image && (
-          <div style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
+          <div style={{ height: '200px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
             <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 0%, transparent 60%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 0%, transparent 55%)' }} />
+            <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+              <button onClick={onClose} style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>×</button>
+            </div>
           </div>
         )}
         <div style={{ padding: '20px 24px 24px' }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '10px', letterSpacing: '0.06em' }}>
-            <span style={{ color: topicColor }}>{topicLabel.toUpperCase()}</span>
-            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>{item.source}
-            <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>{item.time}
+          {!item.image && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+              <button onClick={onClose} style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+            </div>
+          )}
+          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '10px', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ color: topicColor, fontWeight: 700 }}>{topicLabel.toUpperCase()}</span>
+            <span style={{ opacity: 0.3 }}>·</span>
+            <span>{item.source}</span>
+            <span style={{ opacity: 0.3 }}>·</span>
+            <span>{item.time}</span>
           </div>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '16px' }}>{item.headline}</div>
-          {item.summary && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '20px' }}>{item.summary}</p>}
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: topicColor, color: '#000', padding: '9px 18px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, textDecoration: 'none' }}>Read full article ↗</a>
-            <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '9px 16px', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>Close</button>
+          <div style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '14px' }}>{item.headline}</div>
+          {item.summary && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '20px', borderLeft: `3px solid ${topicColor}55`, paddingLeft: '12px' }}>{item.summary}</p>}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: topicColor, color: '#000', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', transition: 'opacity 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+              Read full article ↗
+            </a>
+            <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -244,10 +262,9 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
     <>
       {modal && <StoryModal item={modal} topicColor={color} topicLabel={label} onClose={() => setModal(null)} />}
       <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', height: '420px' }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = `${color}44`)}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = `${color}55`)}
         onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-color)')}>
-
-        <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: `linear-gradient(90deg, ${color}10 0%, transparent 100%)` }}>
+        <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: `linear-gradient(90deg, ${color}12 0%, transparent 100%)` }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
           <span style={{ fontSize: '11px', fontWeight: 800, color, letterSpacing: '0.1em' }}>{label.toUpperCase()}</span>
           {!loading && (
@@ -257,26 +274,27 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
             </span>
           )}
         </div>
-
         <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {loading ? (
-            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>Loading...</div>
+            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, animation: 'pulseDot 1s infinite' }} />
+              Loading...
+            </div>
           ) : items.length === 0 ? (
             <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>No stories right now.</div>
           ) : (
             <>
               {lead.image && (
-                <div style={{ height: '130px', overflow: 'hidden', position: 'relative', cursor: 'pointer', flexShrink: 0 }}
-                  onClick={() => setModal(lead)}>
+                <div style={{ height: '130px', overflow: 'hidden', position: 'relative', cursor: 'pointer', flexShrink: 0 }} onClick={() => setModal(lead)}>
                   <img src={lead.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.3s' }}
-                    onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.03)')}
+                    onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
                     onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 5%, transparent 65%)' }} />
                 </div>
               )}
               <div onClick={() => setModal(lead)}
                 style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: 'pointer', transition: 'background 0.15s', flexShrink: 0 }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.06)')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
                 <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '5px' }} />
                 <div style={{ flex: 1 }}>
@@ -284,11 +302,11 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
                   <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>{lead.source} · {lead.time}</div>
                 </div>
               </div>
-
               {visible.map((item, i) => (
-                <div key={i} onClick={() => setModal({ headline: item.headline, source: item.source, time: item.time, link: item.link, image: item.image, summary: item.summary })} style={{ cursor: 'pointer', display: 'block', flexShrink: 0 }}>
+                <div key={i} onClick={() => setModal({ headline: item.headline, source: item.source, time: item.time, link: item.link, image: item.image, summary: item.summary })}
+                  style={{ cursor: 'pointer', display: 'block', flexShrink: 0 }}>
                   <div style={{ padding: '9px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '10px', alignItems: 'flex-start', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.06)')}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
                     <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: color, flexShrink: 0, marginTop: '6px', opacity: 0.5 }} />
                     <div style={{ flex: 1 }}>
@@ -298,7 +316,6 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
                   </div>
                 </div>
               ))}
-
               {hasMore && !expanded && (
                 <button onClick={() => setExpanded(true)}
                   style={{ width: '100%', padding: '8px 14px', backgroundColor: 'transparent', border: 'none', borderTop: '1px solid var(--border-color)', color, fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textAlign: 'left', transition: 'background 0.15s', flexShrink: 0 }}
@@ -334,20 +351,18 @@ function ShareButton({ content }: { content: string }) {
   return (
     <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
       <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>SHARE</span>
-      <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)', border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.25)'}`, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)'; e.currentTarget.style.color = '#00C9A7'; } }}
-        onMouseLeave={e => { if (!copied) { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}>
-        <span style={{ fontSize: '13px' }}>{copied ? '✓' : '⎘'}</span>{copied ? 'Copied!' : 'Copy'}
+      <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)', border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.2)'}`, borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}>
+        {copied ? '✓ Copied!' : '⎘ Copy'}
       </button>
-      <button onClick={handleTwitter} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.25)', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.15)'; e.currentTarget.style.color = '#1DA1F2'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(29,161,242,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.25)'; }}>
-        <span style={{ fontSize: '13px', fontWeight: 800 }}>𝕏</span>Post
+      <button onClick={handleTwitter} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
+        onMouseEnter={e => { e.currentTarget.style.color = '#1DA1F2'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.2)'; }}>
+        𝕏 Post
       </button>
-      <button onClick={handleWhatsApp} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.15)'; e.currentTarget.style.color = '#25D366'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(37,211,102,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.25)'; }}>
-        <span style={{ fontSize: '13px' }}>💬</span>WhatsApp
+      <button onClick={handleWhatsApp} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
+        onMouseEnter={e => { e.currentTarget.style.color = '#25D366'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.2)'; }}>
+        💬 WhatsApp
       </button>
     </div>
   );
@@ -361,11 +376,11 @@ function formatMessage(content: string) {
     if (!trimmed) return <div key={j} style={{ height: '8px' }} />;
     if (trimmed.match(/^sources?:/i) || trimmed.match(/^\*\*sources/i) || trimmed.match(/^sources to explore/i)) {
       inSources = true;
-      return <div key={j} style={{ marginTop: '12px', marginBottom: '6px', fontSize: '10px', fontWeight: 700, color: '#00C9A7', letterSpacing: '0.1em', borderTop: '1px solid rgba(0,201,167,0.2)', paddingTop: '8px' }}>SOURCES</div>;
+      return <div key={j} style={{ marginTop: '14px', marginBottom: '8px', fontSize: '10px', fontWeight: 700, color: '#00C9A7', letterSpacing: '0.12em', borderTop: '1px solid rgba(0,201,167,0.2)', paddingTop: '10px' }}>SOURCES</div>;
     }
     if (trimmed.match(/^key points?:/i) || trimmed.match(/^\*\*key/i)) {
       inSources = false;
-      return <div key={j} style={{ marginTop: '10px', marginBottom: '4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>KEY POINTS</div>;
+      return <div key={j} style={{ marginTop: '12px', marginBottom: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.12em' }}>KEY POINTS</div>;
     }
     const isListItem = trimmed.match(/^[-•*]\s/) || trimmed.match(/^\d+\.\s/);
     const text = trimmed.replace(/^[-•*]\s/, '').replace(/^\d+\.\s/, '').replace(/\*\*(.*?)\*\*/g, '$1');
@@ -376,8 +391,8 @@ function formatMessage(content: string) {
       if (!name && urlMatch) {
         try {
           const hostname = new URL(urlMatch[0]).hostname.replace('www.', '');
-          const parts = hostname.split('.');
-          name = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+          name = hostname.split('.')[0];
+          name = name.charAt(0).toUpperCase() + name.slice(1);
           if (hostname.includes('pubmed') || hostname.includes('ncbi')) name = 'PubMed';
           if (hostname.includes('who.int')) name = 'WHO';
           if (hostname.includes('mayoclinic')) name = 'Mayo Clinic';
@@ -389,23 +404,26 @@ function formatMessage(content: string) {
           if (hostname.includes('examine')) name = 'Examine.com';
           if (hostname.includes('fightaging')) name = 'FightAging!';
           if (hostname.includes('statnews')) name = 'STAT News';
-          if (hostname.includes('a16z')) name = 'Andreessen Horowitz';
+          if (hostname.includes('a16z')) name = 'a16z';
         } catch { name = 'Source'; }
       }
       if (!name) name = 'Source';
       return (
         <a key={j} href={urlMatch ? urlMatch[0] : '#'} target="_blank" rel="noopener noreferrer"
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', color: '#00C9A7', fontSize: '11px', textDecoration: 'none', padding: '5px 8px', backgroundColor: 'rgba(0,201,167,0.08)', borderRadius: '5px', border: '1px solid rgba(0,201,167,0.18)', transition: 'all 0.15s' }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.18)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)'; }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.18)'; }}>
-          <span style={{ fontSize: '10px' }}>↗</span><span>{name}</span>
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '5px', marginRight: '6px', color: '#00C9A7', fontSize: '11px', textDecoration: 'none', padding: '4px 10px', backgroundColor: 'rgba(0,201,167,0.08)', borderRadius: '20px', border: '1px solid rgba(0,201,167,0.2)', transition: 'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.18)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.45)'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.2)'; }}>
+          ↗ {name}
         </a>
       );
     }
     if (isListItem) {
-      return <div key={j} style={{ display: 'flex', gap: '6px', marginTop: '4px', paddingLeft: '4px', lineHeight: '1.5' }}><span style={{ color: '#00C9A7', flexShrink: 0 }}>·</span><span>{text}</span></div>;
+      return <div key={j} style={{ display: 'flex', gap: '8px', marginTop: '6px', paddingLeft: '2px', lineHeight: '1.6' }}>
+        <span style={{ color: '#00C9A7', flexShrink: 0, marginTop: '1px' }}>·</span>
+        <span style={{ color: 'var(--text-primary)' }}>{text}</span>
+      </div>;
     }
-    return <p key={j} style={{ margin: '0 0 6px 0', lineHeight: '1.6' }}>{text}</p>;
+    return <p key={j} style={{ margin: '0 0 8px 0', lineHeight: '1.7', color: 'var(--text-primary)' }}>{text}</p>;
   });
 }
 
@@ -418,7 +436,7 @@ function AskTheWatch() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typewriter = useTypewriter(SUGGESTED);
-  const [chips] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 7));
+  const [chips] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 8));
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -444,58 +462,139 @@ function AskTheWatch() {
   }
 
   return (
-    <div className="ask-watch-hero" style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden', transition: 'all 0.3s ease' }}>
-      <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: 'pulseDot 2s infinite' }} />
-          <div>
-            <div style={{ fontWeight: '800', fontSize: '14px', color: '#00C9A7', letterSpacing: '0.06em' }}>ASK THE WATCH</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.55, marginTop: '2px', whiteSpace: 'nowrap' }}>health · food · body · longevity · performance · investments · <span style={{ color: '#00C9A7', opacity: 0.8 }}>Powered by Groq AI</span></div>
+    <div className="atw-hero" style={{
+      backgroundColor: 'var(--bg-secondary)',
+      borderRadius: '16px',
+      border: '1px solid rgba(0,201,167,0.25)',
+      overflow: 'hidden',
+      transition: 'all 0.3s ease',
+      boxShadow: '0 0 0 1px rgba(0,201,167,0.08), 0 4px 24px rgba(0,201,167,0.06)',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '20px 28px',
+        background: 'linear-gradient(135deg, rgba(0,201,167,0.07) 0%, rgba(0,201,167,0.02) 50%, transparent 100%)',
+        borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
+      }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ position: 'relative', width: '10px', height: '10px' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#00C9A7', position: 'absolute' }} />
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#00C9A7', position: 'absolute', animation: 'pingPulse 2s infinite', opacity: 0.4 }} />
+            </div>
+            <span style={{ fontWeight: 900, fontSize: '16px', color: '#00C9A7', letterSpacing: '0.08em' }}>ASK THE WATCH</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#00C9A7', display: 'inline-block', opacity: 0.6 }} />
+              Powered by Groq AI · Live RSS context
+            </span>
           </div>
-        </div>
-        <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-primary)', border: `1.5px solid ${focused ? '#00C9A7' : 'var(--border-color)'}`, borderRadius: '10px', padding: '0 14px', gap: '8px', transition: 'all 0.2s', boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.1)' : 'none' }}>
-            <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-              placeholder={focused || input ? 'Ask anything about health, longevity, performance...' : typewriter}
-              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', padding: '13px 0', minWidth: 0 }} />
-            {input && <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0', opacity: 0.4 }}>×</button>}
-          </div>
-          <button onClick={() => askWatch(input)} disabled={asking || !input.trim()} style={{ backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.15)' : '#00C9A7', border: 'none', borderRadius: '10px', padding: '13px 22px', fontSize: '13px', fontWeight: '700', color: asking || !input.trim() ? 'rgba(0,201,167,0.5)' : '#000', cursor: asking || !input.trim() ? 'not-allowed' : 'pointer', flexShrink: 0, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
-            {asking ? '···' : '↑ Ask'}
-          </button>
           {messages.length > 0 && (
-            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '13px 14px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#00C9A7'; e.currentTarget.style.color = '#00C9A7'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               ↺ Reset
             </button>
           )}
         </div>
+
+        {/* Input row */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'var(--bg-primary)',
+            border: `1.5px solid ${focused ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`,
+            borderRadius: '12px',
+            padding: '0 16px',
+            gap: '10px',
+            transition: 'all 0.2s',
+            boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none',
+          }}>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder={focused || input ? 'Ask anything about health, longevity, performance, investments...' : typewriter}
+              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--text-primary)', padding: '16px 0', minWidth: 0 }}
+            />
+            {input && (
+              <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0', opacity: 0.35, flexShrink: 0 }}>×</button>
+            )}
+          </div>
+          <button
+            onClick={() => askWatch(input)}
+            disabled={asking || !input.trim()}
+            style={{
+              backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.12)' : '#00C9A7',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '16px 28px',
+              fontSize: '14px',
+              fontWeight: '800',
+              color: asking || !input.trim() ? 'rgba(0,201,167,0.4)' : '#000',
+              cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
+              flexShrink: 0,
+              transition: 'all 0.2s',
+              whiteSpace: 'nowrap',
+              letterSpacing: '0.02em',
+            }}>
+            {asking ? '···' : '↑ Ask'}
+          </button>
+        </div>
+
+        {/* Topic pills */}
+        <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
+          {['health', 'food', 'longevity', 'performance', 'mental health', 'investments'].map(t => (
+            <span key={t} style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, backgroundColor: 'rgba(128,128,128,0.08)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '2px 10px', letterSpacing: '0.04em' }}>{t}</span>
+          ))}
+        </div>
       </div>
 
+      {/* Suggestion chips — only when not expanded */}
       {!expanded && (
-        <div style={{ padding: '12px 24px 28px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', maxHeight: '90px', overflow: 'hidden' }}>
-          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, letterSpacing: '0.08em', flexShrink: 0 }}>TRY →</span>
-          {chips.map((s, i) => (
-            <button key={i} onClick={() => askWatch(s)} style={{ backgroundColor: 'rgba(0,201,167,0.06)', border: '1px solid rgba(0,201,167,0.15)', borderRadius: '20px', padding: '5px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s ease', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.14)'; e.currentTarget.style.color = '#00C9A7'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.4)'; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.15)'; }}>
-              {s}
-            </button>
-          ))}
+        <div style={{ padding: '14px 28px 20px', borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.1em', flexShrink: 0, alignSelf: 'center' }}>TRY →</span>
+            {chips.map((s, i) => (
+              <button key={i} onClick={() => askWatch(s)}
+                style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '6px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.1)'; e.currentTarget.style.color = '#00C9A7'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.35)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}>
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
+      {/* Chat area */}
       {expanded && (
-        <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ maxHeight: '480px', overflowY: 'auto', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {messages.map((m, i) => (
-            <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '72%', backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.12)' : 'var(--bg-primary)', border: m.role === 'user' ? '1px solid rgba(0,201,167,0.25)' : '1px solid var(--border-color)', borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', padding: '12px 16px', fontSize: '13px', lineHeight: '1.7', color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)' }}>
+            <div key={i} style={{
+              alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: m.role === 'user' ? '60%' : '90%',
+              backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.1)' : 'var(--bg-primary)',
+              border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid var(--border-color)',
+              borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '4px 18px 18px 18px',
+              padding: m.role === 'user' ? '10px 16px' : '16px 20px',
+              fontSize: '13px',
+              lineHeight: '1.7',
+              color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
+            }}>
               {m.role === 'assistant' ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div> : m.content}
             </div>
           ))}
           {asking && (
-            <div style={{ alignSelf: 'flex-start', padding: '12px 16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px 16px 16px 4px', display: 'flex', gap: '5px', alignItems: 'center' }}>
-              {[0, 0.2, 0.4].map((delay, i) => <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: `pulseDot 1.2s ${delay}s infinite` }} />)}
+            <div style={{ alignSelf: 'flex-start', padding: '14px 18px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '4px 18px 18px 18px', display: 'flex', gap: '5px', alignItems: 'center' }}>
+              {[0, 0.2, 0.4].map((delay, i) => (
+                <div key={i} style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#00C9A7', animation: `pulseDot 1.2s ${delay}s infinite` }} />
+              ))}
             </div>
           )}
           <div ref={chatEndRef} />
@@ -509,14 +608,20 @@ function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
-  const tabStyle = (active: boolean, color: string) => ({ backgroundColor: active ? color : 'transparent', color: active ? '#fff' : 'var(--text-secondary)', border: `1px solid ${active ? color : 'var(--border-color)'}`, padding: '4px 8px', fontSize: '10px', fontWeight: '600' as const, cursor: 'pointer', borderRadius: '4px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s' });
+  const tabStyle = (active: boolean, color: string) => ({
+    backgroundColor: active ? color : 'transparent',
+    color: active ? '#fff' : 'var(--text-secondary)',
+    border: `1px solid ${active ? color : 'var(--border-color)'}`,
+    padding: '4px 10px', fontSize: '10px', fontWeight: '600' as const,
+    cursor: 'pointer', borderRadius: '5px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s',
+  });
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gridColumn: 'span 2', height: '420px' }}>
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
           <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
-          <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5, marginLeft: 'auto' }}>est. from annual data</div>
+          <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.45, marginLeft: 'auto' }}>est. from annual data</div>
         </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           {counterTabKeys.map(t => <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>{t}</button>)}
@@ -531,9 +636,13 @@ function LiveCounters() {
 
 export default function BottomPanels() {
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 24px' }}>
-      <div style={{ marginBottom: '16px' }}><AskTheWatch /></div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 32px' }}>
+      {/* Ask the Watch — hero */}
+      <div style={{ marginBottom: '20px' }}>
+        <AskTheWatch />
+      </div>
+      {/* Feed cards grid */}
+      <div className="feed-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
         <TopicCard topicId="PERFORMANCE" label="Performance" color="#2563EB" />
         <TopicCard topicId="INVESTMENTS" label="Investments" color="#D97706" />
@@ -544,10 +653,51 @@ export default function BottomPanels() {
         <LiveCounters />
       </div>
       <style>{`
-        @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
-        @media (max-width: 1024px) { .ask-watch-hero > div:first-child { flex-wrap: wrap; } }
-        @media (max-width: 768px) { .ask-watch-hero { border-radius: 8px !important; } }
-        @media (max-width: 640px) { .ask-watch-hero > div:first-child { flex-direction: column !important; align-items: flex-start !important; } }
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(0.65); }
+        }
+        @keyframes pingPulse {
+          0% { transform: scale(1); opacity: 0.4; }
+          70% { transform: scale(2.2); opacity: 0; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        .atw-hero:focus-within {
+          box-shadow: 0 0 0 1px rgba(0,201,167,0.15), 0 8px 32px rgba(0,201,167,0.1) !important;
+          border-color: rgba(0,201,167,0.4) !important;
+        }
+        /* Hide scrollbar for chips row */
+        .atw-hero div::-webkit-scrollbar { display: none; }
+
+        /* Responsive: tablet */
+        @media (max-width: 1024px) {
+          .feed-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .feed-grid > div:last-child {
+            grid-column: span 2 !important;
+          }
+        }
+
+        /* Responsive: mobile */
+        @media (max-width: 640px) {
+          .feed-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .feed-grid > div:last-child {
+            grid-column: span 1 !important;
+          }
+          .atw-hero > div:first-child {
+            padding: 16px !important;
+          }
+          .atw-hero > div:first-child > div:nth-child(2) {
+            flex-direction: column !important;
+          }
+          .atw-hero > div:first-child > div:nth-child(2) > button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+        }
       `}</style>
     </div>
   );
