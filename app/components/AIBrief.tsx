@@ -70,9 +70,7 @@ const FALLBACK: BriefItem[] = [
 
 const CRITICAL_KEYWORDS = [
   'pandemic', 'epidemic', 'pheic declared', 'who declares pheic',
-  'mass casualty',
-  'bioterrorism', 'chemical attack declared',
-  
+  'mass casualty', 'bioterrorism', 'chemical attack declared',
 ];
 
 function isCriticalThreat(content: string): boolean {
@@ -111,9 +109,11 @@ export default function AIBrief() {
       <style>{`
         @keyframes shimmer { 0%,100%{opacity:.25} 50%{opacity:.45} }
         @keyframes criticalPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+        .brief-scroll::-webkit-scrollbar { display: none; }
+        .brief-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#00C9A7', boxShadow: loading ? '0 0 10px #00C9A7' : '0 0 4px #00C9A766' }} />
           <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.1em' }}>AI HEALTH BRIEF</span>
@@ -124,10 +124,15 @@ export default function AIBrief() {
         <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>Tap any card to explore sources</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', overflowX: 'auto' }}>
+      {/* Cards — horizontal scroll on mobile, fills width on desktop */}
+      <div className="brief-scroll" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
         {loading
           ? Array(7).fill(0).map((_, i) => (
-              <div key={i} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '8px', height: '120px', opacity: 0.25, animation: `shimmer 1.6s ease-in-out ${i * 0.08}s infinite` }} />
+              <div key={i} style={{
+                backgroundColor: 'var(--bg-secondary)', borderRadius: '8px',
+                height: '120px', minWidth: '130px', flex: '0 0 130px',
+                opacity: 0.25, animation: `shimmer 1.6s ease-in-out ${i * 0.08}s infinite`,
+              }} />
             ))
           : brief.map((card, i) => {
               const isCritical = card.variant === 'THREATS' && isCriticalThreat(card.content);
@@ -141,7 +146,8 @@ export default function AIBrief() {
                     borderRadius: '8px', padding: '12px', cursor: 'pointer',
                     border: isCritical ? '1px solid #E63946' : '1px solid var(--border-color)',
                     borderTop: isCritical ? '3px solid #FF4D6D' : `3px solid ${card.color}`,
-                    minHeight: '120px', transition: 'all 0.2s',
+                    minHeight: '120px', minWidth: '130px', flex: '1 0 130px',
+                    transition: 'all 0.2s',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
@@ -182,7 +188,7 @@ export default function AIBrief() {
       </div>
 
       {activeCard && (
-        <div onClick={() => setActiveCard(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div onClick={() => setActiveCard(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div onClick={e => e.stopPropagation()} style={{
             backgroundColor: 'var(--modal-bg)',
             border: `1px solid ${activeCard.color}44`,
@@ -190,6 +196,7 @@ export default function AIBrief() {
             borderRadius: '12px', maxWidth: '480px', width: '100%',
             boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
             position: 'relative', overflow: 'hidden',
+            maxHeight: '90vh', overflowY: 'auto',
           }}>
             <button onClick={() => setActiveCard(null)} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 6px' }}>✕</button>
             <div style={{ padding: '20px 48px 16px 20px', borderBottom: '1px solid var(--border-color)' }}>

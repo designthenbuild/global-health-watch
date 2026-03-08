@@ -173,11 +173,11 @@ function CounterRow({ item, color }: { item: CounterItem; color: string }) {
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.05)')}
         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-        <div>
+        <div style={{ flex: 1, paddingRight: '12px' }}>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>{item.label}</div>
           <div style={{ fontSize: '10px', color, opacity: 0.7 }}>{item.source} ↗</div>
         </div>
-        <div style={{ textAlign: 'right', minWidth: '110px' }}>
+        <div style={{ textAlign: 'right', minWidth: '100px', flexShrink: 0 }}>
           <div style={{ fontSize: '15px', fontWeight: '700', color, fontVariantNumeric: 'tabular-nums' }}>{display}</div>
           {!item.fixed && <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.5 }}>live estimate</div>}
         </div>
@@ -198,7 +198,7 @@ function StoryModal({ item, topicColor, topicLabel, onClose }: { item: ModalItem
     <div style={{ position: 'fixed', inset: 0, zIndex: 2000, backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${topicColor}55`, borderRadius: '16px', maxWidth: '560px', width: '100%', overflow: 'hidden', boxShadow: `0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px ${topicColor}22`, maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
         {item.image && (
-          <div style={{ height: '200px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+          <div style={{ height: '180px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
             <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-secondary) 0%, transparent 55%)' }} />
             <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
@@ -206,7 +206,7 @@ function StoryModal({ item, topicColor, topicLabel, onClose }: { item: ModalItem
             </div>
           </div>
         )}
-        <div style={{ padding: '20px 24px 24px' }}>
+        <div style={{ padding: '20px 20px 24px' }}>
           {!item.image && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
               <button onClick={onClose} style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
@@ -219,17 +219,13 @@ function StoryModal({ item, topicColor, topicLabel, onClose }: { item: ModalItem
             <span style={{ opacity: 0.3 }}>·</span>
             <span>{item.time}</span>
           </div>
-          <div style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '14px' }}>{item.headline}</div>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45, marginBottom: '14px' }}>{item.headline}</div>
           {item.summary && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '20px', borderLeft: `3px solid ${topicColor}55`, paddingLeft: '12px' }}>{item.summary}</p>}
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: topicColor, color: '#000', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', transition: 'opacity 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: topicColor, color: '#000', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
               Read full article ↗
             </a>
-            <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+            <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer' }}>
               Close
             </button>
           </div>
@@ -261,19 +257,24 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
   return (
     <>
       {modal && <StoryModal item={modal} topicColor={color} topicLabel={label} onClose={() => setModal(null)} />}
-      <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', height: '420px' }}
+      <div
+        className="topic-card"
+        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s' }}
         onMouseEnter={e => (e.currentTarget.style.borderColor = `${color}55`)}
         onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-color)')}>
+        {/* Header */}
         <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: `linear-gradient(90deg, ${color}12 0%, transparent 100%)` }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
           <span style={{ fontSize: '11px', fontWeight: 800, color, letterSpacing: '0.1em' }}>{label.toUpperCase()}</span>
           {!loading && (
-            <span onClick={expanded ? () => setExpanded(false) : undefined}
+            <span
+              onClick={expanded ? () => setExpanded(false) : undefined}
               style={{ marginLeft: 'auto', fontSize: '10px', color: expanded ? color : 'var(--text-secondary)', opacity: expanded ? 0.9 : 0.4, cursor: expanded ? 'pointer' : 'default', letterSpacing: '0.06em', fontWeight: expanded ? 700 : 400, userSelect: 'none' }}>
               {expanded ? '↑ SHOW LESS' : `${items.length} stories`}
             </span>
           )}
         </div>
+        {/* Content — no fixed height, natural content flow on mobile */}
         <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {loading ? (
             <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -351,17 +352,13 @@ function ShareButton({ content }: { content: string }) {
   return (
     <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
       <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45, letterSpacing: '0.08em', flexShrink: 0 }}>SHARE</span>
-      <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)', border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.2)'}`, borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}>
+      <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: copied ? 'rgba(0,201,167,0.15)' : 'rgba(0,201,167,0.07)', border: `1px solid ${copied ? 'rgba(0,201,167,0.5)' : 'rgba(0,201,167,0.2)'}`, borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: copied ? '#00C9A7' : 'var(--text-secondary)', cursor: 'pointer' }}>
         {copied ? '✓ Copied!' : '⎘ Copy'}
       </button>
-      <button onClick={handleTwitter} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.color = '#1DA1F2'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(29,161,242,0.2)'; }}>
+      <button onClick={handleTwitter} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(29,161,242,0.07)', border: '1px solid rgba(29,161,242,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>
         𝕏 Post
       </button>
-      <button onClick={handleWhatsApp} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.color = '#25D366'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.2)'; }}>
+      <button onClick={handleWhatsApp} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(37,211,102,0.07)', border: '1px solid rgba(37,211,102,0.2)', borderRadius: '7px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>
         💬 WhatsApp
       </button>
     </div>
@@ -405,14 +402,12 @@ function formatMessage(content: string) {
           if (hostname.includes('fightaging')) name = 'FightAging!';
           if (hostname.includes('statnews')) name = 'STAT News';
           if (hostname.includes('a16z')) name = 'a16z';
-        } catch { name = 'Source'; }
+        } catch (e) { name = 'Source'; }
       }
       if (!name) name = 'Source';
       return (
         <a key={j} href={urlMatch ? urlMatch[0] : '#'} target="_blank" rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '5px', marginRight: '6px', color: '#00C9A7', fontSize: '11px', textDecoration: 'none', padding: '4px 10px', backgroundColor: 'rgba(0,201,167,0.08)', borderRadius: '20px', border: '1px solid rgba(0,201,167,0.2)', transition: 'all 0.15s' }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.18)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.45)'; }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.08)'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.2)'; }}>
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '5px', marginRight: '6px', color: '#00C9A7', fontSize: '11px', textDecoration: 'none', padding: '4px 10px', backgroundColor: 'rgba(0,201,167,0.08)', borderRadius: '20px', border: '1px solid rgba(0,201,167,0.2)' }}>
           ↗ {name}
         </a>
       );
@@ -433,10 +428,18 @@ function AskTheWatch() {
   const [asking, setAsking] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typewriter = useTypewriter(SUGGESTED);
   const [chips] = useState(() => [...SUGGESTED].sort(() => Math.random() - 0.5).slice(0, 8));
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -462,12 +465,12 @@ function AskTheWatch() {
   }
 
   const inputBar = (
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center',
         backgroundColor: 'var(--bg-primary)',
         border: `1.5px solid ${focused ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`,
-        borderRadius: '12px', padding: '0 16px', gap: '10px', transition: 'all 0.2s',
+        borderRadius: '12px', padding: '0 14px', gap: '10px', transition: 'all 0.2s',
         boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none',
       }}>
         <input
@@ -478,7 +481,7 @@ function AskTheWatch() {
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={focused || input ? 'Ask a follow-up or new question...' : typewriter}
-          style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--text-primary)', padding: '16px 0', minWidth: 0 }}
+          style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: isMobile ? '16px' : '14px', color: 'var(--text-primary)', padding: '14px 0', minWidth: 0 }}
         />
         {input && (
           <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0', opacity: 0.35, flexShrink: 0 }}>×</button>
@@ -489,7 +492,8 @@ function AskTheWatch() {
         disabled={asking || !input.trim()}
         style={{
           backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.12)' : '#00C9A7',
-          border: 'none', borderRadius: '12px', padding: '16px 28px',
+          border: 'none', borderRadius: '12px',
+          padding: isMobile ? '14px 18px' : '16px 28px',
           fontSize: '14px', fontWeight: '800',
           color: asking || !input.trim() ? 'rgba(0,201,167,0.4)' : '#000',
           cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
@@ -510,34 +514,38 @@ function AskTheWatch() {
       boxShadow: '0 0 0 1px rgba(0,201,167,0.08), 0 4px 24px rgba(0,201,167,0.06)',
     }}>
 
-      {/* Header — always visible */}
+      {/* Header */}
       <div style={{
-        padding: '20px 28px',
+        padding: isMobile ? '16px' : '20px 28px',
         background: 'linear-gradient(135deg, rgba(0,201,167,0.07) 0%, rgba(0,201,167,0.02) 50%, transparent 100%)',
         borderBottom: '1px solid var(--border-color)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: expanded ? '0' : '16px', flexWrap: 'wrap', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ position: 'relative', width: '10px', height: '10px' }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', width: '10px', height: '10px', flexShrink: 0 }}>
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#00C9A7', position: 'absolute' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#00C9A7', position: 'absolute', animation: 'pingPulse 2s infinite', opacity: 0.4 }} />
             </div>
-            <span style={{ fontWeight: 900, fontSize: '16px', color: '#00C9A7', letterSpacing: '0.08em' }}>ASK THE WATCH</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#00C9A7', display: 'inline-block', opacity: 0.6 }} />
-              Powered by Groq AI · Live RSS context
-            </span>
+            <span style={{ fontWeight: 900, fontSize: isMobile ? '14px' : '16px', color: '#00C9A7', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>ASK THE WATCH</span>
+            {!isMobile && (
+              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#00C9A7', display: 'inline-block', opacity: 0.6 }} />
+                Powered by Groq AI · Live RSS context
+              </span>
+            )}
+            {isMobile && (
+              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.45 }}>Groq AI · Live RSS</span>
+            )}
           </div>
           {messages.length > 0 && (
-            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#00C9A7'; e.currentTarget.style.color = '#00C9A7'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0 }}>
               ↺ Reset
             </button>
           )}
         </div>
 
-        {/* Input at TOP only when not yet expanded */}
+        {/* Input at top when not yet expanded */}
         {!expanded && (
           <>
             <div style={{ marginBottom: '10px' }}>{inputBar}</div>
@@ -552,14 +560,12 @@ function AskTheWatch() {
 
       {/* Suggestion chips — only when not expanded */}
       {!expanded && (
-        <div style={{ padding: '14px 28px 20px' }}>
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
+        <div style={{ padding: isMobile ? '12px 16px 16px' : '14px 28px 20px' }}>
+          <div className="chips-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.1em', flexShrink: 0, alignSelf: 'center' }}>TRY →</span>
             {chips.map((s, i) => (
               <button key={i} onClick={() => askWatch(s)}
-                style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '6px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,201,167,0.1)'; e.currentTarget.style.color = '#00C9A7'; e.currentTarget.style.borderColor = 'rgba(0,201,167,0.35)'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}>
+                style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '6px 14px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {s}
               </button>
             ))}
@@ -567,13 +573,13 @@ function AskTheWatch() {
         </div>
       )}
 
-      {/* Chat area — messages */}
+      {/* Chat messages */}
       {expanded && (
-        <div style={{ maxHeight: '480px', overflowY: 'auto', padding: '24px 28px 8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ maxHeight: isMobile ? '60vh' : '480px', overflowY: 'auto', padding: isMobile ? '16px' : '24px 28px 8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {messages.map((m, i) => (
             <div key={i} style={{
               alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: m.role === 'user' ? '60%' : '90%',
+              maxWidth: m.role === 'user' ? (isMobile ? '85%' : '60%') : '92%',
               backgroundColor: m.role === 'user' ? 'rgba(0,201,167,0.1)' : 'var(--bg-primary)',
               border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid var(--border-color)',
               borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '4px 18px 18px 18px',
@@ -595,10 +601,10 @@ function AskTheWatch() {
         </div>
       )}
 
-      {/* Input at BOTTOM when conversation is active */}
+      {/* Input at bottom when conversation active */}
       {expanded && (
         <div style={{
-          padding: '16px 28px 20px',
+          padding: isMobile ? '12px 16px 16px' : '16px 28px 20px',
           borderTop: '1px solid var(--border-color)',
           background: 'linear-gradient(0deg, rgba(0,201,167,0.04) 0%, transparent 100%)',
         }}>
@@ -608,26 +614,38 @@ function AskTheWatch() {
     </div>
   );
 }
+
 function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
+  const [isMobile, setIsMobile] = useState(false);
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const tabStyle = (active: boolean, color: string) => ({
     backgroundColor: active ? color : 'transparent',
     color: active ? '#fff' : 'var(--text-secondary)',
     border: `1px solid ${active ? color : 'var(--border-color)'}`,
     padding: '4px 10px', fontSize: '10px', fontWeight: '600' as const,
-    cursor: 'pointer', borderRadius: '5px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s',
+    cursor: 'pointer', borderRadius: '5px', whiteSpace: 'nowrap' as const, transition: 'all 0.15s', flexShrink: 0 as const,
   });
+
   return (
-    <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gridColumn: 'span 2', height: '420px' }}>
+    <div className="live-counters" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: activeCounterData.color, animation: 'pulseDot 2s infinite' }} />
           <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
           <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.45, marginLeft: 'auto' }}>est. from annual data</div>
         </div>
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {/* Tab strip — horizontal scroll on mobile */}
+        <div className="counter-tabs-scroll" style={{ display: 'flex', gap: '4px', overflowX: 'auto' }}>
           {counterTabKeys.map(t => <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>{t}</button>)}
         </div>
       </div>
@@ -640,11 +658,12 @@ function LiveCounters() {
 
 export default function BottomPanels() {
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 24px 32px' }}>
-      {/* Ask the Watch — hero */}
+    <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 16px 32px' }}>
+      {/* Ask the Watch */}
       <div style={{ marginBottom: '20px' }}>
         <AskTheWatch />
       </div>
+
       {/* Feed cards grid */}
       <div className="feed-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
@@ -656,6 +675,7 @@ export default function BottomPanels() {
         <TopicCard topicId="RECALLS" label="Recalls" color="#F97316" />
         <LiveCounters />
       </div>
+
       <style>{`
         @keyframes pulseDot {
           0%, 100% { opacity: 1; transform: scale(1); }
@@ -670,37 +690,28 @@ export default function BottomPanels() {
           box-shadow: 0 0 0 1px rgba(0,201,167,0.15), 0 8px 32px rgba(0,201,167,0.1) !important;
           border-color: rgba(0,201,167,0.4) !important;
         }
-        /* Hide scrollbar for chips row */
-        .atw-hero div::-webkit-scrollbar { display: none; }
+        .chips-scroll::-webkit-scrollbar,
+        .counter-tabs-scroll::-webkit-scrollbar { display: none; }
+        .chips-scroll,
+        .counter-tabs-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Responsive: tablet */
-        @media (max-width: 1024px) {
-          .feed-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-          .feed-grid > div:last-child {
-            grid-column: span 2 !important;
-          }
+        /* Desktop: fixed height on cards */
+        @media (min-width: 641px) {
+          .topic-card { height: 420px; }
+          .live-counters { height: 420px; grid-column: span 2; }
         }
 
-        /* Responsive: mobile */
+        /* Tablet */
+        @media (max-width: 1024px) and (min-width: 641px) {
+          .feed-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .live-counters { grid-column: span 2 !important; }
+        }
+
+        /* Mobile: single column, no fixed heights */
         @media (max-width: 640px) {
-          .feed-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .feed-grid > div:last-child {
-            grid-column: span 1 !important;
-          }
-          .atw-hero > div:first-child {
-            padding: 16px !important;
-          }
-          .atw-hero > div:first-child > div:nth-child(2) {
-            flex-direction: column !important;
-          }
-          .atw-hero > div:first-child > div:nth-child(2) > button {
-            width: 100% !important;
-            justify-content: center !important;
-          }
+          .feed-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+          .topic-card { height: auto !important; min-height: 200px; }
+          .live-counters { grid-column: span 1 !important; height: auto !important; min-height: 300px; }
         }
       `}</style>
     </div>
