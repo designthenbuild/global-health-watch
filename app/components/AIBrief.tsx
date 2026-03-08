@@ -174,13 +174,13 @@ export default function AIBrief() {
                   <div style={{
                     fontSize: '11px', lineHeight: 1.5,
                     color: isCritical ? '#FFFFFF' : 'var(--text-primary)',
-                    display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    display: 'block',
                   }}>
                     {card.content}
                   </div>
-                  <div style={{ position: 'absolute', bottom: '8px', right: '8px', fontSize: '9px', color: isCritical ? '#FF8A8A' : card.color, opacity: 0.7, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <span>↗</span><span>{card.sources.length} sources</span>
-                  </div>
+                  <div style={{ marginTop: '8px', fontSize: '9px', color: isCritical ? '#FF8A8A' : card.color, opacity: 0.7, display: 'flex', alignItems: 'center', gap: '3px' }}>
+  <span>↗</span><span>{card.sources.length} sources</span>
+</div>
                 </div>
               );
             })
