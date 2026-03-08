@@ -461,6 +461,45 @@ function AskTheWatch() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }
 
+  const inputBar = (
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center',
+        backgroundColor: 'var(--bg-primary)',
+        border: `1.5px solid ${focused ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`,
+        borderRadius: '12px', padding: '0 16px', gap: '10px', transition: 'all 0.2s',
+        boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none',
+      }}>
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={focused || input ? 'Ask a follow-up or new question...' : typewriter}
+          style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--text-primary)', padding: '16px 0', minWidth: 0 }}
+        />
+        {input && (
+          <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0', opacity: 0.35, flexShrink: 0 }}>×</button>
+        )}
+      </div>
+      <button
+        onClick={() => askWatch(input)}
+        disabled={asking || !input.trim()}
+        style={{
+          backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.12)' : '#00C9A7',
+          border: 'none', borderRadius: '12px', padding: '16px 28px',
+          fontSize: '14px', fontWeight: '800',
+          color: asking || !input.trim() ? 'rgba(0,201,167,0.4)' : '#000',
+          cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
+          flexShrink: 0, transition: 'all 0.2s', whiteSpace: 'nowrap',
+        }}>
+        {asking ? '···' : '↑ Ask'}
+      </button>
+    </div>
+  );
+
   return (
     <div className="atw-hero" style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -470,14 +509,14 @@ function AskTheWatch() {
       transition: 'all 0.3s ease',
       boxShadow: '0 0 0 1px rgba(0,201,167,0.08), 0 4px 24px rgba(0,201,167,0.06)',
     }}>
-      {/* Header */}
+
+      {/* Header — always visible */}
       <div style={{
         padding: '20px 28px',
         background: 'linear-gradient(135deg, rgba(0,201,167,0.07) 0%, rgba(0,201,167,0.02) 50%, transparent 100%)',
-        borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
+        borderBottom: '1px solid var(--border-color)',
       }}>
-        {/* Title row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: expanded ? '0' : '16px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ position: 'relative', width: '10px', height: '10px' }}>
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#00C9A7', position: 'absolute' }} />
@@ -490,7 +529,7 @@ function AskTheWatch() {
             </span>
           </div>
           {messages.length > 0 && (
-            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+            <button onClick={handleReset} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#00C9A7'; e.currentTarget.style.color = '#00C9A7'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               ↺ Reset
@@ -498,67 +537,23 @@ function AskTheWatch() {
           )}
         </div>
 
-        {/* Input row */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: 'var(--bg-primary)',
-            border: `1.5px solid ${focused ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`,
-            borderRadius: '12px',
-            padding: '0 16px',
-            gap: '10px',
-            transition: 'all 0.2s',
-            boxShadow: focused ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none',
-          }}>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') askWatch(input); }}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-              placeholder={focused || input ? 'Ask anything about health, longevity, performance, investments...' : typewriter}
-              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--text-primary)', padding: '16px 0', minWidth: 0 }}
-            />
-            {input && (
-              <button onClick={() => setInput('')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0', opacity: 0.35, flexShrink: 0 }}>×</button>
-            )}
-          </div>
-          <button
-            onClick={() => askWatch(input)}
-            disabled={asking || !input.trim()}
-            style={{
-              backgroundColor: asking || !input.trim() ? 'rgba(0,201,167,0.12)' : '#00C9A7',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '16px 28px',
-              fontSize: '14px',
-              fontWeight: '800',
-              color: asking || !input.trim() ? 'rgba(0,201,167,0.4)' : '#000',
-              cursor: asking || !input.trim() ? 'not-allowed' : 'pointer',
-              flexShrink: 0,
-              transition: 'all 0.2s',
-              whiteSpace: 'nowrap',
-              letterSpacing: '0.02em',
-            }}>
-            {asking ? '···' : '↑ Ask'}
-          </button>
-        </div>
-
-        {/* Topic pills */}
-        <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
-          {['health', 'food', 'longevity', 'performance', 'mental health', 'investments'].map(t => (
-            <span key={t} style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, backgroundColor: 'rgba(128,128,128,0.08)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '2px 10px', letterSpacing: '0.04em' }}>{t}</span>
-          ))}
-        </div>
+        {/* Input at TOP only when not yet expanded */}
+        {!expanded && (
+          <>
+            <div style={{ marginBottom: '10px' }}>{inputBar}</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['health', 'food', 'longevity', 'performance', 'mental health', 'investments'].map(t => (
+                <span key={t} style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4, backgroundColor: 'rgba(128,128,128,0.08)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '2px 10px' }}>{t}</span>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Suggestion chips — only when not expanded */}
       {!expanded && (
-        <div style={{ padding: '14px 28px 20px', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+        <div style={{ padding: '14px 28px 20px' }}>
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.35, letterSpacing: '0.1em', flexShrink: 0, alignSelf: 'center' }}>TRY →</span>
             {chips.map((s, i) => (
               <button key={i} onClick={() => askWatch(s)}
@@ -572,9 +567,9 @@ function AskTheWatch() {
         </div>
       )}
 
-      {/* Chat area */}
+      {/* Chat area — messages */}
       {expanded && (
-        <div style={{ maxHeight: '480px', overflowY: 'auto', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ maxHeight: '480px', overflowY: 'auto', padding: '24px 28px 8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {messages.map((m, i) => (
             <div key={i} style={{
               alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
@@ -583,8 +578,7 @@ function AskTheWatch() {
               border: m.role === 'user' ? '1px solid rgba(0,201,167,0.3)' : '1px solid var(--border-color)',
               borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '4px 18px 18px 18px',
               padding: m.role === 'user' ? '10px 16px' : '16px 20px',
-              fontSize: '13px',
-              lineHeight: '1.7',
+              fontSize: '13px', lineHeight: '1.7',
               color: m.role === 'user' ? '#00C9A7' : 'var(--text-primary)',
             }}>
               {m.role === 'assistant' ? <div>{formatMessage(m.content)}<ShareButton content={m.content} /></div> : m.content}
@@ -600,10 +594,20 @@ function AskTheWatch() {
           <div ref={chatEndRef} />
         </div>
       )}
+
+      {/* Input at BOTTOM when conversation is active */}
+      {expanded && (
+        <div style={{
+          padding: '16px 28px 20px',
+          borderTop: '1px solid var(--border-color)',
+          background: 'linear-gradient(0deg, rgba(0,201,167,0.04) 0%, transparent 100%)',
+        }}>
+          {inputBar}
+        </div>
+      )}
     </div>
   );
 }
-
 function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
