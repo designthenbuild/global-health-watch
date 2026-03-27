@@ -98,7 +98,9 @@ export default function AIBrief() {
               sources: fallback?.sources ?? [],
             };
           });
-          setBrief(merged);
+          const ORDER = ['LONGEVITY','PERFORMANCE','INVESTMENTS','MENTAL HEALTH','DISCOVERIES','THREATS','PULSE'];
+          const sorted = ORDER.map(v => merged.find((c: BriefItem) => c.variant === v)).filter(Boolean) as BriefItem[];
+          setBrief(sorted.length > 0 ? sorted : merged);
           setCached(data.cached);
         }
         setLoading(false);
