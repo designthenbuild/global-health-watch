@@ -6,7 +6,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // 90 minute cache
 let cachedBrief: { data: BriefItem[]; timestamp: number } | null = null;
-const CACHE_DURATION = 90 * 60 * 1000;
+const CACHE_DURATION = 30 * 60 * 1000;
 
 interface BriefItem {
   title: string;
@@ -101,12 +101,12 @@ ${headlines || 'No live headlines available — use your knowledge of current gl
 
 Write a health brief with exactly 7 sections. STRICT RULE: each section must ONLY use headlines tagged with its own variant label. If no relevant headlines exist for a section, use your own knowledge of current trends for that category — do NOT use headlines from other categories. Be globally minded, include GCC/MENA, Europe and Asia where relevant.
 
-Return ONLY valid JSON, no markdown, no explanation:
+CRITICAL: the "variant" field in each object must NEVER be changed — use exactly the variant shown below. Each section must stay strictly within its own topic. Return ONLY valid JSON, no markdown, no explanation:
 [
-  {"variant": "THREATS", "title": "THREAT OF THE DAY", "content": "2-3 sentence brief on the most significant current health threat globally."},
+  {"variant": "THREATS", "title": "THREAT OF THE DAY", "content": "2-3 sentences on disease outbreaks, pandemics, or biosecurity threats ONLY. Never mention food recalls, investments, or other topics."},
   {"variant": "DISCOVERIES", "title": "DISCOVERY OF THE DAY", "content": "2-3 sentence brief on the most exciting medical or biotech breakthrough right now. Can reference companies like Altos Labs, Insilico Medicine, or clinical trial results."},
   {"variant": "MENTAL HEALTH", "title": "MENTAL HEALTH SIGNAL", "content": "2-3 sentence brief on a key mental health development, research finding, or treatment advance."},
-  {"variant": "LONGEVITY", "title": "LONGEVITY SIGNAL", "content": "2-3 sentence brief on longevity science, senolytics, NAD+, reprogramming, or anti-aging biotech. Can reference Altos Labs, Calico, Retro Bio, or clinical findings."},
+  {"variant": "LONGEVITY", "title": "LONGEVITY SIGNAL", "content": "2-3 sentences on aging science, senolytics, NAD+, epigenetic reprogramming, or longevity biotech ONLY. Never mention disease outbreaks or food safety."},
   {"variant": "PERFORMANCE", "title": "PERFORMANCE SIGNAL", "content": "2-3 sentence brief on human performance, sports science, wearables, or optimization protocols."},
   {"variant": "INVESTMENTS", "title": "INVESTMENTS SIGNAL", "content": "2-3 sentence brief on health investments — biotech funding, drug pricing, VC activity, or health policy. Can reference a16z, Flagship Pioneering, Apollo Health Ventures, Mubadala, or deal news."},
   {"variant": "PULSE", "title": "HEALTH PULSE EXPLAINED", "content": "2-3 sentence summary of overall global health status right now — calm, watch, or elevated and why."}
