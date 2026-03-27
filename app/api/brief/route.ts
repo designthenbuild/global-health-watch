@@ -127,7 +127,7 @@ Return ONLY this JSON array, no markdown:
     return NextResponse.json({ brief, cached: false });
 
   } catch (error) {
-    console.error('Brief generation error:', error); console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error('Brief generation error:', String(error)); console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     return NextResponse.json({ brief: [], error: 'Failed to generate brief' }, { status: 500 });
   }
 }
