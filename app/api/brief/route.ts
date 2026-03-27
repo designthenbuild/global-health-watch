@@ -27,37 +27,38 @@ const VARIANT_COLORS: Record<string, string> = {
 
 async function fetchRSSHeadlines(): Promise<string> {
   const feeds = [
-    // THREATS
-    { url: 'https://tools.cdc.gov/api/v2/resources/media/316422.rss', variant: 'THREATS' },
-    { url: 'https://www.who.int/rss-feeds/news-english.xml', variant: 'THREATS' },
+    // THREATS — disease outbreaks only, no recalls
+    { url: 'https://www.who.int/rss-feeds/news-releases.xml', variant: 'THREATS' },
     { url: 'https://promedmail.org/feed/', variant: 'THREATS' },
+    { url: 'https://www.ecdc.europa.eu/en/rss.xml', variant: 'THREATS' },
 
-    // DISCOVERIES
+    // DISCOVERIES — research breakthroughs
+    { url: 'https://www.nejm.org/rss/current.xml', variant: 'DISCOVERIES' },
+    { url: 'https://www.nature.com/nm.rss', variant: 'DISCOVERIES' },
     { url: 'https://www.fiercebiotech.com/rss/xml', variant: 'DISCOVERIES' },
-    { url: 'https://statnews.com/feed/', variant: 'DISCOVERIES' },
-    { url: 'https://medcitynews.com/feed/', variant: 'DISCOVERIES' },
-    { url: 'https://www.sciencedaily.com/rss/health_medicine.xml', variant: 'DISCOVERIES' },
+    { url: 'https://endpts.com/feed/', variant: 'DISCOVERIES' },
 
-    // LONGEVITY — including biotech companies
+    // LONGEVITY
     { url: 'https://www.fightaging.org/feed/', variant: 'LONGEVITY' },
     { url: 'https://longevity.technology/feed/', variant: 'LONGEVITY' },
     { url: 'https://www.lifespan.io/feed/', variant: 'LONGEVITY' },
-    { url: 'https://www.altoslabs.com/feed/', variant: 'LONGEVITY' },
     { url: 'https://www.buckinstitute.org/feed/', variant: 'LONGEVITY' },
 
     // MENTAL HEALTH
-    { url: 'https://www.nimh.nih.gov/rss/news', variant: 'MENTAL HEALTH' },
+    { url: 'https://www.nimh.nih.gov/news/rss/nimh-all-news.xml', variant: 'MENTAL HEALTH' },
     { url: 'https://www.thelancet.com/rssfeed/lanpsy_current.xml', variant: 'MENTAL HEALTH' },
+    { url: 'https://www.mindful.org/feed/', variant: 'MENTAL HEALTH' },
 
     // PERFORMANCE
     { url: 'https://bjsm.bmj.com/rss/current.xml', variant: 'PERFORMANCE' },
     { url: 'https://www.sciencedaily.com/rss/mind_brain/sports_science.xml', variant: 'PERFORMANCE' },
+    { url: 'https://ouraring.com/blog/feed/', variant: 'PERFORMANCE' },
 
-    // INVESTMENTS — investors + industry
-    { url: 'https://www.fiercehealthcare.com/rss/xml', variant: 'INVESTMENTS' },
+    // INVESTMENTS
     { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'INVESTMENTS' },
-    { url: 'https://a16z.com/feed/', variant: 'INVESTMENTS' },
-    { url: 'https://www.fiercepharma.com/rss/xml', variant: 'INVESTMENTS' },
+    { url: 'https://www.mobihealthnews.com/feed', variant: 'INVESTMENTS' },
+    { url: 'https://techcrunch.com/tag/health/feed/', variant: 'INVESTMENTS' },
+    { url: 'https://sifted.eu/feed/', variant: 'INVESTMENTS' },
   ];
 
   const headlines: string[] = [];
