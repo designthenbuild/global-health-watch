@@ -4,7 +4,7 @@ import Groq from 'groq-sdk';
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 let cachedBrief: { data: BriefItem[]; timestamp: number } | null = null;
-const CACHE_DURATION = 30 * 60 * 1000;
+const CACHE_DURATION = 60 * 60 * 1000;
 
 interface Article {
   title: string;
