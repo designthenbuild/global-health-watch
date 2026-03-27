@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface PulseData {
   score: number;
@@ -46,6 +46,8 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
   const [showPulse, setShowPulse] = useState(false);
   const [showMobileWarning, setShowMobileWarning] = useState(true);
   const [dismissedMobile, setDismissedMobile] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -53,6 +55,18 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  // Close menu on outside tap
+  useEffect(() => {
+    if (!showMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMenu]);
 
   const dismissMobileWarning = (permanent: boolean) => {
     setShowMobileWarning(false);
@@ -69,7 +83,6 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
     onThemeChange?.(newIsDark);
   };
 
-  // Fade color matches bg-secondary in each theme
   const fadeColor = isDark ? '#0f1923' : '#ffffff';
 
   return (
@@ -85,49 +98,26 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
 
       {/* Mobile warning */}
       {isMobile && showMobileWarning && !dismissedMobile && (
-        <div style={{
-          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
-        }}>
-          <div style={{
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '16px', padding: '28px 24px', maxWidth: '320px', width: '100%', textAlign: 'center',
-          }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '28px 24px', maxWidth: '320px', width: '100%', textAlign: 'center' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>🌐</div>
-            <div style={{ fontWeight: '800', fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px' }}>
-              Best on Desktop
-            </div>
+            <div style={{ fontWeight: '800', fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px' }}>Best on Desktop</div>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '20px' }}>
               Global Health Watch is optimized for larger screens. You can still browse on mobile, but the experience is better on desktop or tablet.
             </div>
-            <button
-              style={{ width: '100%', backgroundColor: '#00C9A7', color: '#000', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px' }}
-              onClick={() => dismissMobileWarning(true)}
-            >
+            <button style={{ width: '100%', backgroundColor: '#00C9A7', color: '#000', border: 'none', borderRadius: '10px', padding: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px' }} onClick={() => dismissMobileWarning(true)}>
               Got it, continue anyway
             </button>
-            <button
-              style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px', fontSize: '13px', cursor: 'pointer' }}
-              onClick={() => dismissMobileWarning(false)}
-            >
+            <button style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px', fontSize: '13px', cursor: 'pointer' }} onClick={() => dismissMobileWarning(false)}>
               Dismiss for now
             </button>
           </div>
         </div>
       )}
 
-      {/* ── DESKTOP topbar — single row, unchanged ── */}
+      {/* ── DESKTOP — unchanged single row ── */}
       {!isMobile && (
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 1000,
-          backgroundColor: 'var(--bg-secondary)',
-          borderBottom: '1px solid var(--border-color)',
-          display: 'flex', alignItems: 'center',
-          padding: '0 16px', height: '48px', gap: '12px',
-          overflowX: 'auto',
-        }}>
-          {/* Logo */}
+        <div style={{ position: 'sticky', top: 0, zIndex: 1000, backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', padding: '0 16px', height: '48px', gap: '12px', overflowX: 'auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '16px' }}>🌐</span>
@@ -165,37 +155,71 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
         </div>
       )}
 
-      {/* ── MOBILE topbar — two rows ── */}
+      {/* ── MOBILE — two rows ── */}
       {isMobile && (
         <div style={{ position: 'sticky', top: 0, zIndex: 1000, backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
 
-          {/* Row 1: logo + region + actions */}
-          <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', height: '48px', gap: '8px' }}>
+          {/* Row 1: logo · region · pulse · theme · ⋯ */}
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', height: '52px', gap: '8px' }}>
+            {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
               <span style={{ fontSize: '14px' }}>🌐</span>
-              <span style={{ color: '#00C9A7', fontWeight: '800', fontSize: '11px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>GLOBAL HEALTH WATCH</span>
+              <span style={{ color: '#00C9A7', fontWeight: '800', fontSize: '11px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>GHW</span>
             </div>
-            <select value={region} onChange={e => setRegion(e.target.value)} style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '3px 6px', fontSize: '10px', flexShrink: 0 }}>
+
+            {/* Region */}
+            <select value={region} onChange={e => setRegion(e.target.value)} style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 8px', fontSize: '11px', flexShrink: 0 }}>
               {regions.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: '5px', alignItems: 'center', flexShrink: 0 }}>
-              <button onClick={() => setShowPulse(true)} style={{ color: pulse.color, border: `1.5px solid ${pulse.color}`, backgroundColor: 'transparent', borderRadius: '6px', padding: '3px 7px', fontWeight: '700', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-                <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: pulse.color, animation: 'pulseDot 2s infinite' }} />
-                {pulse.label}
+
+            {/* Pulse */}
+            <button onClick={() => setShowPulse(true)} style={{ color: pulse.color, border: `1.5px solid ${pulse.color}`, backgroundColor: 'transparent', borderRadius: '8px', padding: '6px 10px', fontWeight: '700', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: pulse.color, animation: 'pulseDot 2s infinite', flexShrink: 0 }} />
+              {pulse.label}
+            </button>
+
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* Theme toggle */}
+            <button onClick={toggleTheme} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 10px', fontSize: '14px', cursor: 'pointer', flexShrink: 0 }}>
+              {isDark ? '☀️' : '🌙'}
+            </button>
+
+            {/* ⋯ menu */}
+            <div ref={menuRef} style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                onClick={() => setShowMenu(v => !v)}
+                style={{ backgroundColor: showMenu ? 'rgba(0,201,167,0.1)' : 'transparent', color: 'var(--text-secondary)', border: `1px solid ${showMenu ? '#00C9A7' : 'var(--border-color)'}`, borderRadius: '8px', padding: '6px 12px', fontSize: '16px', cursor: 'pointer', lineHeight: 1, transition: 'all 0.15s' }}
+              >
+                ···
               </button>
-              <button onClick={onMyHealth} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '3px 7px', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>My Health</button>
-              <button onClick={toggleTheme} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '3px 6px', fontSize: '12px', cursor: 'pointer' }}>
-                {isDark ? '☀️' : '🌙'}
-              </button>
+              {showMenu && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '8px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', minWidth: '160px', zIndex: 100 }}>
+                  <button
+                    onClick={() => { onMyHealth(); setShowMenu(false); }}
+                    style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px 14px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  >
+                    <span>🫀</span> My Health
+                  </button>
+                  <button
+                    onClick={() => { onShare(); setShowMenu(false); }}
+                    style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px 14px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  >
+                    <span>↗</span> Share app
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Row 2: topic pills — scrollable with fade+clip affordance */}
+          {/* Row 2: topic pills — fade affordance signals scrollability */}
           <div style={{ position: 'relative', borderTop: '1px solid var(--border-color)' }}>
-            <div
-              className="topic-strip"
-              style={{ display: 'flex', gap: '6px', padding: '8px 12px', overflowX: 'auto', paddingRight: '48px' }}
-            >
+            <div className="topic-strip" style={{ display: 'flex', gap: '8px', padding: '8px 12px', paddingRight: '52px', overflowX: 'auto' }}>
               {variants.map(v => {
                 const isActive = activeVariants.includes(v);
                 const color = TOPIC_COLORS[v] ?? '#888';
@@ -203,27 +227,24 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
                   <button key={v} onClick={() => toggleVariant(v)} style={{
                     backgroundColor: isActive ? color : 'transparent',
                     color: isActive ? '#fff' : 'var(--text-secondary)',
-                    border: `1px solid ${isActive ? color : 'var(--border-color)'}`,
+                    border: `1.5px solid ${isActive ? color : 'var(--border-color)'}`,
                     borderRadius: '20px',
-                    padding: '5px 13px',
-                    fontSize: '11px',
+                    padding: '7px 16px',
+                    fontSize: '12px',
                     fontWeight: isActive ? '700' : '500',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     flexShrink: 0,
                     transition: 'all 0.15s',
+                    minHeight: '36px',
                   }}>
                     {v}
                   </button>
                 );
               })}
             </div>
-            {/* Fade + clip affordance — signals scrollability */}
-            <div style={{
-              position: 'absolute', right: 0, top: 0, bottom: 0, width: '56px',
-              background: `linear-gradient(to right, transparent, ${fadeColor})`,
-              pointerEvents: 'none',
-            }} />
+            {/* Gradient fade — signals more content to the right */}
+            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '60px', background: `linear-gradient(to right, transparent, ${fadeColor})`, pointerEvents: 'none' }} />
           </div>
 
         </div>
