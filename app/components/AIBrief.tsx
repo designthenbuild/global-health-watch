@@ -89,8 +89,8 @@ export default function AIBrief() {
       .then(r => r.json())
       .then(data => {
         if (data.brief?.length > 0) {
-          const merged = data.brief.map((card: BriefItem, i: number) => ({
-            ...FALLBACK[i],
+          const merged = data.brief.map((card: BriefItem) => {const fallback = FALLBACK.find(f => f.variant === card.variant) || {}; return ({
+            ...fallback,
             ...card,
             title: FALLBACK[i]?.title ?? card.title,
             color: FALLBACK[i]?.color ?? card.color,
