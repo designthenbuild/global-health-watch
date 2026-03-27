@@ -18,6 +18,7 @@ interface BriefItem {
   color: string;
   variant: string;
   sources: { label: string; url: string; type: string }[];
+  critical?: boolean;
 }
 
 const VARIANT_COLORS: Record<string, string> = {
@@ -162,12 +163,14 @@ Return ONLY this JSON array, no markdown:
             type: 'Article',
           }));
 
+      const isCritical = item.variant === 'THREATS' && (articles['THREATS'] || []).length >= 2;
       return {
         variant: item.variant,
         title: item.title,
         content: item.content,
         color: VARIANT_COLORS[item.variant] || '#00C9A7',
         sources,
+        critical: isCritical,
       };
     });
 
