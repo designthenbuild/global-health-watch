@@ -98,7 +98,7 @@ export async function GET() {
 Based on these live headlines from today:
 ${headlines || 'No live headlines available — use your knowledge of current global health trends as of early 2026.'}
 
-Write a health brief with exactly 7 sections. Be globally minded — include GCC/MENA, Europe, and Asia where relevant, not just USA. Be specific and reference real companies, studies, or events where possible.
+Write a health brief with exactly 7 sections. STRICT RULE: each section must ONLY use headlines tagged with its own variant label. If no relevant headlines exist for a section, use your own knowledge of current trends for that category — do NOT use headlines from other categories. Be globally minded, include GCC/MENA, Europe and Asia where relevant.
 
 Return ONLY valid JSON, no markdown, no explanation:
 [
