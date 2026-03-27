@@ -483,8 +483,8 @@ export default function MapView({ activeVariants, region, isDark = true }: {
       <div ref={mapRef} style={{width:'100%', height:`${mapHeight}px`}} />
 
       {/* LAYERS PANEL */}
-      <div style={{position:'absolute', top:'12px', left:'12px', zIndex:1000}}>
-        <div style={{ backgroundColor:bg, border:`1px solid ${border}`, borderRadius:'10px', minWidth:'200px', maxWidth:'220px', overflow:'hidden', boxShadow:'0 8px 32px rgba(0,0,0,0.35)', maxHeight:'380px', overflowY:'auto' }}>
+      <div style={{position:'absolute', top:'12px', left:'12px', zIndex:1000, maxWidth:'min(220px, calc(100vw - 80px))'}}>
+        <div style={{ backgroundColor:bg, border:`1px solid ${border}`, borderRadius:'10px', minWidth:'160px', maxWidth:'220px', overflow:'hidden', boxShadow:'0 8px 32px rgba(0,0,0,0.35)', maxHeight:'380px', overflowY:'auto' }}>
           <div style={{padding:'8px 12px', borderBottom:`1px solid ${border}`, display:'flex', alignItems:'center', gap:'6px'}}>
             <svg width="11" height="11" viewBox="0 0 13 13" fill="none" style={{opacity:0.5}}>
               <rect y="0" width="13" height="2.5" rx="1.25" fill={textPrimary}/>
