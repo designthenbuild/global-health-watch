@@ -271,7 +271,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
   const [collapsedTopics, setCollapsedTopics] = useState<Record<string,boolean>>({});
   const [mapReady, setMapReady] = useState(false);
   const [counts, setCounts] = useState({static:0,live:0});
-  const [mapHeight, setMapHeight] = useState(500);
+  const [mapHeight, setMapHeight] = useState(typeof window !== "undefined" && window.innerWidth < 768 ? 280 : 500);
   const dragRef = useRef<{startY:number;startH:number}|null>(null);
   const activeTopic = activeVariants.length===1 ? activeVariants[0] : null;
 
