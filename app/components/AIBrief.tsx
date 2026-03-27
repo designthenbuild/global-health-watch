@@ -83,6 +83,14 @@ export default function AIBrief() {
   const [loading, setLoading] = useState(true);
   const [cached, setCached] = useState(false);
   const [activeCard, setActiveCard] = useState<BriefItem | null>(null);
+  const [showPulseInfo, setShowPulseInfo] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     fetch('/api/brief')
@@ -168,12 +176,21 @@ export default function AIBrief() {
                     <div style={{ position: 'absolute', inset: 0, backgroundColor: '#E63946', opacity: 0.07, animation: 'criticalPulse 2s ease-in-out infinite', pointerEvents: 'none' }} />
                   )}
                   <div style={{ fontSize: '16px', marginBottom: '6px' }}>{card.icon}</div>
-                  <div style={{
-                    fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', marginBottom: '6px', textTransform: 'uppercase',
-                    color: isCritical ? '#FF8A8A' : card.color,
-                    animation: isCritical ? 'criticalPulse 2s ease-in-out infinite' : 'none',
-                  }}>
-                    {card.title}
+                  <div style={{ display:'flex', alignItems:'center', gap:'4px', marginBottom:'6px' }}>
+                    <div style={{
+                      fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase',
+                      color: isCritical ? '#FF8A8A' : card.color,
+                      animation: isCritical ? 'criticalPulse 2s ease-in-out infinite' : 'none',
+                    }}>
+                      {card.title}
+                    </div>
+                    {card.variant === 'PULSE' && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setShowPulseInfo(true); }}
+                        title="What is Health Pulse?"
+                        style={{ background:'none', border:'none', cursor:'pointer', color: card.color, fontSize:'10px', padding:'0', lineHeight:1, opacity:0.7, flexShrink:0 }}
+                      >ⓘ</button>
+                    )}
                   </div>
                   <div style={{
                     fontSize: '11px', lineHeight: 1.5,
@@ -191,6 +208,26 @@ export default function AIBrief() {
         }
       </div>
 
+      {showPulseInfo && (
+        <div onClick={() => setShowPulseInfo(false)} style={{ position:'fixed', inset:0, backgroundColor:'rgba(0,0,0,0.6)', zIndex:3000, display:'flex', alignItems:'center', justifyContent:'center', padding:'16px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor:'var(--modal-bg)', border:'1px solid #00C9A744', borderTop:'3px solid #00C9A7', borderRadius:'12px', maxWidth:'380px', width:'100%', padding:'20px', position:'relative' }}>
+            <button onClick={() => setShowPulseInfo(false)} style={{ position:'absolute', top:'12px', right:'12px', background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer', fontSize:'16px' }}>✕</button>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' }}>
+              <span style={{ fontSize:'18px' }}>🌐</span>
+              <span style={{ fontSize:'12px', fontWeight:800, color:'#00C9A7', letterSpacing:'0.08em' }}>HEALTH PULSE EXPLAINED</span>
+            </div>
+            <p style={{ fontSize:'12px', color:'var(--text-primary)', lineHeight:1.7, marginBottom:'12px' }}>
+              The <strong>Health Pulse</strong> is a real-time snapshot of global health status — synthesized by AI from live signals across all 6 categories: threats, discoveries, longevity, mental health, performance, and investments.
+            </p>
+            <p style={{ fontSize:'12px', color:'var(--text-primary)', lineHeight:1.7, marginBottom:'12px' }}>
+              It tells you whether the global health landscape is <strong>calm</strong>, at <strong>watch level</strong>, or <strong>elevated</strong> — and why.
+            </p>
+            <p style={{ fontSize:'11px', color:'var(--text-secondary)', lineHeight:1.6 }}>
+              Updated every hour from live RSS feeds across WHO, ECDC, Nature Medicine, BioPharma Dive, and more.
+            </p>
+          </div>
+        </div>
+      )}
       {activeCard && (
         <div onClick={() => setActiveCard(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div onClick={e => e.stopPropagation()} style={{
