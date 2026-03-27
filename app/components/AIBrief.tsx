@@ -89,13 +89,15 @@ export default function AIBrief() {
       .then(r => r.json())
       .then(data => {
         if (data.brief?.length > 0) {
-          const merged = data.brief.map((card: BriefItem) => {const fallback = FALLBACK.find(f => f.variant === card.variant) || {}; return ({
-            ...fallback,
-            ...card,
-            title: FALLBACK[i]?.title ?? card.title,
-            color: fallback?.color ?? card.color,
-            sources: fallback?.sources ?? [],
-          }));
+          const merged = data.brief.map((card: BriefItem) => {
+            const fallback = FALLBACK.find(f => f.variant === card.variant) || {} as any;
+            return {
+              ...fallback,
+              ...card,
+              color: fallback?.color ?? card.color,
+              sources: fallback?.sources ?? [],
+            };
+          });
           setBrief(merged);
           setCached(data.cached);
         }
