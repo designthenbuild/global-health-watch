@@ -8,6 +8,7 @@ interface BriefItem {
   color: string;
   variant: string;
   sources: { label: string; url: string; type: string }[];
+  critical?: boolean;
 }
 
 const VARIANT_SOURCES: Record<string, { label: string; url: string; type: string }[]> = {
