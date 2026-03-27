@@ -1,3 +1,6 @@
+import { NextResponse } from 'next/server';
+import Groq from 'groq';
+
 import Groq from 'groq-sdk';
 import { NextResponse } from 'next/server';
 
