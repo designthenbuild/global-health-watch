@@ -23,61 +23,26 @@ const VARIANT_COLORS: Record<string, string> = {
   PULSE: '#00C9A7',
 };
 
-const CATEGORY_FEEDS: Record<string, string[]> = {
-  THREATS: [
-    'https://www.who.int/rss-feeds/news-releases.xml',
-    'https://promedmail.org/feed/',
-    'https://www.ecdc.europa.eu/en/rss.xml',
-  ],
-  DISCOVERIES: [
-    'https://www.nejm.org/rss/current.xml',
-    'https://www.nature.com/nm.rss',
-    'https://endpts.com/feed/',
-  ],
-  LONGEVITY: [
-    'https://www.fightaging.org/feed/',
-    'https://longevity.technology/feed/',
-    'https://www.lifespan.io/feed/',
-  ],
-  'MENTAL HEALTH': [
-    'https://www.nimh.nih.gov/news/rss/nimh-all-news.xml',
-    'https://www.thelancet.com/rssfeed/lanpsy_current.xml',
-  ],
-  PERFORMANCE: [
-    'https://bjsm.bmj.com/rss/current.xml',
-    'https://www.sciencedaily.com/rss/mind_brain/sports_science.xml',
-  ],
-  INVESTMENTS: [
-    'https://www.biopharmadive.com/feeds/news/',
-    'https://www.mobihealthnews.com/feed',
-    'https://techcrunch.com/tag/health/feed/',
-  ],
-};
+async function fetchHeadlines(): Promise<Record<string, string[]>> {
+  const feeds: Array<{ url: string; variant: string }> = [
+    { url: 'https://www.who.int/rss-feeds/news-releases.xml', variant: 'THREATS' },
+    { url: 'https://www.ecdc.europa.eu/en/rss.xml', variant: 'THREATS' },
+    { url: 'https://www.nejm.org/rss/current.xml', variant: 'DISCOVERIES' },
+    { url: 'https://endpts.com/feed/', variant: 'DISCOVERIES' },
+    { url: 'https://longevity.technology/feed/', variant: 'LONGEVITY' },
+    { url: 'https://www.fightaging.org/feed/', variant: 'LONGEVITY' },
+    { url: 'https://www.nimh.nih.gov/news/rss/nimh-all-news.xml', variant: 'MENTAL HEALTH' },
+    { url: 'https://bjsm.bmj.com/rss/current.xml', variant: 'PERFORMANCE' },
+    { url: 'https://www.biopharmadive.com/feeds/news/', variant: 'INVESTMENTS' },
+    { url: 'https://www.mobihealthnews.com/feed', variant: 'INVESTMENTS' },
+  ];
 
-const CATEGORY_PROMPTS: Record<string, string> = {
-  THREATS: 'Write 2-3 sentences about the most significant current infectious disease outbreak, pandemic risk, or biosecurity threat globally. Focus only on disease/pathogen threats.',
-  DISCOVERIES: 'Write 2-3 sentences about the most exciting recent medical or biotech research breakthrough — clinical trials, drug approvals, or scientific discoveries.',
-  LONGEVITY: 'Write 2-3 sentences about the latest longevity science — senolytics, NAD+, epigenetic reprogramming, or anti-aging biotech companies like Altos Labs, Calico, or Retro Bio.',
-  'MENTAL HEALTH': 'Write 2-3 sentences about a key mental health research finding, treatment advance, or policy development — depression, anxiety, psychedelics, or burnout.',
-  PERFORMANCE: 'Write 2-3 sentences about human performance optimization — exercise science, wearables, recovery, VO2 max, sleep, or sports medicine.',
-  INVESTMENTS: 'Write 2-3 sentences about recent health investment news — biotech funding rounds, VC activity, M&A deals, or health tech valuations. Reference specific companies or deals where possible.',
-};
-
-const CATEGORY_TITLES: Record<string, string> = {
-  THREATS: 'THREAT OF THE DAY',
-  DISCOVERIES: 'DISCOVERY OF THE DAY',
-  LONGEVITY: 'LONGEVITY SIGNAL',
-  'MENTAL HEALTH': 'MENTAL HEALTH SIGNAL',
-  PERFORMANCE: 'PERFORMANCE SIGNAL',
-  INVESTMENTS: 'INVESTMENTS SIGNAL',
-};
-
-async function fetchHeadlinesForCategory(category: string): Promise<string> {
-  const urls = CATEGORY_FEEDS[category] || [];
-  const headlines: string[] = [];
+  const byVariant: Record<string, string[]> = {
+    THREATS: [], DISCOVERIES: [], LONGEVITY: [], 'MENTAL HEALTH': [], PERFORMANCE: [], INVESTMENTS: [],
+  };
 
   await Promise.allSettled(
-    urls.map(async (url) => {
+    feeds.map(async ({ url, variant }) => {
       try {
         const res = await fetch(url, {
           signal: AbortSignal.timeout(4000),
@@ -87,49 +52,14 @@ async function fetchHeadlinesForCategory(category: string): Promise<string> {
         const matches = text.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/g) || [];
         const titles = matches
           .slice(1, 4)
-          .map(t => t.replace(/<\/?title>|<!\[CDATA\[|\]\]>/g, '').trim())
-          .filter(t => t.length > 10 && t.length < 200);
-        headlines.push(...titles);
+          .map((t: string) => t.replace(/<\/?title>|<!\[CDATA\[|\]\]>/g, '').trim())
+          .filter((t: string) => t.length > 10 && t.length < 200);
+        byVariant[variant].push(...titles);
       } catch { /* skip */ }
     })
   );
 
-  return headlines.slice(0, 6).join('\n');
-}
-
-async function generateCategoryBrief(category: string): Promise<BriefItem> {
-  const headlines = await fetchHeadlinesForCategory(category);
-
-  const headlineContext = headlines
-    ? `Here are today's headlines for this category:\n${headlines}\n\nUse these as context if relevant.`
-    : `No live headlines available — use your knowledge of current ${category.toLowerCase()} trends as of early 2026.`;
-
-  const prompt = `You are the AI editor of Global Health Watch. Your task is to write a brief for ONE specific category only: ${category}.
-
-${headlineContext}
-
-${CATEGORY_PROMPTS[category]}
-
-Be globally minded — mention GCC/MENA, Europe, or Asia where relevant, not just USA.
-Return ONLY a JSON object with this exact structure, no markdown, no explanation:
-{"variant": "${category}", "title": "${CATEGORY_TITLES[category] || category}", "content": "your 2-3 sentence brief here"}`;
-
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.4,
-    max_tokens: 300,
-  });
-
-  const raw = completion.choices[0]?.message?.content || '{}';
-  const clean = raw.replace(/```json|```/g, '').trim();
-  const parsed = JSON.parse(clean);
-
-  return {
-    ...parsed,
-    variant: category, // force correct variant regardless of model output
-    color: VARIANT_COLORS[category] || '#00C9A7',
-  };
+  return byVariant;
 }
 
 export async function GET(request: Request) {
@@ -141,42 +71,57 @@ export async function GET(request: Request) {
       return NextResponse.json({ brief: cachedBrief.data, cached: true });
     }
 
-    const categories = ['THREATS', 'DISCOVERIES', 'LONGEVITY', 'MENTAL HEALTH', 'PERFORMANCE', 'INVESTMENTS'];
+    const headlines = await fetchHeadlines();
 
-    // Generate each category independently — no cross-contamination possible
-    const results = await Promise.allSettled(
-      categories.map(cat => generateCategoryBrief(cat))
-    );
+    // Format headlines by category for the prompt
+    const headlineBlock = Object.entries(headlines)
+      .map(([variant, titles]) => `${variant} HEADLINES:\n${titles.length > 0 ? titles.map(t => `- ${t}`).join('\n') : '- No headlines available, use your knowledge'}`)
+      .join('\n\n');
 
-    const brief: BriefItem[] = [];
-    for (const result of results) {
-      if (result.status === 'fulfilled') {
-        brief.push(result.value);
-      }
-    }
+    const prompt = `You are the AI editor of Global Health Watch. Write exactly 7 health briefs, one per category.
 
-    // Add PULSE summary based on what was generated
-    const pulsePrompt = `Based on these global health category summaries, write 2-3 sentences summarizing the overall global health status right now — is it calm, watch level, or elevated, and why?
+LIVE HEADLINES BY CATEGORY:
+${headlineBlock}
 
-${brief.map(b => `${b.variant}: ${b.content}`).join('\n\n')}
+RULES:
+- Each brief must ONLY cover its own category topic
+- THREATS = infectious disease outbreaks, pandemics, biosecurity only
+- DISCOVERIES = medical research, drug approvals, clinical trials only  
+- LONGEVITY = aging science, senolytics, NAD+, longevity biotech only
+- MENTAL HEALTH = psychiatry, depression, anxiety, psychedelics only
+- PERFORMANCE = exercise science, wearables, sports medicine only
+- INVESTMENTS = biotech funding, VC deals, health M&A only
+- PULSE = 2-3 sentence overall global health status summary
+- Be globally minded, mention GCC/MENA, Europe, Asia where relevant
+- Each content field: exactly 2-3 sentences
 
-Return ONLY a JSON object:
-{"variant": "PULSE", "title": "HEALTH PULSE", "content": "your 2-3 sentence summary"}`;
+Return ONLY this JSON array, no markdown:
+[
+{"variant":"THREATS","title":"THREAT OF THE DAY","content":"..."},
+{"variant":"DISCOVERIES","title":"DISCOVERY OF THE DAY","content":"..."},
+{"variant":"LONGEVITY","title":"LONGEVITY SIGNAL","content":"..."},
+{"variant":"MENTAL HEALTH","title":"MENTAL HEALTH SIGNAL","content":"..."},
+{"variant":"PERFORMANCE","title":"PERFORMANCE SIGNAL","content":"..."},
+{"variant":"INVESTMENTS","title":"INVESTMENTS SIGNAL","content":"..."},
+{"variant":"PULSE","title":"HEALTH PULSE","content":"..."}
+]`;
 
-    try {
-      const pulseCompletion = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: pulsePrompt }],
-        temperature: 0.3,
-        max_tokens: 200,
-      });
-      const pulseRaw = pulseCompletion.choices[0]?.message?.content || '{}';
-      const pulseClean = pulseRaw.replace(/```json|```/g, '').trim();
-      const pulseParsed = JSON.parse(pulseClean);
-      brief.push({ ...pulseParsed, variant: 'PULSE', color: '#00C9A7' });
-    } catch {
-      brief.push({ variant: 'PULSE', title: 'HEALTH PULSE', content: 'Global health signals at watch level. Multiple developments across biotech, mental health, and infectious disease monitoring.', color: '#00C9A7' });
-    }
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      max_tokens: 1800,
+    });
+
+    const raw = completion.choices[0]?.message?.content || '[]';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed: BriefItem[] = JSON.parse(clean);
+
+    // Force correct colors regardless of model output
+    const brief = parsed.map(item => ({
+      ...item,
+      color: VARIANT_COLORS[item.variant] || '#00C9A7',
+    }));
 
     cachedBrief = { data: brief, timestamp: Date.now() };
     return NextResponse.json({ brief, cached: false });
