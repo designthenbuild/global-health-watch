@@ -93,8 +93,8 @@ export default function AIBrief() {
             ...fallback,
             ...card,
             title: FALLBACK[i]?.title ?? card.title,
-            color: FALLBACK[i]?.color ?? card.color,
-            sources: FALLBACK[i]?.sources ?? [],
+            color: fallback?.color ?? card.color,
+            sources: fallback?.sources ?? [],
           }));
           setBrief(merged);
           setCached(data.cached);
