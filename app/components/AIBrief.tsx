@@ -148,7 +148,7 @@ export default function AIBrief() {
               }} />
             ))
           : brief.map((card, i) => {
-              const isCritical = card.variant === 'THREATS' && (card.critical || isCriticalThreat(card.content, card.critical));
+              const isCritical = card.variant === 'THREATS' && (card.critical || isCriticalThreat(card.content));
               return (
                 <div
                   key={i}
