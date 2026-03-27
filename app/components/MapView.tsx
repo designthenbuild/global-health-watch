@@ -553,7 +553,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         </div>
         <div style={{display:'flex', gap:'2px', backgroundColor:bg, border:`1px solid ${border}`, borderRadius:'8px', padding:'3px'}}>
           {([['both','Both'],['live','● Live'],['directory','○ Directory']] as const).map(([mode,label]) => (
-            <button key={mode} onClick={() => setMapMode(mode as 'both'|'live'|'directory')} style={{backgroundColor: mapMode===mode ? (isDark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)') : 'transparent', color: mapMode===mode ? textPrimary : textMuted, border:'1px solid transparent', borderRadius:'5px', padding:'3px 9px', fontSize:'11px', fontWeight:600, cursor:'pointer', transition:'all 0.15s', whiteSpace:'nowrap'}}>
+            <button key={mode} onClick={() => setMapMode(mode as 'both'|'live'|'directory')} style={{backgroundColor: mapMode===mode ? (isDark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)') : 'transparent', color: mapMode===mode ? textPrimary : textMuted, border:'1px solid transparent', borderRadius:'5px', padding:'3px 9px', fontSize:'11px', fontWeight:600, cursor:'pointer', transition:'all 0.15s', whiteSpace:'nowrap'}}  title={mode==='both'?'Show both live and directory':mode==='live'?'Live news events on the map':'Curated health organisations and clinics'}>
               {label}
             </button>
           ))}
