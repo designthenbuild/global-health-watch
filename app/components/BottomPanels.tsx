@@ -331,10 +331,27 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
               Loading...
             </div>
           ) : filteredItems.length === 0 ? (
-            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              {selectedCompany
-                ? <span>No recent stories for <strong style={{ color }}>{selectedCompany}</strong>. <button onClick={() => setSelectedCompany(null)} style={{ background: 'none', border: 'none', color, cursor: 'pointer', fontSize: '12px', fontWeight: 700, padding: 0 }}>Clear filter ×</button></span>
-                : 'No stories right now.'}
+            <div style={{ padding: '16px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+              {selectedCompany ? (
+                <div>
+                  <span>No recent stories for <strong style={{ color }}>{selectedCompany}</strong> in {label}.</span>
+                  <br />
+                  <span style={{ fontSize: '11px', opacity: 0.7 }}>This company may be covered in other categories. </span>
+                  <button
+                    onClick={() => {
+                      setSelectedCompany(null);
+                      const searchEl = document.querySelector('input[placeholder*="WHOOP"]') as HTMLInputElement || document.querySelector('.company-global-search') as HTMLInputElement;
+                      if (searchEl) { searchEl.focus(); searchEl.value = selectedCompany; searchEl.dispatchEvent(new Event('input', { bubbles: true })); }
+                      window.scrollTo({ top: document.querySelector('.company-search-bar')?.getBoundingClientRect().top ?? 0, behavior: 'smooth' });
+                    }}
+                    style={{ background: 'none', border: 'none', color, cursor: 'pointer', fontSize: '11px', fontWeight: 700, padding: 0, textDecoration: 'underline' }}
+                  >
+                    Search all categories ↗
+                  </button>
+                  <br />
+                  <button onClick={() => setSelectedCompany(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '10px', padding: 0, marginTop: '4px', opacity: 0.5 }}>Clear filter ×</button>
+                </div>
+              ) : 'No stories right now.'}
             </div>
           ) : (
             <>
@@ -738,17 +755,21 @@ function CompanySearch() {
   return (
     <div style={{ marginBottom: '16px' }}>
       {modal && <StoryModal item={modal} topicColor={TAG_COLORS[(modal as any).tag] || '#888'} topicLabel={(modal as any).tag || ''} onClose={() => setModal(null)} />}
-      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '10px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '10px', overflow: 'hidden', transition: 'border-color 0.2s' }} className="company-search-bar">
+        {/* Header */}
+        <div style={{ padding: '10px 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '0.1em', opacity: 0.6 }}>🔍 COMPANY SEARCH</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4 }}>· search across all categories</span>
+        </div>
         {/* Search bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}>
-          <span style={{ fontSize: '13px', opacity: 0.4, flexShrink: 0 }}>🔍</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px 10px' }}>
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') doSearch(query); }}
             onFocus={() => setActive(true)}
-            placeholder={isMobile ? 'Search company across all categories...' : 'Search any company across all categories — e.g. WHOOP, Neko Health, Altos Labs...'}
-            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: isMobile ? '16px' : '13px', color: 'var(--text-primary)', minWidth: 0 }}
+            placeholder={isMobile ? 'e.g. WHOOP, Neko Health, Altos Labs...' : 'e.g. WHOOP, Neko Health, Altos Labs, Oura, Moderna...'}
+            style={{ flex: 1, background: 'var(--bg-primary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '8px', outline: 'none', fontSize: isMobile ? '16px' : '13px', color: 'var(--text-primary)', padding: '8px 12px', minWidth: 0, transition: 'border-color 0.2s' }}
           />
           {query && (
             <button onClick={clear} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', opacity: 0.4, flexShrink: 0, padding: 0 }}>×</button>
