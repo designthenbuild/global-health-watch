@@ -545,7 +545,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
       {/* TOP CENTER */}
       <div style={{position:'absolute', top:'12px', left:'50%', transform:'translateX(-50%)', zIndex:1000, display:'flex', gap:'6px', alignItems:'center'}}>
         <div style={{display:'flex', gap:'2px', backgroundColor:bg, border:`1px solid ${border}`, borderRadius:'8px', padding:'3px'}}>
-          {(['1h','24h','7d','all'] as const).map(t => (
+          {((['24h','all'] as const)).map(t => (
             <button key={t} onClick={() => setTimeFilter(t)} style={{backgroundColor: timeFilter===t ? 'rgba(0,201,167,0.2)' : 'transparent', color: timeFilter===t ? '#00C9A7' : textMuted, border: timeFilter===t ? '1px solid rgba(0,201,167,0.4)' : '1px solid transparent', borderRadius:'5px', padding:'3px 10px', fontSize:'11px', fontWeight:600, cursor:'pointer', transition:'all 0.15s'}}>
               {t.toUpperCase()}
             </button>
