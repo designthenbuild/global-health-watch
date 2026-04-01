@@ -689,12 +689,128 @@ function LiveCounters() {
   );
 }
 
+const TAG_COLORS: Record<string, string> = {
+  LONGEVITY: '#059669', PERFORMANCE: '#2563EB', INVESTMENTS: '#D97706',
+  'MENTAL HEALTH': '#7C3AED', DISCOVERIES: '#00B4D8', THREATS: '#E63946',
+  RECALLS: '#F97316', UPDATE: '#888',
+};
+
+function CompanySearch() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState('');
+  const [active, setActive] = useState(false);
+  const [modal, setModal] = useState<ModalItem | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  async function doSearch(term: string) {
+    if (!term.trim()) return;
+    setLoading(true);
+    setSearched(term.trim());
+    setActive(true);
+    try {
+      const res = await fetch('/api/feed?tab=ALL');
+      const data = await res.json();
+      const items: FeedItem[] = data.items ?? [];
+      const lower = term.toLowerCase();
+      const filtered = items.filter(item =>
+        item.headline.toLowerCase().includes(lower) ||
+        item.source.toLowerCase().includes(lower) ||
+        (item.summary || '').toLowerCase().includes(lower)
+      );
+      setResults(filtered);
+    } catch { setResults([]); }
+    setLoading(false);
+  }
+
+  function clear() {
+    setQuery(''); setSearched(''); setResults([]); setActive(false);
+  }
+
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      {modal && <StoryModal item={modal} topicColor={TAG_COLORS[(modal as any).tag] || '#888'} topicLabel={(modal as any).tag || ''} onClose={() => setModal(null)} />}
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '10px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
+        {/* Search bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}>
+          <span style={{ fontSize: '13px', opacity: 0.4, flexShrink: 0 }}>🔍</span>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') doSearch(query); }}
+            onFocus={() => setActive(true)}
+            placeholder={isMobile ? 'Search company across all categories...' : 'Search any company across all categories — e.g. WHOOP, Neko Health, Altos Labs...'}
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: isMobile ? '16px' : '13px', color: 'var(--text-primary)', minWidth: 0 }}
+          />
+          {query && (
+            <button onClick={clear} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', opacity: 0.4, flexShrink: 0, padding: 0 }}>×</button>
+          )}
+          <button
+            onClick={() => doSearch(query)}
+            disabled={!query.trim() || loading}
+            style={{ backgroundColor: query.trim() ? '#00C9A7' : 'transparent', border: `1px solid ${query.trim() ? '#00C9A7' : 'var(--border-color)'}`, borderRadius: '6px', padding: '5px 14px', fontSize: '11px', fontWeight: 700, color: query.trim() ? '#000' : 'var(--text-secondary)', cursor: query.trim() ? 'pointer' : 'default', flexShrink: 0, transition: 'all 0.15s' }}
+          >
+            {loading ? '···' : 'Search'}
+          </button>
+        </div>
+
+        {/* Results */}
+        {searched && !loading && (
+          <div style={{ borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ padding: '7px 14px', fontSize: '10px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ fontWeight: 700, color: results.length > 0 ? '#00C9A7' : 'var(--text-secondary)' }}>{results.length} stories</span>
+              <span>mentioning</span>
+              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{searched}</span>
+              <span>across all categories</span>
+              <button onClick={clear} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '10px', opacity: 0.5 }}>Clear ×</button>
+            </div>
+            {results.length === 0 ? (
+              <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                No recent stories mentioning <strong style={{ color: '#00C9A7' }}>{searched}</strong>. The company may not have been covered in the last 30 days, or try a shorter search term.
+              </div>
+            ) : (
+              <div style={{ maxHeight: isMobile ? '50vh' : '480px', overflowY: 'auto' }}>
+                {results.map((item, i) => {
+                  const tagColor = TAG_COLORS[item.tag] || '#888';
+                  return (
+                    <div key={i}
+                      onClick={() => setModal({ ...(item as any), headline: item.headline, source: item.source, time: item.time, link: item.link, image: item.image, summary: item.summary })}
+                      style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.06)')}
+                      onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: tagColor, backgroundColor: `${tagColor}15`, border: `1px solid ${tagColor}30`, borderRadius: '4px', padding: '1px 6px', letterSpacing: '0.06em', flexShrink: 0 }}>{item.tag}</span>
+                        <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>{item.source} · {item.time}</span>
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.headline}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function BottomPanels() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 16px 32px' }}>
       <div style={{ marginBottom: '20px' }}>
         <AskTheWatch />
       </div>
+      <CompanySearch />
       <div className="feed-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
         <TopicCard topicId="PERFORMANCE" label="Performance" color="#2563EB" />
