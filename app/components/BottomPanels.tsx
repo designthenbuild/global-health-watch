@@ -755,31 +755,38 @@ function CompanySearch() {
   return (
     <div style={{ marginBottom: '16px' }}>
       {modal && <StoryModal item={modal} topicColor={TAG_COLORS[(modal as any).tag] || '#888'} topicLabel={(modal as any).tag || ''} onClose={() => setModal(null)} />}
-      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '10px', overflow: 'hidden', transition: 'border-color 0.2s' }} className="company-search-bar">
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '16px', overflow: 'hidden', transition: 'border-color 0.2s', boxShadow: active ? '0 0 0 1px rgba(0,201,167,0.08), 0 4px 24px rgba(0,201,167,0.06)' : 'none' }} className="company-search-bar">
         {/* Header */}
-        <div style={{ padding: '10px 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '0.1em', opacity: 0.6 }}>🔍 COMPANY SEARCH</span>
-          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.4 }}>· search across all categories</span>
+        <div style={{ padding: isMobile ? '16px 16px 12px' : '20px 28px 14px', background: 'linear-gradient(135deg, rgba(0,201,167,0.05) 0%, transparent 100%)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 900, color: '#00C9A7', letterSpacing: '0.08em' }}>COMPANY SEARCH</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>· latest news across all categories</span>
         </div>
-        {/* Search bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px 10px' }}>
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') doSearch(query); }}
-            onFocus={() => setActive(true)}
-            placeholder={isMobile ? 'e.g. WHOOP, Neko Health, Altos Labs...' : 'e.g. WHOOP, Neko Health, Altos Labs, Oura, Moderna...'}
-            style={{ flex: 1, background: 'var(--bg-primary)', border: `1px solid ${active ? 'rgba(0,201,167,0.4)' : 'var(--border-color)'}`, borderRadius: '8px', outline: 'none', fontSize: isMobile ? '16px' : '13px', color: 'var(--text-primary)', padding: '8px 12px', minWidth: 0, transition: 'border-color 0.2s' }}
-          />
+        {/* Search input */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: isMobile ? '12px 16px 16px' : '16px 28px 20px' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-primary)', border: `1.5px solid ${active ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`, borderRadius: '12px', padding: '0 14px', gap: '10px', transition: 'all 0.2s', boxShadow: active ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none' }}>
+            <span style={{ fontSize: '14px', opacity: 0.4, flexShrink: 0 }}>🔍</span>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') doSearch(query); }}
+              onFocus={() => setActive(true)}
+              onBlur={() => !query && setActive(false)}
+              placeholder={isMobile ? 'e.g. WHOOP, Neko Health, Altos Labs...' : 'Search any company — e.g. WHOOP, Neko Health, Altos Labs, Oura, Moderna...'}
+              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: isMobile ? '16px' : '14px', color: 'var(--text-primary)', padding: '14px 0', minWidth: 0 }}
+            />
+            {query && (
+              <button onClick={clear} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px', opacity: 0.35, flexShrink: 0, padding: 0 }}>×</button>
+            )}
+          </div>
           {query && (
             <button onClick={clear} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', opacity: 0.4, flexShrink: 0, padding: 0 }}>×</button>
           )}
           <button
             onClick={() => doSearch(query)}
             disabled={!query.trim() || loading}
-            style={{ backgroundColor: query.trim() ? '#00C9A7' : 'transparent', border: `1px solid ${query.trim() ? '#00C9A7' : 'var(--border-color)'}`, borderRadius: '6px', padding: '5px 14px', fontSize: '11px', fontWeight: 700, color: query.trim() ? '#000' : 'var(--text-secondary)', cursor: query.trim() ? 'pointer' : 'default', flexShrink: 0, transition: 'all 0.15s' }}
+            style={{ backgroundColor: loading || !query.trim() ? 'rgba(0,201,167,0.12)' : '#00C9A7', border: 'none', borderRadius: '12px', padding: isMobile ? '14px 18px' : '16px 28px', fontSize: '14px', fontWeight: 800, color: loading || !query.trim() ? 'rgba(0,201,167,0.4)' : '#000', cursor: query.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
           >
-            {loading ? '···' : 'Search'}
+            {loading ? '···' : '↑ Search'}
           </button>
         </div>
 

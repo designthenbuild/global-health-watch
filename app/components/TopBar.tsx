@@ -146,7 +146,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
             );
           })}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
-            <button onClick={onMyHealth} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>My Health</button>
+            
             <button onClick={onShare} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', cursor: 'pointer' }}>Share</button>
             <button onClick={toggleTheme} style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '13px', cursor: 'pointer' }} title="Toggle theme">
               {isDark ? '☀️' : '🌙'}
@@ -196,14 +196,7 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
               </button>
               {showMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '8px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', minWidth: '160px', zIndex: 100 }}>
-                  <button
-                    onClick={() => { onMyHealth(); setShowMenu(false); }}
-                    style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px 14px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.08)')}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    <span>🫀</span> My Health
-                  </button>
+
                   <button
                     onClick={() => { onShare(); setShowMenu(false); }}
                     style={{ width: '100%', backgroundColor: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px 14px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}
