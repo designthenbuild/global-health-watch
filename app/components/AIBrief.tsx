@@ -69,8 +69,8 @@ const FALLBACK: BriefItem[] = [
   { title: 'HEALTH PULSE', icon: '🌐', content: 'Global signals at Watch level. No critical escalations. 3 active outbreak investigations, 2 elevated regional alerts.', color: '#00C9A7', variant: 'PULSE', sources: VARIANT_SOURCES['PULSE'] },
 ];
 
-const CRITICAL_KEYWORDS = [
-  'pandemic', 'epidemic', 'pheic declared', 'who declares pheic',
+const CRITICAL_KEYWORDS = [ // Only trigger on ACTIVE declared emergencies, not historical mentions
+  'pandemic', 'epidemic', 'pheic declared', 'declares public health emergency', 'outbreak declared emergency', 'who declares pheic',
   'mass casualty', 'bioterrorism', 'chemical attack declared',
 ];
 
