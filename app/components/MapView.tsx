@@ -568,7 +568,7 @@ export default function MapView({ activeVariants, region, isDark = true }: {
         </div>
         <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
           <div style={{width:'9px', height:'9px', borderRadius:'50%', backgroundColor: isDark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.5)', boxShadow:'0 0 5px rgba(128,128,128,0.4)'}} />
-          <span style={{fontSize:'9px', color:textMuted}}>Live ({counts.live})</span>
+          <span style={{fontSize:'9px', color:textMuted}}>News ({counts.live})</span>
         </div>
         <div style={{width:'1px', height:'12px', backgroundColor:border}} />
         {Object.entries(TOPIC_COLORS).map(([topic, color]) => (
