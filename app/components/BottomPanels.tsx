@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getCompaniesForCategory } from '../config/companies';
 
 const COUNTER_TABS = {
   THREATS: {
@@ -240,6 +241,8 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [modal, setModal] = useState<ModalItem | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const companies = getCompaniesForCategory(topicId);
 
   useEffect(() => {
     setLoading(true);
@@ -249,8 +252,16 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
       .catch(() => setLoading(false));
   }, [topicId]);
 
-  const lead = items[0];
-  const rest = items.slice(1);
+  const filteredItems = selectedCompany
+    ? items.filter(item =>
+        item.headline.toLowerCase().includes(selectedCompany.toLowerCase()) ||
+        item.source.toLowerCase().includes(selectedCompany.toLowerCase()) ||
+        (item.summary || '').toLowerCase().includes(selectedCompany.toLowerCase())
+      )
+    : items;
+
+  const lead = filteredItems[0];
+  const rest = filteredItems.slice(1);
   const visible = expanded ? rest : rest.slice(0, 2);
   const hasMore = rest.length > 2;
 
@@ -262,6 +273,7 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
         style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s' }}
         onMouseEnter={e => (e.currentTarget.style.borderColor = `${color}55`)}
         onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-color)')}>
+
         {/* Header */}
         <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: `linear-gradient(90deg, ${color}12 0%, transparent 100%)` }}>
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
@@ -270,19 +282,60 @@ function TopicCard({ topicId, label, color }: { topicId: string; label: string; 
             <span
               onClick={expanded ? () => setExpanded(false) : undefined}
               style={{ marginLeft: 'auto', fontSize: '10px', color: expanded ? color : 'var(--text-secondary)', opacity: expanded ? 0.9 : 0.4, cursor: expanded ? 'pointer' : 'default', letterSpacing: '0.06em', fontWeight: expanded ? 700 : 400, userSelect: 'none' }}>
-              {expanded ? '↑ SHOW LESS' : `${items.length} stories`}
+              {selectedCompany ? `${filteredItems.length} stories` : expanded ? '↑ SHOW LESS' : `${items.length} stories`}
             </span>
           )}
         </div>
-        {/* Content — no fixed height, natural content flow on mobile */}
+
+        {/* Company filter pills */}
+        {companies.length > 0 && (
+          <div style={{ position: 'relative', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
+            <div className="company-pills-scroll" style={{ display: 'flex', gap: '5px', padding: '6px 10px', overflowX: 'auto', paddingRight: '32px' }}>
+              {companies.map(company => {
+                const isActive = selectedCompany === company.name;
+                return (
+                  <button
+                    key={company.name}
+                    onClick={() => { setSelectedCompany(isActive ? null : company.name); setExpanded(false); }}
+                    title={company.description}
+                    style={{
+                      backgroundColor: isActive ? `${color}18` : 'transparent',
+                      border: `1px solid ${isActive ? color : 'var(--border-color)'}`,
+                      borderRadius: '20px',
+                      padding: '3px 10px',
+                      fontSize: '10px',
+                      fontWeight: isActive ? 700 : 400,
+                      color: isActive ? color : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      transition: 'all 0.15s',
+                      minHeight: '26px',
+                    }}
+                  >
+                    {company.name}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Fade right edge to signal more pills */}
+            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '32px', background: `linear-gradient(to right, transparent, var(--bg-secondary))`, pointerEvents: 'none' }} />
+          </div>
+        )}
+
+        {/* Content */}
         <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {loading ? (
             <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color, animation: 'pulseDot 1s infinite' }} />
               Loading...
             </div>
-          ) : items.length === 0 ? (
-            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>No stories right now.</div>
+          ) : filteredItems.length === 0 ? (
+            <div style={{ padding: '20px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              {selectedCompany
+                ? <span>No recent stories for <strong style={{ color }}>{selectedCompany}</strong>. <button onClick={() => setSelectedCompany(null)} style={{ background: 'none', border: 'none', color, cursor: 'pointer', fontSize: '12px', fontWeight: 700, padding: 0 }}>Clear filter ×</button></span>
+                : 'No stories right now.'}
+            </div>
           ) : (
             <>
               {lead.image && (
@@ -513,14 +566,11 @@ function AskTheWatch() {
       transition: 'all 0.3s ease',
       boxShadow: '0 0 0 1px rgba(0,201,167,0.08), 0 4px 24px rgba(0,201,167,0.06)',
     }}>
-
-      {/* Header */}
       <div style={{
         padding: isMobile ? '16px' : '20px 28px',
         background: 'linear-gradient(135deg, rgba(0,201,167,0.07) 0%, rgba(0,201,167,0.02) 50%, transparent 100%)',
         borderBottom: '1px solid var(--border-color)',
       }}>
-        {/* Title row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', width: '10px', height: '10px', flexShrink: 0 }}>
@@ -544,8 +594,6 @@ function AskTheWatch() {
             </button>
           )}
         </div>
-
-        {/* Input at top when not yet expanded */}
         {!expanded && (
           <>
             <div style={{ marginBottom: '10px' }}>{inputBar}</div>
@@ -557,8 +605,6 @@ function AskTheWatch() {
           </>
         )}
       </div>
-
-      {/* Suggestion chips — only when not expanded */}
       {!expanded && (
         <div style={{ padding: isMobile ? '12px 16px 16px' : '14px 28px 20px' }}>
           <div className="chips-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
@@ -572,8 +618,6 @@ function AskTheWatch() {
           </div>
         </div>
       )}
-
-      {/* Chat messages */}
       {expanded && (
         <div style={{ maxHeight: isMobile ? '60vh' : '480px', overflowY: 'auto', padding: isMobile ? '16px' : '24px 28px 8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {messages.map((m, i) => (
@@ -600,8 +644,6 @@ function AskTheWatch() {
           <div ref={chatEndRef} />
         </div>
       )}
-
-      {/* Input at bottom when conversation active */}
       {expanded && (
         <div style={{
           padding: isMobile ? '12px 16px 16px' : '16px 28px 20px',
@@ -617,16 +659,8 @@ function AskTheWatch() {
 
 function LiveCounters() {
   const [counterTab, setCounterTab] = useState('THREATS');
-  const [isMobile, setIsMobile] = useState(false);
   const activeCounterData = COUNTER_TABS[counterTab as keyof typeof COUNTER_TABS];
   const counterTabKeys = ['THREATS', 'DISCOVERIES', 'MENTAL HEALTH', 'LONGEVITY', 'PERFORMANCE', 'INVESTMENTS'];
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   const tabStyle = (active: boolean, color: string) => ({
     backgroundColor: active ? color : 'transparent',
@@ -644,7 +678,6 @@ function LiveCounters() {
           <div style={{ fontWeight: '700', fontSize: '13px', color: activeCounterData.color }}>LIVE COUNTERS</div>
           <div style={{ fontSize: '9px', color: 'var(--text-secondary)', opacity: 0.45, marginLeft: 'auto' }}>est. from annual data</div>
         </div>
-        {/* Tab strip — horizontal scroll on mobile */}
         <div className="counter-tabs-scroll" style={{ display: 'flex', gap: '4px', overflowX: 'auto' }}>
           {counterTabKeys.map(t => <button key={t} style={tabStyle(counterTab === t, COUNTER_TABS[t as keyof typeof COUNTER_TABS].color)} onClick={() => setCounterTab(t)}>{t}</button>)}
         </div>
@@ -659,12 +692,9 @@ function LiveCounters() {
 export default function BottomPanels() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', padding: '0 16px 32px' }}>
-      {/* Ask the Watch */}
       <div style={{ marginBottom: '20px' }}>
         <AskTheWatch />
       </div>
-
-      {/* Feed cards grid */}
       <div className="feed-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
         <TopicCard topicId="LONGEVITY" label="Longevity" color="#059669" />
         <TopicCard topicId="PERFORMANCE" label="Performance" color="#2563EB" />
@@ -691,23 +721,20 @@ export default function BottomPanels() {
           border-color: rgba(0,201,167,0.4) !important;
         }
         .chips-scroll::-webkit-scrollbar,
-        .counter-tabs-scroll::-webkit-scrollbar { display: none; }
+        .counter-tabs-scroll::-webkit-scrollbar,
+        .company-pills-scroll::-webkit-scrollbar { display: none; }
         .chips-scroll,
-        .counter-tabs-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .counter-tabs-scroll,
+        .company-pills-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Desktop: fixed height on cards */
         @media (min-width: 641px) {
           .topic-card { height: 420px; }
           .live-counters { height: 420px; grid-column: span 2; }
         }
-
-        /* Tablet */
         @media (max-width: 1024px) and (min-width: 641px) {
           .feed-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .live-counters { grid-column: span 2 !important; }
         }
-
-        /* Mobile: single column, no fixed heights */
         @media (max-width: 640px) {
           .feed-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
           .topic-card { height: auto !important; min-height: 200px; }
