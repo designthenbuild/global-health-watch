@@ -260,7 +260,11 @@ export default function TopBar({ activeVariants = [], toggleVariant, region, set
               <span style={{ fontWeight: '800', fontSize: '18px', color: pulse.color }}>{pulse.label}</span>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: '1.6', marginBottom: '12px' }}>{getPulseExplanation(pulse.score)}</p>
-            <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{pulse.reason}</p>
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '16px' }}>{pulse.reason}</p>
+            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>What is Health Pulse?</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>A real-time AI snapshot of global health — synthesized from live signals across threats, discoveries, longevity, mental health, performance, and investments. Updated every hour.</p>
+            </div>
           </div>
         </div>
       )}
