@@ -762,7 +762,7 @@ function CompanySearch() {
           <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.5 }}>· latest news across all categories</span>
         </div>
         {/* Search input */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: isMobile ? '12px 16px 16px' : '16px 28px 20px' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '8px', padding: isMobile ? '12px 16px 16px' : '16px 28px 20px' }}>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-primary)', border: `1.5px solid ${active ? '#00C9A7' : 'rgba(0,201,167,0.2)'}`, borderRadius: '12px', padding: '0 14px', gap: '10px', transition: 'all 0.2s', boxShadow: active ? '0 0 0 3px rgba(0,201,167,0.12)' : 'none' }}>
             <span style={{ fontSize: '14px', opacity: 0.4, flexShrink: 0 }}>🔍</span>
             <input
