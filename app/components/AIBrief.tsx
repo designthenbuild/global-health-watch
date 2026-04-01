@@ -70,7 +70,7 @@ const FALLBACK: BriefItem[] = [
 ];
 
 const CRITICAL_KEYWORDS = [ // Only trigger on ACTIVE declared emergencies, not historical mentions
-  'pandemic', 'epidemic', 'pheic declared', 'declares public health emergency', 'outbreak declared emergency', 'who declares pheic',
+  'pheic declared', 'declares public health emergency', 'outbreak declared emergency', 'who declares pheic',
   'mass casualty', 'bioterrorism', 'chemical attack declared',
 ];
 
